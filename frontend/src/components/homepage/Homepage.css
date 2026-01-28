@@ -1,0 +1,93 @@
+/* Root backgrounds */
+.homepage-root {
+  background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+}
+
+.homepage-topbar {
+  background: rgba(30, 58, 138, 0.65);
+  backdrop-filter: blur(6px);
+}
+
+.homepage-nav {
+  background: transparent;
+}
+
+.logo-badge {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+}
+
+/* Hero styles */
+.hero-bg-text {
+  font-weight: 800;
+  font-size: 15vw;
+  color: #ffffff;
+  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.25);
+}
+
+.stroke-heading {
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 800;
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.3);
+  margin-bottom: 0.5rem;
+}
+
+.main-heading {
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  color: #ffffff;
+  text-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  margin-bottom: 2rem;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: #c7d2fe;
+  margin-bottom: 2.5rem;
+  max-width: 36rem;
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+.glass-icon {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* Animations */
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
+}
+.homepage-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes bounceSoft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.homepage-bounce-3s {
+  animation: bounceSoft 3s ease-in-out infinite;
+}
+.homepage-bounce-4s {
+  animation: bounceSoft 4s ease-in-out infinite;
+}
+
+@keyframes pulseSoft {
+  0% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.9; }
+}
+.homepage-pulse {
+  animation: pulseSoft 3.6s ease-in-out infinite;
+}
+
