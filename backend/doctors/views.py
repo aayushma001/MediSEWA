@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from .utils import DoctorChatService
+from .utils import DoctorChatService, process_signature
 from .serializers import DoctorProfileSerializer
 from rest_framework import generics
 
@@ -35,3 +35,15 @@ class DoctorProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user.doctor
+
+    def perform_update(self, serializer):
+        signature = self.request.data.get('signature')
+        if signature:
+            # simple check if it looks like a base64 string
+            if signature.startswith('data:image'):
+                 processed_sig = process_signature(signature)
+                 serializer.save(signature=processed_sig)
+            else:
+                 serializer.save()
+        else:
+            serializer.save()

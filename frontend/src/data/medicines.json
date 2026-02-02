@@ -1,0 +1,17 @@
+[
+  { "name": "Paracetamol", "type": "Tablet" },
+  { "name": "Ibuprofen", "type": "Tablet" },
+  { "name": "Amoxicillin", "type": "Capsule" },
+  { "name": "Ciprofloxacin", "type": "Tablet" },
+  { "name": "Metformin", "type": "Tablet" },
+  { "name": "Amlodipine", "type": "Tablet" },
+  { "name": "Omeprazole", "type": "Capsule" },
+  { "name": "Simvastatin", "type": "Tablet" },
+  { "name": "Losartan", "type": "Tablet" },
+  { "name": "Azithromycin", "type": "Tablet" },
+  { "name": "Cetirizine", "type": "Tablet" },
+  { "name": "Metronidazole", "type": "Tablet" },
+  { "name": "Pantoprazole", "type": "Tablet" },
+  { "name": "Gabapentin", "type": "Capsule" },
+  { "name": "Tramadol", "type": "Tablet" }
+]

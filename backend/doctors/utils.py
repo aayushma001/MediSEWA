@@ -8,6 +8,9 @@ from langchain_core.documents import Document
 from langchain_core.embeddings import FakeEmbeddings # Using FakeEmbeddings to avoid extra cost/setup for now, or use GoogleGenerativeAIEmbeddings
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from django.conf import settings
+import base64
+import numpy as np
+import cv2
 
 # Initialize Embeddings
 # For persistent storage, we'd ideally use real embeddings. 
@@ -106,3 +109,91 @@ STRICT GUIDELINES:
             return ai_text
         except Exception as e:
             return f"Error connecting to AI service: {str(e)}"
+
+def process_signature(base64_str):
+    """
+    Process signature image:
+    1. Decode base64
+    2. Convert to grayscale
+    3. Threshold to extract signature strokes
+    4. Crop to content
+    5. Convert to transparent PNG
+    """
+    if not base64_str or ',' not in base64_str:
+        return base64_str
+
+    try:
+        header, encoded = base64_str.split(',', 1)
+        nparr = np.frombuffer(base64.b64decode(encoded), np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_UNCHANGED)
+
+        if img is None:
+            return base64_str
+
+        # Convert to grayscale
+        if len(img.shape) == 3:
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        elif len(img.shape) == 4:
+            gray = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
+        else:
+            gray = img
+
+        # Denoise
+        blur = cv2.GaussianBlur(gray, (5, 5), 0)
+        
+        # Adaptive Thresholding - robust for different lighting
+        # Result: White signature on Black background (THRESH_BINARY_INV)
+        thresh = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
+        
+        # Find contours to crop
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        x_min, y_min = float('inf'), float('inf')
+        x_max, y_max = float('-inf'), float('-inf')
+        
+        has_content = False
+        if contours:
+            for cnt in contours:
+                x, y, w, h = cv2.boundingRect(cnt)
+                if w * h > 50: # Filter tiny noise
+                    x_min = min(x_min, x)
+                    y_min = min(y_min, y)
+                    x_max = max(x_max, x + w)
+                    y_max = max(y_max, y + h)
+                    has_content = True
+        
+        if has_content:
+            padding = 10
+            h_img, w_img = img.shape[:2]
+            x_min = max(0, int(x_min) - padding)
+            y_min = max(0, int(y_min) - padding)
+            x_max = min(w_img, int(x_max) + padding)
+            y_max = min(h_img, int(y_max) + padding)
+            
+            # Crop the threshold which is our mask
+            mask = thresh[y_min:y_max, x_min:x_max]
+            h_final, w_final = mask.shape
+        else:
+            mask = thresh
+            h_final, w_final = mask.shape
+
+        # Create BGRA image (Black signature, Transparent background)
+        result = np.zeros((h_final, w_final, 4), dtype=np.uint8)
+        
+        # Set RGB to Black (0,0,0)
+        result[:, :, 0] = 0 
+        result[:, :, 1] = 0
+        result[:, :, 2] = 0
+        
+        # Set Alpha to mask (White pixels in mask become Opaque)
+        result[:, :, 3] = mask
+        
+        # Encode back to PNG base64
+        retval, buffer = cv2.imencode('.png', result)
+        png_as_text = base64.b64encode(buffer).decode('utf-8')
+        
+        return f"data:image/png;base64,{png_as_text}"
+
+    except Exception as e:
+        print(f"Error processing signature: {e}")
+        return base64_str

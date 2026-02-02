@@ -166,13 +166,17 @@ export const PrescriptionForm: React.FC<PrescriptionFormProps> = ({ doctor, pati
 
                 <div className="flex flex-col md:flex-row justify-between items-end pt-8 border-t gap-8">
                     <div className="space-y-4 flex-1">
-                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Doctor Signature</h3>
+                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Doctor Digital Signature</h3>
                         {doctor.signature ? (
-                            <div className="border-b-2 border-gray-300 w-64 pb-2">
-                                <img src={doctor.signature} alt="Signature" className="h-12 object-contain" />
+                            <div className="bg-white p-3 rounded-2xl border border-blue-100 shadow-sm w-fit">
+                                <img src={doctor.signature} alt="Signature" className="h-10 object-contain" />
+                                <p className="text-[10px] text-blue-600 font-bold uppercase mt-1">Verified from Profile</p>
                             </div>
                         ) : (
-                            <p className="text-sm text-red-500 italic font-medium">Please capture your signature in profile settings</p>
+                            <div className="flex items-center text-blue-600 bg-blue-50 px-4 py-2 rounded-xl border border-blue-100 italic text-xs">
+                                <FileText size={14} className="mr-2" />
+                                <span>Signature will be applied from profile</span>
+                            </div>
                         )}
                         <p className="text-sm font-bold text-gray-900 uppercase">Dr. {doctor.user.first_name} {doctor.user.last_name}</p>
                     </div>
@@ -186,7 +190,6 @@ export const PrescriptionForm: React.FC<PrescriptionFormProps> = ({ doctor, pati
                             className="flex-1 md:flex-none bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-200"
                             onClick={handleGeneratePDF}
                             loading={loading}
-                            disabled={!doctor.signature}
                         >
                             <Send size={18} className="mr-2" /> Finalize & Send PDF
                         </Button>
