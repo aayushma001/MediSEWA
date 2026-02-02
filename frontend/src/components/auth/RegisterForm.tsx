@@ -22,13 +22,15 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading })
     userType: 'patient',
     street_no: '',
     province: '',
+    city: '',
     blood_group: '',
     health_allergies: '',
     recent_checkups: '',
     illnessDescription: '',
     fatherName: '',
     hospitalName: '',
-    address: ''
+    address: '',
+    nid: ''
   });
 
   useEffect(() => {
@@ -40,7 +42,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading })
         console.error('Failed to fetch doctors:', error);
       }
     };
-    
+
     if (formData.userType === 'patient') {
       fetchDoctors();
     }
@@ -48,12 +50,12 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.confirmPassword) {
       alert('Passwords do not match');
       return;
     }
-    
+
     if (formData.userType === 'patient') {
       setShowConsent(true);
     } else {
@@ -99,7 +101,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading })
                   <strong>5. Consent Revocation:</strong> I acknowledge that I have the right to revoke this consent at any time by contacting the hospital administration, understanding that this may affect the quality of care provided.
                 </p>
               </div>
-              
+
               <div className="flex items-center gap-4 pt-4">
                 <Button
                   onClick={handleConsentSubmit}
@@ -120,226 +122,237 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading })
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">      
-      <Select
-        name="userType"
-        label="I am a"
-        value={formData.userType}
-        onChange={handleChange}
-        options={[
-          { value: 'patient', label: 'Patient' },
-          { value: 'doctor', label: 'Doctor' },
-          { value: 'hospital', label: 'Hospital Admin' }
-        ]}
-        required
-      />
-      
-      <Input
-        name="name"
-        type="text"
-        label="Full Name"
-        value={formData.name}
-        onChange={handleChange}
-        required
-      />
-      
-      {formData.userType === 'patient' && (
-        <>
-          <Input
-            name="fatherName"
-            type="text"
-            label="Father's Name"
-            value={formData.fatherName || ''}
-            onChange={handleChange}
-            required
-          />
-
-          <div className="grid grid-cols-3 gap-4">
-            <Input
-              name="street_no"
-              type="text"
-              label="Street No"
-              value={formData.street_no || ''}
-              onChange={handleChange}
-              placeholder="e.g. 123"
-              required
-            />
-            <Input
-              name="province"
-              type="text"
-              label="Province"
-              value={formData.province || ''}
-              onChange={handleChange}
-              placeholder="e.g. ON"
-              required
-            />
-            <Input
-              name="city"
-              type="text"
-              label="City/Location"
-              value={formData.city || ''}
-              onChange={handleChange}
-              placeholder="e.g. Toronto"
-              required
-            />
-          </div>
-
-          <Input
-            name="blood_group"
-            type="text"
-            label="Blood Group"
-            value={formData.blood_group || ''}
-            onChange={handleChange}
-            required
-            placeholder="e.g. A+, O-"
-          />
-
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
-              Health Allergies
-            </label>
-            <textarea
-              name="health_allergies"
-              value={formData.health_allergies || ''}
-              onChange={handleChange}
-              rows={2}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="List any allergies..."
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
-              Recent Checkups
-            </label>
-            <textarea
-              name="recent_checkups"
-              value={formData.recent_checkups || ''}
-              onChange={handleChange}
-              rows={2}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Details of recent checkups..."
-            />
-          </div>
-        </>
-      )}
-      
-      <Input
-        name="email"
-        type="email"
-        label="Email Address"
-        value={formData.email}
-        onChange={handleChange}
-        required
-      />
-      
-      <Input
-        name="mobile"
-        type="tel"
-        label="Mobile Number"
-        value={formData.mobile}
-        onChange={handleChange}
-        required
-      />
-      
-      {formData.userType === 'hospital' && (
-        <>
-          <Input
-            name="hospitalName"
-            type="text"
-            label="Hospital Name"
-            value={formData.hospitalName || ''}
-            onChange={handleChange}
-            required
-          />
-          
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
-              Hospital Address
-            </label>
-            <textarea
-              name="address"
-              value={formData.address || ''}
-              onChange={handleChange}
-              rows={3}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Full address of the hospital..."
-              required
-            />
-          </div>
-        </>
-      )}
-
-      {formData.userType === 'doctor' && (
-        <Input
-          name="specialization"
-          type="text"
-          label="Specialization"
-          value={formData.specialization || ''}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <Select
+          name="userType"
+          label="I am a"
+          value={formData.userType}
           onChange={handleChange}
-          placeholder="e.g., Cardiology, General Medicine"
+          options={[
+            { value: 'patient', label: 'Patient' },
+            { value: 'doctor', label: 'Doctor' },
+            { value: 'hospital', label: 'Hospital Admin' }
+          ]}
           required
         />
-      )}
 
-      {formData.userType === 'patient' && (
-        <>
-          {doctors.length > 0 && (
-            <Select
-              name="assignedDoctorId"
-              label="Select Doctor (Optional)"
-              value={formData.assignedDoctorId || ''}
+        <Input
+          name="name"
+          type="text"
+          label="Full Name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+        />
+
+        {formData.userType === 'patient' && (
+          <>
+            <Input
+              name="fatherName"
+              type="text"
+              label="Father's Name"
+              value={formData.fatherName || ''}
               onChange={handleChange}
-              options={doctors.map(doctor => ({
-                value: doctor.user.id.toString(),
-                label: `Dr. ${doctor.user.first_name} ${doctor.user.last_name} - ${doctor.specialization}`
-              }))}
-            />
-          )}
-          
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
-              Description of Illness
-            </label>
-            <textarea
-              name="illnessDescription"
-              value={formData.illnessDescription || ''}
-              onChange={handleChange}
-              rows={3}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Please describe your current medical condition..."
               required
             />
-          </div>
-        </>
-      )}
-      
-      <Input
-        name="password"
-        type="password"
-        label="Password"
-        value={formData.password}
-        onChange={handleChange}
-        required
-      />
-      
-      <Input
-        name="confirmPassword"
-        type="password"
-        label="Confirm Password"
-        value={formData.confirmPassword}
-        onChange={handleChange}
-        required
-      />
-      
-      <Button 
-        type="submit" 
-        loading={loading} 
-        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200"
-      >
-        Create Account
-      </Button>
-    </form>
+
+            <div className="grid grid-cols-3 gap-4">
+              <Input
+                name="street_no"
+                type="text"
+                label="Street No"
+                value={formData.street_no || ''}
+                onChange={handleChange}
+                placeholder="e.g. 123"
+                required
+              />
+              <Input
+                name="province"
+                type="text"
+                label="Province"
+                value={formData.province || ''}
+                onChange={handleChange}
+                placeholder="e.g. ON"
+                required
+              />
+              <Input
+                name="city"
+                type="text"
+                label="City/Location"
+                value={formData.city || ''}
+                onChange={handleChange}
+                placeholder="e.g. Toronto"
+                required
+              />
+            </div>
+
+            <Input
+              name="blood_group"
+              type="text"
+              label="Blood Group"
+              value={formData.blood_group || ''}
+              onChange={handleChange}
+              required
+              placeholder="e.g. A+, O-"
+            />
+
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Health Allergies
+              </label>
+              <textarea
+                name="health_allergies"
+                value={formData.health_allergies || ''}
+                onChange={handleChange}
+                rows={2}
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="List any allergies..."
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Recent Checkups
+              </label>
+              <textarea
+                name="recent_checkups"
+                value={formData.recent_checkups || ''}
+                onChange={handleChange}
+                rows={2}
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Details of recent checkups..."
+              />
+            </div>
+          </>
+        )}
+
+        <Input
+          name="email"
+          type="email"
+          label="Email Address"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
+
+        <Input
+          name="mobile"
+          type="tel"
+          label="Mobile Number"
+          value={formData.mobile}
+          onChange={handleChange}
+          required
+        />
+
+        {formData.userType === 'hospital' && (
+          <>
+            <Input
+              name="hospitalName"
+              type="text"
+              label="Hospital Name"
+              value={formData.hospitalName || ''}
+              onChange={handleChange}
+              required
+            />
+
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Hospital Address
+              </label>
+              <textarea
+                name="address"
+                value={formData.address || ''}
+                onChange={handleChange}
+                rows={3}
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Full address of the hospital..."
+                required
+              />
+            </div>
+          </>
+        )}
+
+        {formData.userType === 'doctor' && (
+          <>
+            <Input
+              name="specialization"
+              type="text"
+              label="Specialization"
+              value={formData.specialization || ''}
+              onChange={handleChange}
+              placeholder="e.g., Cardiology, General Medicine"
+              required
+            />
+            <Input
+              name="nid"
+              type="text"
+              label="National ID (NID)"
+              value={formData.nid || ''}
+              onChange={handleChange}
+              placeholder="Enter your NID number"
+              required
+            />
+          </>
+        )}
+
+        {formData.userType === 'patient' && (
+          <>
+            {doctors.length > 0 && (
+              <Select
+                name="assignedDoctorId"
+                label="Select Doctor (Optional)"
+                value={formData.assignedDoctorId || ''}
+                onChange={handleChange}
+                options={doctors.map(doctor => ({
+                  value: doctor.user.id.toString(),
+                  label: `Dr. ${doctor.user.first_name} ${doctor.user.last_name} - ${doctor.specialization}`
+                }))}
+              />
+            )}
+
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Description of Illness
+              </label>
+              <textarea
+                name="illnessDescription"
+                value={formData.illnessDescription || ''}
+                onChange={handleChange}
+                rows={3}
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Please describe your current medical condition..."
+                required
+              />
+            </div>
+          </>
+        )}
+
+        <Input
+          name="password"
+          type="password"
+          label="Password"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
+
+        <Input
+          name="confirmPassword"
+          type="password"
+          label="Confirm Password"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          required
+        />
+
+        <Button
+          type="submit"
+          loading={loading}
+          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-200"
+        >
+          Create Account
+        </Button>
+      </form>
     </>
   );
 };

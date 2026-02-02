@@ -7,7 +7,7 @@ import { Header } from './components/layout/Header';
 import { Button } from './components/ui/Button';
 import { Card } from './components/ui/Card';
 import { login, register, restoreUserSession, logout as authLogout } from './utils/auth';
-import { Patient, Doctor, LoginFormData, RegisterFormData } from './types';
+import { Patient, Doctor, Hospital, LoginFormData, RegisterFormData } from './types';
 import { Homepage } from './components/homepage/Homepage';
 import {
   Stethoscope,
@@ -31,7 +31,7 @@ import {
 } from 'lucide-react';
 
 function App() {
-  const [user, setUser] = useState<Patient | Doctor | null>(null);
+  const [user, setUser] = useState<Patient | Doctor | Hospital | null>(null);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [loading, setLoading] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -99,73 +99,74 @@ function App() {
     );
   }
 
-  if (!user) {
-    return (
-      <>
-        <Homepage onOpenAuthModal={openAuthModal} />
-        {showAuthModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-100">
-              <div className="p-8">
-                <div className="flex justify-between items-center mb-8">
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900">
-                      {authMode === 'login' ? 'Welcome Back' : 'Join Us Today'}
-                    </h2>
-                    <p className="text-gray-600 text-sm mt-1">
-                      {authMode === 'login'
-                        ? 'Sign in to access your healthcare dashboard'
-                        : 'Create your account to get started'}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setShowAuthModal(false)}
-                    className="text-gray-400 hover:text-gray-600 text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-all duration-200"
-                  >
-                    ×
-                  </button>
-                </div>
-
-                <div className="mb-8">
-                  <div className="flex space-x-1 p-1 bg-gray-100 rounded-xl">
-                    <Button
-                      variant={authMode === 'login' ? 'primary' : 'ghost'}
-                      onClick={() => setAuthMode('login')}
-                      className="flex-1 rounded-lg transition-all duration-200"
-                    >
-                      Sign In
-                    </Button>
-                    <Button
-                      variant={authMode === 'register' ? 'primary' : 'ghost'}
-                      onClick={() => setAuthMode('register')}
-                      className="flex-1 rounded-lg transition-all duration-200"
-                    >
-                      Sign Up
-                    </Button>
-                  </div>
-                </div>
-
-                {authMode === 'login' ? (
-                  <LoginForm onSubmit={handleLogin} loading={loading} />
-                ) : (
-                  <RegisterForm onSubmit={handleRegister} loading={loading} />
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-      </>
-    );
-  }
-
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
-        <Header user={user} onLogout={handleLogout} />
-        <AppRoutes user={user} />
+        {!user ? (
+          <>
+            <Homepage onOpenAuthModal={openAuthModal} />
+            {showAuthModal && (
+              <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-100">
+                  <div className="p-8">
+                    <div className="flex justify-between items-center mb-8">
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-900">
+                          {authMode === 'login' ? 'Welcome Back' : 'Join Us Today'}
+                        </h2>
+                        <p className="text-gray-600 text-sm mt-1">
+                          {authMode === 'login'
+                            ? 'Sign in to access your healthcare dashboard'
+                            : 'Create your account to get started'}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setShowAuthModal(false)}
+                        className="text-gray-400 hover:text-gray-600 text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-all duration-200"
+                      >
+                        ×
+                      </button>
+                    </div>
+
+                    <div className="mb-8">
+                      <div className="flex space-x-1 p-1 bg-gray-100 rounded-xl">
+                        <Button
+                          variant={authMode === 'login' ? 'primary' : 'ghost'}
+                          onClick={() => setAuthMode('login')}
+                          className="flex-1 rounded-lg transition-all duration-200"
+                        >
+                          Sign In
+                        </Button>
+                        <Button
+                          variant={authMode === 'register' ? 'primary' : 'ghost'}
+                          onClick={() => setAuthMode('register')}
+                          className="flex-1 rounded-lg transition-all duration-200"
+                        >
+                          Sign Up
+                        </Button>
+                      </div>
+                    </div>
+
+                    {authMode === 'login' ? (
+                      <LoginForm onSubmit={handleLogin} loading={loading} />
+                    ) : (
+                      <RegisterForm onSubmit={handleRegister} loading={loading} />
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <Header user={user} onLogout={handleLogout} />
+            <AppRoutes user={user} />
+          </>
+        )}
       </div>
     </Router>
   );
 }
 
 export default App;
+

@@ -25,24 +25,24 @@ export const login = async (formData: LoginFormData): Promise<Patient | Doctor |
   try {
     console.log('=== LOGIN ATTEMPT ===');
     console.log('Form data:', formData);
-    
+
     const response = await authAPI.login({
       email: formData.email,
       password: formData.password,
       user_type: formData.userType
     });
-    
+
     console.log('Login API response:', response);
-    
+
     if (!response.user || !response.tokens) {
       throw new Error('Invalid response format from server');
     }
-    
+
     const user = response.user;
-    
+
     // Store authentication data
     setStoredAuth(response.tokens, user);
-    
+
     // Transform the response to match our interface
     if (formData.userType === 'patient') {
       const transformedUser: Patient = {
@@ -56,12 +56,12 @@ export const login = async (formData: LoginFormData): Promise<Patient | Doctor |
         assigned_doctor_name: user.assigned_doctor_name,
         assigned_doctor_specialization: user.assigned_doctor_specialization,
         illness_description: user.illness_description
-          // Name: user.name,
-          // StreetNumber: user.street_no,
-          // Provience: user.province,
-          // BloodGroup: user.blood_group,
-          // HealthAlgeries: user.health_allergies,
-          // RecentCheckups: recent_checkups,
+        // Name: user.name,
+        // StreetNumber: user.street_no,
+        // Provience: user.province,
+        // BloodGroup: user.blood_group,
+        // HealthAlgeries: user.health_allergies,
+        // RecentCheckups: recent_checkups,
 
       };
       console.log('Transformed patient user:', transformedUser);
@@ -104,7 +104,7 @@ export const register = async (formData: RegisterFormData): Promise<Patient | Do
     const nameParts = formData.name.trim().split(' ');
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
-    
+
     const requestData = {
       first_name: firstName,
       last_name: lastName,
@@ -131,23 +131,23 @@ export const register = async (formData: RegisterFormData): Promise<Patient | Do
         address: formData.address
       })
     };
-    
+
     console.log('=== FRONTEND REGISTRATION DEBUG ===');
     console.log('Form data received:', formData);
     console.log('Request data being sent to API:', requestData);
-    
+
     const response = await authAPI.register(requestData);
     console.log('API response received:', response);
-    
+
     if (!response.user || !response.tokens) {
       throw new Error('Invalid response format from server');
     }
-    
+
     const user = response.user;
-    
+
     // Store authentication data
     setStoredAuth(response.tokens, user);
-    
+
     // Transform the response to match our interface
     if (formData.userType === 'patient') {
       const transformedUser: Patient = {
@@ -216,21 +216,28 @@ export const restoreUserSession = (): Patient | Doctor | Hospital | null => {
   try {
     const token = getStoredToken();
     const user = getStoredUser();
-    
+
     if (!token || !user) {
       return null;
     }
-    
+
     // Check if token is expired (basic check)
-    const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+    const tokenParts = token.split('.');
+    if (tokenParts.length !== 3) {
+      console.warn('Invalid token format');
+      clearStoredAuth();
+      return null;
+    }
+
+    const tokenPayload = JSON.parse(atob(tokenParts[1]));
     const currentTime = Date.now() / 1000;
-    
+
     if (tokenPayload.exp < currentTime) {
       console.log('Token expired, clearing stored auth');
       clearStoredAuth();
       return null;
     }
-    
+
     console.log('Restoring user session:', user);
     return user;
   } catch (error) {

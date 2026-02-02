@@ -1,33 +1,37 @@
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import render
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from authentication.models import Doctor, Patient
-from authentication.serializers import DoctorSerializer, PatientSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from .utils import DoctorChatService
+from .serializers import DoctorProfileSerializer
+from rest_framework import generics
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_doctors(request):
-    doctors = Doctor.objects.all()
-    serializer = DoctorSerializer(doctors, many=True)
-    return Response(serializer.data)
+# Create your views here.
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_doctor_detail(request, doctor_id):
-    try:
-        doctor = Doctor.objects.get(pk=doctor_id)
-        serializer = DoctorSerializer(doctor)
-        return Response(serializer.data)
-    except Doctor.DoesNotExist:
-        return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
+class ChatbotView(APIView):
+    permission_classes = [IsAuthenticated]
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_doctor_patients(request, doctor_id):
-    try:
-        patients = Patient.objects.filter(assigned_doctor_id=doctor_id)
-        serializer = PatientSerializer(patients, many=True)
-        return Response(serializer.data)
-    except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request):
+        user_message = request.data.get('message')
+        if not user_message:
+            return Response({"error": "Message is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Initialize service (Singleton pattern could be better, but this is fine for now)
+            bot_service = DoctorChatService()
+            
+            # Generate response
+            # Using username as user_id for context
+            response_text = bot_service.generate_response(user_message, user_id=request.user.username)
+            
+            return Response({"response": response_text})
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class DoctorProfileView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = DoctorProfileSerializer
+
+    def get_object(self):
+        return self.request.user.doctor

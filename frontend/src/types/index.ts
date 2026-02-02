@@ -34,6 +34,12 @@ export interface Doctor {
   specialization: string;
   userType: 'doctor';
   name: string;
+  nid?: string;
+  signature?: string;
+  education?: string[];
+  experience?: string;
+  phone?: string;
+  email?: string;
 }
 
 export interface Hospital {
@@ -53,7 +59,10 @@ export interface Appointment {
   doctor_name: string;
   date_time: string;
   instructions: string;
-  status: 'scheduled' | 'completed' | 'cancelled';
+  status: 'scheduled' | 'completed' | 'cancelled' | 'consulting';
+  patientCondition?: string;
+  doctorMessage?: string;
+  prescriptions?: Medication[];
   created_at: string;
 }
 
@@ -112,11 +121,13 @@ export interface RegisterFormData {
   illnessDescription?: string;
   street_no?: string;
   province?: string;
+  city?: string;
   blood_group?: string;
   health_allergies?: string;
   recent_checkups?: string;
   // Doctor specific
   specialization?: string;
+  nid?: string;
   // Hospital specific
   hospitalName?: string;
   address?: string;

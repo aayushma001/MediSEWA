@@ -6,3 +6,7 @@ python-decouple
 djangorestframework-simplejwt
 gunicorn
 whitenoise
+langchain
+langchain-google-genai
+langchain-community
+faiss-cpu

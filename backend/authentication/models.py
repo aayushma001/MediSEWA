@@ -57,6 +57,10 @@ class Patient(models.Model):
 class Doctor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     specialization = models.CharField(max_length=100)
+    nid = models.CharField(max_length=50, blank=True, null=True)
+    experience = models.CharField(max_length=50, blank=True, null=True)
+    education = models.JSONField(default=list, blank=True)
+    signature = models.TextField(blank=True, null=True) # Base64 string
     
     def __str__(self):
         return f"Dr. {self.user.get_full_name()} - {self.specialization}"
