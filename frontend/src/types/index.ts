@@ -26,14 +26,21 @@ export interface Patient {
   health_allergies?: string;
   recent_checkups?: string;
   patient_unique_id?: string;
+  nid?: string;
+  consent_signed?: boolean;
 }
 
 export interface Doctor {
   id: string;
   user: User;
   specialization: string;
+  latitude?: number;
+  longitude?: number;
   userType: 'doctor';
   name: string;
+  hospital?: Hospital;
+  doctor_unique_id?: string;
+  nmic_id?: string;
 }
 
 export interface Hospital {
@@ -41,6 +48,8 @@ export interface Hospital {
   user: User;
   hospital_name: string;
   address: string;
+  latitude?: number;
+  longitude?: number;
   userType: 'hospital';
   name: string;
 }
@@ -112,18 +121,39 @@ export interface RegisterFormData {
   illnessDescription?: string;
   street_no?: string;
   province?: string;
+  city?: string;
   blood_group?: string;
   health_allergies?: string;
   recent_checkups?: string;
+  nid?: string;
   // Doctor specific
   specialization?: string;
+  latitude?: number;
+  longitude?: number;
+  nmicId?: string;
+  hospitalId?: string;
   // Hospital specific
   hospitalName?: string;
   address?: string;
+  // Hospital location
+  hospitalLatitude?: number;
+  hospitalLongitude?: number;
 }
 
 export interface LoginFormData {
   email: string;
   password: string;
   userType: 'patient' | 'doctor' | 'hospital';
+}
+
+export interface MedicalRecord {
+  id: string;
+  patient: string;
+  doctor?: string;
+  doctor_name?: string;
+  diagnosis: string;
+  symptoms: string;
+  prescription: string;
+  record_date: string;
+  attachment?: string;
 }

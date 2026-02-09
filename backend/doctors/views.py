@@ -1,33 +1,31 @@
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from authentication.models import Doctor, Patient
-from authentication.serializers import DoctorSerializer, PatientSerializer
+from rest_framework import viewsets, permissions
+from .models import Schedule
+from .serializers import ScheduleSerializer
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_doctors(request):
-    doctors = Doctor.objects.all()
-    serializer = DoctorSerializer(doctors, many=True)
-    return Response(serializer.data)
+class ScheduleViewSet(viewsets.ModelViewSet):
+    queryset = Schedule.objects.all()
+    serializer_class = ScheduleSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_doctor_detail(request, doctor_id):
-    try:
-        doctor = Doctor.objects.get(pk=doctor_id)
-        serializer = DoctorSerializer(doctor)
-        return Response(serializer.data)
-    except Doctor.DoesNotExist:
-        return Response({'error': 'Doctor not found'}, status=status.HTTP_404_NOT_FOUND)
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Schedule.objects.all()
+        
+        # Filter by specific doctor if provided (e.g. for patients booking)
+        doctor_id = self.request.query_params.get('doctor_id')
+        if doctor_id:
+            return queryset.filter(doctor_id=doctor_id)
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_doctor_patients(request, doctor_id):
-    try:
-        patients = Patient.objects.filter(assigned_doctor_id=doctor_id)
-        serializer = PatientSerializer(patients, many=True)
-        return Response(serializer.data)
-    except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        # If no specific doctor requested, and user is a doctor, show their own sessions
+        if hasattr(user, 'doctor'):
+            return queryset.filter(doctor=user.doctor)
+            
+        # Otherwise return all (e.g. for admin or patient browsing all)
+        return queryset
+
+    def perform_create(self, serializer):
+        # Automatically assign the doctor if the user is a doctor
+        if hasattr(self.request.user, 'doctor'):
+            serializer.save(doctor=self.request.user.doctor)
+        else:
+            serializer.save()

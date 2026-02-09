@@ -25,7 +25,9 @@ class Patient(models.Model):
     health_allergies = models.TextField(blank=True, null=True)
     recent_checkups = models.TextField(blank=True, null=True)
     patient_unique_id = models.CharField(max_length=20, blank=True, null=True, unique=True)
-    
+    nid = models.CharField(max_length=20, blank=True, null=True, unique=True, help_text="National Identity Number")
+    consent_signed = models.BooleanField(default=False)
+
     def save(self, *args, **kwargs):
         if not self.patient_unique_id and self.street_no and self.province and self.city:
             # Generate ID: Initials of street_no + Initials of province + First 3 chars/words of city
@@ -50,6 +52,12 @@ class Patient(models.Model):
             self.patient_unique_id = f"PT{base_id}{self.user.id}"
             
         super().save(*args, **kwargs)
+        if not self.nid:
+            base = f"{self.user.id}".zfill(4)
+            seq = str(self.pk or self.user.id).zfill(4)
+            val = f"NID{base}{seq}"
+            if not Patient.objects.filter(nid=val).exists():
+                Patient.objects.filter(pk=self.pk).update(nid=val)
 
     def __str__(self):
         return f"Patient: {self.user.get_full_name()}"
@@ -57,6 +65,19 @@ class Patient(models.Model):
 class Doctor(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     specialization = models.CharField(max_length=100)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    hospital = models.ForeignKey('Hospital', on_delete=models.SET_NULL, null=True, blank=True, related_name='doctors')
+    doctor_unique_id = models.CharField(max_length=20, blank=True, null=True, unique=True)
+    nmic_id = models.CharField(max_length=50, blank=False, null=False, unique=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.doctor_unique_id and self.hospital:
+            name = self.hospital.hospital_name if self.hospital and self.hospital.hospital_name else ''
+            initials = ''.join([w[0].upper() for w in name.split() if w])[:3] or 'DOC'
+            count = Doctor.objects.filter(hospital=self.hospital).count() + 1
+            self.doctor_unique_id = f"{initials}-{str(count).zfill(4)}"
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"Dr. {self.user.get_full_name()} - {self.specialization}"
@@ -65,6 +86,8 @@ class Hospital(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     hospital_name = models.CharField(max_length=200)
     address = models.TextField()
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
     
     def __str__(self):
         return self.hospital_name

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Patient } from '../../types';
 import { 
   LayoutDashboard, 
@@ -36,6 +36,11 @@ import {
 } from 'recharts';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
+import { BookAppointment } from './BookAppointment';
+import { MyAppointments } from './MyAppointments';
+import { MedicalRecords } from './MedicalRecords';
+import { EmergencySearch } from './EmergencySearch';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface PatientDashboardProps {
   patient: Patient;
@@ -65,16 +70,20 @@ const analyticsData = [
 export const PatientDashboard: React.FC<PatientDashboardProps> = ({ patient }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // Use the backend-generated ID or fallback to a display if missing
   const patientId = patient.patient_unique_id || 'Generating...';
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'appointments', label: 'My Appointments', icon: Calendar },
+    { id: 'book-appointment', label: 'Book Appointment', icon: Calendar },
+    { id: 'appointments', label: 'My Appointments', icon: FileText },
     { id: 'favourites', label: 'Favourites', icon: Heart },
     { id: 'dependants', label: 'Dependants', icon: Users },
     { id: 'records', label: 'Medical Records', icon: FileText },
+    { id: 'emergency', label: 'Emergency Search', icon: Activity },
     { id: 'wallets', label: 'Wallets', icon: CreditCard },
     { id: 'invoices', label: 'Invoices', icon: FileText },
     { id: 'messages', label: 'Message', icon: MessageSquare },
@@ -83,10 +92,27 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({ patient }) =
     { id: 'logout', label: 'Logout', icon: LogOut },
   ];
 
+  useEffect(() => {
+    const path = location.pathname.toLowerCase();
+    if (path.includes('/patient/book-appointment')) setActiveTab('book-appointment');
+    else if (path.includes('/patient/appointments')) setActiveTab('appointments');
+    else if (path.includes('/patient/records')) setActiveTab('records');
+    else if (path.includes('/patient/emergency')) setActiveTab('emergency');
+    else setActiveTab('dashboard');
+  }, [location.pathname]);
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
         return <DashboardHome patient={patient} />;
+      case 'book-appointment':
+        return <BookAppointment patientId={patient.id} />;
+      case 'appointments':
+        return <MyAppointments patientId={patient.id} />;
+      case 'records':
+        return <MedicalRecords patientId={patient.id} />;
+      case 'emergency':
+        return <EmergencySearch />;
       default:
         return (
           <div className="flex items-center justify-center h-full">
@@ -143,10 +169,17 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({ patient }) =
               return (
                 <button
                   key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                    setSidebarOpen(false);
-                  }}
+                onClick={() => {
+                  const dest =
+                    item.id === 'dashboard' ? '/patient/dashboard' :
+                    item.id === 'book-appointment' ? '/patient/book-appointment' :
+                    item.id === 'appointments' ? '/patient/appointments' :
+                    item.id === 'records' ? '/patient/records' :
+                    item.id === 'emergency' ? '/patient/emergency' :
+                    '/patient/dashboard';
+                  navigate(dest);
+                  setSidebarOpen(false);
+                }}
                   className={`
                     w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200
                     ${activeTab === item.id 
@@ -178,7 +211,10 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({ patient }) =
 
         <div className="flex-1 overflow-y-auto p-4 lg:p-8">
           <div className="flex justify-end mb-6">
-            <Button className="bg-red-600 hover:bg-red-700 text-white shadow-lg animate-pulse flex items-center space-x-2">
+            <Button 
+              className="bg-red-600 hover:bg-red-700 text-white shadow-lg animate-pulse flex items-center space-x-2"
+              onClick={() => navigate('/patient/emergency')}
+            >
                <Activity className="h-5 w-5" />
                <span>Emergency</span>
             </Button>

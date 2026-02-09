@@ -1,93 +1,227 @@
-/* Root backgrounds */
+/* Root container */
 .homepage-root {
-  background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+  position: relative;
+  background: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
 }
 
-.homepage-topbar {
-  background: rgba(30, 58, 138, 0.65);
-  backdrop-filter: blur(6px);
+/* Hero gradient background - vibrant blue gradient */
+.hero-gradient-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 800px;
+  background: linear-gradient(135deg, #4776E6 0%, #3b82f6 25%, #2563eb 50%, #60a5fa 75%, #93c5fd 100%);
+  z-index: 1;
 }
 
-.homepage-nav {
-  background: transparent;
+/* Curved wave shape at the bottom of hero */
+.hero-wave {
+  position: absolute;
+  top: 700px;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: white;
+  z-index: 2;
+  clip-path: ellipse(100% 100% at 50% 100%);
 }
 
-.logo-badge {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 14px;
+/* Alternative wave using SVG-like curve */
+.hero-wave::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(to bottom, transparent, white);
 }
 
-/* Hero styles */
-.hero-bg-text {
-  font-weight: 800;
-  font-size: 15vw;
-  color: #ffffff;
-  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.25);
+/* Decorative sparkle dots */
+.sparkle-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: white;
+  opacity: 0.8;
+  z-index: 3;
+  animation: sparkle 3s ease-in-out infinite;
 }
 
-.stroke-heading {
-  font-size: clamp(2.5rem, 7vw, 5rem);
-  font-weight: 800;
-  color: transparent;
-  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.3);
-  margin-bottom: 0.5rem;
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
 }
 
-.main-heading {
-  font-size: clamp(2.5rem, 7vw, 4.5rem);
-  font-weight: 800;
-  line-height: 1.05;
-  color: #ffffff;
-  text-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
-  margin-bottom: 2rem;
+/* Hero section */
+.homepage-hero {
+  position: relative;
+  z-index: 10;
+    padding-top: 25px;
 }
 
-.hero-subtitle {
-  font-size: 1.25rem;
-  color: #c7d2fe;
-  margin-bottom: 2.5rem;
-  max-width: 36rem;
-  line-height: 1.8;
-  font-weight: 300;
-}
-
-.glass-icon {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(8px);
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-}
-
-/* Animations */
+/* Floating animation for UI elements */
 @keyframes float {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-  100% { transform: translateY(0); }
-}
-.homepage-float {
-  animation: float 4s ease-in-out infinite;
-}
-
-@keyframes bounceSoft {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-.homepage-bounce-3s {
-  animation: bounceSoft 3s ease-in-out infinite;
-}
-.homepage-bounce-4s {
-  animation: bounceSoft 4s ease-in-out infinite;
+  0%, 100% {
+    transform: translateY(0) translateX(-50%);
+  }
+  50% {
+    transform: translateY(-10px) translateX(-50%);
+  }
 }
 
-@keyframes pulseSoft {
-  0% { transform: scale(1); opacity: 0.9; }
-  50% { transform: scale(1.05); opacity: 1; }
-  100% { transform: scale(1); opacity: 0.9; }
-}
-.homepage-pulse {
-  animation: pulseSoft 3.6s ease-in-out infinite;
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 3s ease-in-out infinite 0.5s;
+}
+
+/* Button hover effects */
+button:hover {
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+/* Card hover effects */
+.group:hover {
+  transform: translateY(-4px);
+  transition: all 0.3s ease;
+}
+
+/* Gradient text effect */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Custom scrollbar for horizontal scroll */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Service icon hover effect */
+.service-icon-wrapper:hover .service-icon {
+  transform: scale(1.1) rotate(5deg);
+  transition: all 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-gradient-bg {
+    height: 600px;
+  }
+
+  .hero-wave {
+    top: 550px;
+  }
+
+  .homepage-hero {
+    min-height: 500px;
+  }
+}
+
+/* Focus styles for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Loading state */
+.loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Details element styling */
+details summary {
+  list-style: none;
+}
+
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details[open] summary {
+  color: #2563eb;
+}
+
+/* Enhanced shadow utilities */
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+.shadow-glow-lg {
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.4);
+}
+
+/* Backdrop blur utilities */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+.backdrop-blur-md {
+  backdrop-filter: blur(8px);
+}
+
+.backdrop-blur-lg {
+  backdrop-filter: blur(12px);
+}

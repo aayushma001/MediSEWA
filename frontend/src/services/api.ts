@@ -1,4 +1,5 @@
-const API_BASE_URL = 'https://medico-lyev.onrender.com/api';
+let API_BASE_URL = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_API_BASE_URL) || 'http://127.0.0.1:8000/api';
+const FALLBACK_BASES = ['http://localhost:8000/api'];
 
 // Token management
 export const getToken = () => localStorage.getItem('access_token');
@@ -12,21 +13,26 @@ export const removeToken = () => {
 // API request helper with improved error handling
 const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   const token = getToken();
-  const headers = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(token && { Authorization: `Bearer ${token}` }),
     ...options.headers,
   };
+
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+  if (isFormData) {
+    delete headers['Content-Type'];
+  }
 
   console.log(`Making API request to: ${API_BASE_URL}${endpoint}`);
   console.log('Headers:', headers);
   console.log('Options:', options);
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
+    const doFetch = async (base: string) => {
+      return fetch(`${base}${endpoint}`, { ...options, headers });
+    };
+    let response = await doFetch(API_BASE_URL);
 
     console.log(`Response status: ${response.status}`);
 
@@ -69,11 +75,35 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
       throw new Error(errorMessage);
     }
 
+    // For 204 No Content, return empty object
+    if (response.status === 204) {
+      return {};
+    }
+
     const data = await response.json();
     console.log('API Response data:', data);
     return data;
   } catch (error) {
     console.error('API Request failed:', error);
+    const isNetworkError = error instanceof TypeError || String(error).includes('Failed to fetch');
+    if (isNetworkError) {
+      for (const fb of FALLBACK_BASES) {
+        try {
+          console.warn(`Retrying API request with fallback base URL: ${fb}`);
+          const resp = await fetch(`${fb}${endpoint}`, {
+            ...options,
+            headers,
+          });
+          if (resp.ok) {
+            API_BASE_URL = fb;
+            const data = await resp.json().catch(() => ({}));
+            return data;
+          }
+        } catch (e) {
+          console.error('Fallback attempt failed:', e);
+        }
+      }
+    }
     throw error;
   }
 };
@@ -118,10 +148,32 @@ export const authAPI = {
     console.log('=== API GET DOCTORS REQUEST ===');
     return apiRequest('/auth/doctors/');
   },
+  
+  getHospitals: async () => {
+    console.log('=== API GET HOSPITALS REQUEST ===');
+    return apiRequest('/auth/hospitals/');
+  },
+  
+  patientConsent: async () => {
+    return apiRequest('/auth/patient/consent/', {
+      method: 'POST',
+    });
+  },
+};
+
+// Admin API
+export const adminAPI = {
+  getDashboardStats: async () => {
+    return apiRequest('/auth/dashboard-stats/');
+  },
 };
 
 // Appointments API
 export const appointmentsAPI = {
+  getAllAppointments: async () => {
+    return apiRequest('/appointments/all/');
+  },
+
   getPatientAppointments: async (patientId: string) => {
     return apiRequest(`/appointments/patient/${patientId}/`);
   },
@@ -152,7 +204,7 @@ export const appointmentsAPI = {
   createPatientReport: async (data: any) => {
     return apiRequest('/appointments/reports/create/', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: data instanceof FormData ? data : JSON.stringify(data),
     });
   },
 
@@ -163,8 +215,43 @@ export const appointmentsAPI = {
     });
   },
 
+  updateAppointmentStatus: async (id: string, status: string) => {
+    return apiRequest(`/appointments/${id}/status/`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
+  },
+
   createAdvice: async (data: any) => {
     return apiRequest('/appointments/advice/create/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  recommendDoctors: async (data: { symptoms: string; latitude?: number; longitude?: number }) => {
+    return apiRequest('/appointments/recommend-doctors/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  nearbyHospitals: async (params: { latitude?: number; longitude?: number }) => {
+    const query = new URLSearchParams(
+      Object.entries(params).reduce((acc, [k, v]) => {
+        if (v !== undefined && v !== null) acc[k] = String(v);
+        return acc;
+      }, {} as Record<string, string>)
+    ).toString();
+    return apiRequest(`/appointments/nearby-hospitals/${query ? `?${query}` : ''}`);
+  },
+
+  getPatientMedicalRecords: async (patientId: string) => {
+    return apiRequest(`/appointments/medical-records/patient/${patientId}/`);
+  },
+
+  createMedicalRecord: async (data: any) => {
+    return apiRequest('/appointments/medical-records/create/', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -180,6 +267,12 @@ export const patientsAPI = {
   getPatientDetail: async (patientId: string) => {
     return apiRequest(`/patients/${patientId}/`);
   },
+
+  deletePatient: async (id: string) => {
+    return apiRequest(`/patients/${id}/`, {
+      method: 'DELETE',
+    });
+  },
 };
 
 // Doctors API
@@ -194,5 +287,32 @@ export const doctorsAPI = {
 
   getDoctorPatients: async (doctorId: string) => {
     return apiRequest(`/doctors/${doctorId}/patients/`);
+  },
+
+  getSchedules: async (doctorId?: string) => {
+    let url = '/doctors/schedules/';
+    if (doctorId) {
+      url += `?doctor_id=${doctorId}`;
+    }
+    return apiRequest(url);
+  },
+
+  createSchedule: async (data: any) => {
+    return apiRequest('/doctors/schedules/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteSchedule: async (id: number) => {
+    return apiRequest(`/doctors/schedules/${id}/`, {
+      method: 'DELETE',
+    });
+  },
+
+  deleteDoctor: async (id: string) => {
+    return apiRequest(`/doctors/${id}/`, {
+      method: 'DELETE',
+    });
   },
 };

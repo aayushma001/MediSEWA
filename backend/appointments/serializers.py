@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Appointment, Medication, Advice, HealthMetric, PatientReport
+from .models import Appointment, Medication, Advice, HealthMetric, PatientReport, MedicalRecord
 
 class AppointmentSerializer(serializers.ModelSerializer):
     patient_name = serializers.CharField(source='patient.user.get_full_name', read_only=True)
@@ -34,3 +34,11 @@ class PatientReportSerializer(serializers.ModelSerializer):
         model = PatientReport
         fields = ['id', 'patient', 'doctor', 'upload_date', 'description', 
                  'file', 'file_type', 'file_content']
+
+class MedicalRecordSerializer(serializers.ModelSerializer):
+    doctor_name = serializers.CharField(source='doctor.user.get_full_name', read_only=True)
+
+    class Meta:
+        model = MedicalRecord
+        fields = ['id', 'patient', 'doctor', 'doctor_name', 'diagnosis', 
+                 'symptoms', 'prescription', 'record_date', 'attachment']

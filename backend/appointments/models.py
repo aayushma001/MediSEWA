@@ -18,6 +18,18 @@ class Appointment(models.Model):
     def __str__(self):
         return f"Appointment: {self.patient.user.get_full_name()} with {self.doctor.user.get_full_name()}"
 
+class MedicalRecord(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='medical_records')
+    doctor = models.ForeignKey(Doctor, on_delete=models.SET_NULL, null=True, blank=True)
+    diagnosis = models.TextField()
+    symptoms = models.TextField()
+    prescription = models.TextField()
+    record_date = models.DateField(auto_now_add=True)
+    attachment = models.FileField(upload_to='medical_records/', null=True, blank=True)
+    
+    def __str__(self):
+        return f"Record for {self.patient.user.get_full_name()} on {self.record_date}"
+
 class Medication(models.Model):
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)

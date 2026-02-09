@@ -3,9 +3,37 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserRegistrationSerializer, UserLoginSerializer, PatientSerializer, DoctorSerializer
-from .models import Patient, Doctor
+from .serializers import UserRegistrationSerializer, UserLoginSerializer, PatientSerializer, DoctorSerializer, HospitalSerializer
+from .models import Patient, Doctor, Hospital
+from appointments.models import Appointment
 import traceback
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def dashboard_stats(request):
+    print("=== DASHBOARD STATS DEBUG ===")
+    try:
+        doctor_count = Doctor.objects.count()
+        patient_count = Patient.objects.count()
+        appointment_count = Appointment.objects.count()
+        
+        # Revenue calculation (mock for now as we don't have payment model)
+        # Assuming each appointment is $100
+        revenue = appointment_count * 100
+        
+        stats = {
+            'doctors': doctor_count,
+            'patients': patient_count,
+            'appointments': appointment_count,
+            'revenue': revenue
+        }
+        
+        print(f"Stats calculated: {stats}")
+        return Response(stats)
+    except Exception as e:
+        print("Error fetching dashboard stats:", str(e))
+        traceback.print_exc()
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -42,6 +70,14 @@ def register(request):
                 except Doctor.DoesNotExist:
                     print("ERROR: Doctor profile not found after creation")
                     return Response({'error': 'Doctor profile not created'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            elif user.user_type == 'hospital':
+                try:
+                    hospital = Hospital.objects.get(user=user)
+                    print("Hospital profile found and serialized")
+                    user_data = HospitalSerializer(hospital).data
+                except Hospital.DoesNotExist:
+                    print("ERROR: Hospital profile not found after creation")
+                    return Response({'error': 'Hospital profile not created'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
             print("Registration successful, returning response")
             return Response({
@@ -95,6 +131,14 @@ def login(request):
             except Doctor.DoesNotExist:
                 print("ERROR: Doctor profile not found")
                 return Response({'error': 'Doctor profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        elif user.user_type == 'hospital':
+            try:
+                hospital = Hospital.objects.get(user=user)
+                user_data = HospitalSerializer(hospital).data
+                print("Hospital data serialized successfully")
+            except Hospital.DoesNotExist:
+                print("ERROR: Hospital profile not found")
+                return Response({'error': 'Hospital profile not found'}, status=status.HTTP_404_NOT_FOUND)
         
         print("Login successful, returning response")
         return Response({
@@ -122,5 +166,35 @@ def get_doctors(request):
         return Response(serializer.data)
     except Exception as e:
         print("Error fetching doctors:", str(e))
+        traceback.print_exc()
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_hospitals(request):
+    try:
+        hospitals = Hospital.objects.all()
+        serializer = HospitalSerializer(hospitals, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        print("Error fetching hospitals:", str(e))
+        traceback.print_exc()
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def patient_consent(request):
+    try:
+        user = request.user
+        if user.user_type != 'patient':
+            return Response({'error': 'Only patients can sign consent'}, status=status.HTTP_403_FORBIDDEN)
+        patient = Patient.objects.get(user=user)
+        patient.consent_signed = True
+        patient.save()
+        return Response({'status': 'consent_signed'})
+    except Patient.DoesNotExist:
+        return Response({'error': 'Patient profile not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        print("Error setting patient consent:", str(e))
         traceback.print_exc()
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Doctor } from '../../types';
+import { DoctorSessions } from './DoctorSessions';
 import { NewPatients } from './NewPatients';
 import { OldPatients } from './OldPatients';
 import { 
@@ -10,7 +11,8 @@ import {
   Calendar, 
   Activity,
   Stethoscope,
-  FileText
+  FileText,
+  Clock
 } from 'lucide-react';
 
 interface DoctorDashboardProps {
@@ -18,10 +20,11 @@ interface DoctorDashboardProps {
 }
 
 export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'new-patients' | 'old-patients'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'sessions' | 'new-patients' | 'old-patients'>('overview');
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Activity },
+    { id: 'sessions', label: 'My Sessions', icon: Clock },
     { id: 'new-patients', label: 'New Patients', icon: Users },
     { id: 'old-patients', label: 'Existing Patients', icon: UserCheck }
   ];
@@ -30,6 +33,8 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor }) => {
     switch (activeTab) {
       case 'overview':
         return <DoctorOverview doctor={doctor} />;
+      case 'sessions':
+        return <DoctorSessions />;
       case 'new-patients':
         return <NewPatients doctorId={doctor.user.id.toString()} />;
       case 'old-patients':

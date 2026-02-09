@@ -15,15 +15,21 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     blood_group = serializers.CharField(required=False)
     health_allergies = serializers.CharField(required=False)
     recent_checkups = serializers.CharField(required=False)
+    nid = serializers.CharField(required=False)
     hospital_name = serializers.CharField(required=False)
     address = serializers.CharField(required=False)
+    latitude = serializers.FloatField(required=False)
+    longitude = serializers.FloatField(required=False)
+    hospital_id = serializers.IntegerField(required=False)
+    nmic_id = serializers.CharField(required=False)
 
     class Meta:
         model = User
         fields = ['email', 'first_name', 'last_name', 'mobile', 'user_type', 
                  'password', 'confirm_password', 'father_name', 'assigned_doctor_id', 
                  'illness_description', 'specialization', 'street_no', 'province', 'city',
-                 'blood_group', 'health_allergies', 'recent_checkups', 'hospital_name', 'address']
+                 'blood_group', 'health_allergies', 'recent_checkups', 'nid', 'hospital_name', 'address',
+                 'latitude', 'longitude', 'hospital_id', 'nmic_id']
 
     def validate(self, attrs):
         if attrs['password'] != attrs['confirm_password']:
@@ -38,6 +44,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         if attrs['user_type'] == 'doctor':
             if not attrs.get('specialization'):
                 raise serializers.ValidationError("Specialization is required for doctors")
+            if not attrs.get('nmic_id'):
+                raise serializers.ValidationError("NMIC ID is required for doctors")
         
         if attrs['user_type'] == 'hospital':
             if not attrs.get('hospital_name'):
@@ -63,8 +71,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         blood_group = validated_data.pop('blood_group', None)
         health_allergies = validated_data.pop('health_allergies', None)
         recent_checkups = validated_data.pop('recent_checkups', None)
+        nid = validated_data.pop('nid', None)
         hospital_name = validated_data.pop('hospital_name', None)
         address = validated_data.pop('address', None)
+        latitude = validated_data.pop('latitude', None)
+        longitude = validated_data.pop('longitude', None)
+        hospital_id = validated_data.pop('hospital_id', None)
+        nmic_id = validated_data.pop('nmic_id', None)
         validated_data.pop('confirm_password')
         
         # Set username to email
@@ -92,18 +105,31 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 city=city,
                 blood_group=blood_group,
                 health_allergies=health_allergies,
-                recent_checkups=recent_checkups
+                recent_checkups=recent_checkups,
+                nid=nid
             )
         elif user.user_type == 'doctor':
+            hospital = None
+            if hospital_id:
+                try:
+                    hospital = Hospital.objects.get(pk=hospital_id)
+                except Hospital.DoesNotExist:
+                    hospital = None
             Doctor.objects.create(
                 user=user,
-                specialization=specialization
+                specialization=specialization,
+                latitude=latitude,
+                longitude=longitude,
+                hospital=hospital,
+                nmic_id=nmic_id
             )
         elif user.user_type == 'hospital':
             Hospital.objects.create(
                 user=user,
                 hospital_name=hospital_name,
-                address=address
+                address=address,
+                latitude=latitude,
+                longitude=longitude
             )
         
         return user
@@ -146,11 +172,28 @@ class PatientSerializer(serializers.ModelSerializer):
         model = Patient
         fields = ['user', 'father_name', 'assigned_doctor', 'assigned_doctor_name', 
                  'assigned_doctor_specialization', 'illness_description', 'street_no', 
-                 'province', 'city', 'blood_group', 'health_allergies', 'recent_checkups', 'patient_unique_id']
+                 'province', 'city', 'blood_group', 'health_allergies', 'recent_checkups', 
+                 'patient_unique_id', 'nid', 'consent_signed']
 
 class DoctorSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    hospital = serializers.SerializerMethodField()
 
     class Meta:
         model = Doctor
-        fields = ['user', 'specialization']
+        fields = ['user', 'specialization', 'latitude', 'longitude', 'hospital', 'doctor_unique_id', 'nmic_id']
+
+    def get_hospital(self, obj):
+        try:
+            if obj.hospital:
+                return HospitalSerializer(obj.hospital).data
+            return None
+        except Exception:
+            return None
+
+class HospitalSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Hospital
+        fields = ['user', 'hospital_name', 'address', 'latitude', 'longitude']

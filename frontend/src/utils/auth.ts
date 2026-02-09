@@ -40,10 +40,7 @@ export const login = async (formData: LoginFormData): Promise<Patient | Doctor |
     
     const user = response.user;
     
-    // Store authentication data
-    setStoredAuth(response.tokens, user);
-    
-    // Transform the response to match our interface
+    // Transform the response to match our interface and store transformed user
     if (formData.userType === 'patient') {
       const transformedUser: Patient = {
         id: user.user.id.toString(),
@@ -55,43 +52,40 @@ export const login = async (formData: LoginFormData): Promise<Patient | Doctor |
         assigned_doctor: user.assigned_doctor,
         assigned_doctor_name: user.assigned_doctor_name,
         assigned_doctor_specialization: user.assigned_doctor_specialization,
-        illness_description: user.illness_description
-          // Name: user.name,
-          // StreetNumber: user.street_no,
-          // Provience: user.province,
-          // BloodGroup: user.blood_group,
-          // HealthAlgeries: user.health_allergies,
-          // RecentCheckups: recent_checkups,
-
+        illness_description: user.illness_description,
+        patient_unique_id: user.patient_unique_id,
+        nid: user.nid,
+        consent_signed: user.consent_signed
       };
       console.log('Transformed patient user:', transformedUser);
+      setStoredAuth(response.tokens, transformedUser);
       return transformedUser;
-    } else {
+    } else if (formData.userType === 'doctor') {
       const transformedUser: Doctor = {
         id: user.user.id.toString(),
         user: user.user,
         userType: 'doctor' as const,
         name: `${user.user.first_name} ${user.user.last_name}`,
-        specialization: user.specialization
+        specialization: user.specialization,
+        hospital: user.hospital,
+        doctor_unique_id: user.doctor_unique_id
       };
       console.log('Transformed doctor user:', transformedUser);
+      setStoredAuth(response.tokens, transformedUser);
+      return transformedUser;
+    } else {
+      const transformedUser: Hospital = {
+        id: user.user.id.toString(),
+        user: user.user,
+        userType: 'hospital' as const,
+        name: user.hospital_name,
+        hospital_name: user.hospital_name,
+        address: user.address
+      };
+      console.log('Transformed hospital user:', transformedUser);
+      setStoredAuth(response.tokens, transformedUser);
       return transformedUser;
     }
-
-
-
-    // else {
-    //   const transformedUser: Hospital = {
-    //     id: user.user.id.toString(),
-    //     user: user.user,
-    //     userType: 'hospital' as const,
-    //     name: user.hospital_name,
-    //     hospital_name: user.hospital_name,
-    //     address: user.address
-    //   };
-    //   console.log('Transformed hospital user:', transformedUser);
-    //   return transformedUser;
-    // }
   } catch (error) {
     console.error('Login error:', error);
     clearStoredAuth();
@@ -119,16 +113,24 @@ export const register = async (formData: RegisterFormData): Promise<Patient | Do
         illness_description: formData.illnessDescription,
         street_no: formData.street_no,
         province: formData.province,
+        city: formData.city,
         blood_group: formData.blood_group,
         health_allergies: formData.health_allergies,
-        recent_checkups: formData.recent_checkups
+        recent_checkups: formData.recent_checkups,
+        nid: formData.nid
       }),
       ...(formData.userType === 'doctor' && {
-        specialization: formData.specialization
+        specialization: formData.specialization,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
+      hospital_id: (formData as any).hospitalId ? parseInt((formData as any).hospitalId) : null,
+      nmic_id: formData.nmicId
       }),
       ...(formData.userType === 'hospital' && {
         hospital_name: formData.hospitalName,
-        address: formData.address
+        address: formData.address,
+        latitude: formData.latitude,
+        longitude: formData.longitude
       })
     };
     
@@ -145,10 +147,7 @@ export const register = async (formData: RegisterFormData): Promise<Patient | Do
     
     const user = response.user;
     
-    // Store authentication data
-    setStoredAuth(response.tokens, user);
-    
-    // Transform the response to match our interface
+    // Transform the response to match our interface and store transformed user
     if (formData.userType === 'patient') {
       const transformedUser: Patient = {
         id: user.user.id.toString(),
@@ -160,31 +159,37 @@ export const register = async (formData: RegisterFormData): Promise<Patient | Do
         assigned_doctor: user.assigned_doctor,
         assigned_doctor_name: user.assigned_doctor_name,
         assigned_doctor_specialization: user.assigned_doctor_specialization,
-        illness_description: user.illness_description
+        illness_description: user.illness_description,
+        patient_unique_id: user.patient_unique_id,
+        nid: user.nid,
+        consent_signed: user.consent_signed
       };
+      setStoredAuth(response.tokens, transformedUser);
       return transformedUser;
-    } else {
+    } else if (formData.userType === 'doctor') {
       const transformedUser: Doctor = {
         id: user.user.id.toString(),
         user: user.user,
         userType: 'doctor' as const,
         name: `${user.user.first_name} ${user.user.last_name}`,
-        specialization: user.specialization
+        specialization: user.specialization,
+        hospital: user.hospital,
+        doctor_unique_id: user.doctor_unique_id
       };
+      setStoredAuth(response.tokens, transformedUser);
+      return transformedUser;
+    } else {
+      const transformedUser: Hospital = {
+        id: user.user.id.toString(),
+        user: user.user,
+        userType: 'hospital' as const,
+        name: user.hospital_name,
+        hospital_name: user.hospital_name,
+        address: user.address
+      };
+      setStoredAuth(response.tokens, transformedUser);
       return transformedUser;
     }
-
-    // else {
-    //   const transformedUser: Hospital = {
-    //     id: user.user.id.toString(),
-    //     user: user.user,
-    //     userType: 'hospital' as const,
-    //     name: user.hospital_name,
-    //     hospital_name: user.hospital_name,
-    //     address: user.address
-    //   };
-    //   return transformedUser;
-    // }
   } catch (error) {
     console.error('=== REGISTRATION ERROR ===');
     console.error('Error object:', error);

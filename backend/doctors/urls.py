@@ -1,8 +1,10 @@
-from django.urls import path
-from . import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import ScheduleViewSet
+
+router = DefaultRouter()
+router.register(r'schedules', ScheduleViewSet)
 
 urlpatterns = [
-    path('', views.get_doctors, name='get_doctors'),
-    path('<int:doctor_id>/', views.get_doctor_detail, name='doctor_detail'),
-    path('<int:doctor_id>/patients/', views.get_doctor_patients, name='doctor_patients'),
+    path('', include(router.urls)),
 ]
