@@ -181,7 +181,13 @@ class DoctorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Doctor
-        fields = ['user', 'specialization', 'latitude', 'longitude', 'hospital', 'doctor_unique_id', 'nmic_id']
+        fields = [
+            'user', 'specialization', 'latitude', 'longitude', 'hospital', 
+            'doctor_unique_id', 'nmic_id', 'education', 'experience', 
+            'signature', 'nid', 'bio', 'certifications', 'specializations', 
+            'languages', 'registration_number', 'license_expiry', 
+            'in_person_fee', 'video_fee', 'medical_degree', 'city', 'country'
+        ]
 
     def get_hospital(self, obj):
         try:

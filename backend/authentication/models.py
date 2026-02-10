@@ -71,6 +71,23 @@ class Doctor(models.Model):
     doctor_unique_id = models.CharField(max_length=20, blank=True, null=True, unique=True)
     nmic_id = models.CharField(max_length=50, blank=False, null=False, unique=True)
     
+    # Professional Details
+    education = models.JSONField(default=list, blank=True)
+    experience = models.CharField(max_length=100, blank=True, null=True)
+    signature = models.TextField(blank=True, null=True)  # Store as base64 string
+    nid = models.CharField(max_length=50, blank=True, null=True)
+    bio = models.TextField(blank=True, null=True)
+    certifications = models.JSONField(default=list, blank=True)
+    specializations = models.JSONField(default=list, blank=True) # Multiple specializations
+    languages = models.JSONField(default=list, blank=True)
+    registration_number = models.CharField(max_length=100, blank=True, null=True)
+    license_expiry = models.DateField(blank=True, null=True)
+    in_person_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    video_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    medical_degree = models.CharField(max_length=200, blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    country = models.CharField(max_length=100, default='Nepal')
+
     def save(self, *args, **kwargs):
         if not self.doctor_unique_id and self.hospital:
             name = self.hospital.hospital_name if self.hospital and self.hospital.hospital_name else ''

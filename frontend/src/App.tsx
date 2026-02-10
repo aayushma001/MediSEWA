@@ -89,7 +89,7 @@ function App() {
     setAuthMode(mode);
     setShowAuthModal(true);
   };
-  
+
   useEffect(() => {
     const handler = () => {
       setAuthMode('login');
@@ -178,9 +178,7 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
-        {user.userType !== 'hospital' && (
-          <Header user={user as Patient | Doctor} onLogout={handleLogout} />
-        )}
+
         <AppRoutes user={user} onLogout={handleLogout} />
       </div>
     </Router>

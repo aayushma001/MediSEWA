@@ -41,6 +41,23 @@ export interface Doctor {
   hospital?: Hospital;
   doctor_unique_id?: string;
   nmic_id?: string;
+
+  // Professional Details
+  education?: string[];
+  experience?: string;
+  signature?: string;
+  nid?: string;
+  bio?: string;
+  certifications?: string[];
+  specializations?: string[];
+  languages?: string[];
+  registration_number?: string;
+  license_expiry?: string;
+  in_person_fee?: number;
+  video_fee?: number;
+  medical_degree?: string;
+  city?: string;
+  country?: string;
 }
 
 export interface Hospital {
