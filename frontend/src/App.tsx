@@ -1,37 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { LoginForm } from './components/auth/LoginForm';
 import { RegisterForm } from './components/auth/RegisterForm';
 import { AppRoutes } from './routes';
 import { Header } from './components/layout/Header';
 import { Button } from './components/ui/Button';
-import { Card } from './components/ui/Card';
 import { login, register, restoreUserSession, logout as authLogout } from './utils/auth';
-import { Patient, Doctor, Hospital, LoginFormData, RegisterFormData } from './types';
+import { User, LoginFormData, RegisterFormData } from './types';
 import { Homepage } from './components/homepage/Homepage';
-import {
-  Stethoscope,
-  Heart,
-  Shield,
-  Users,
-  Calendar,
-  Activity,
-  FileText,
-  MessageSquare,
-  Clock,
-  CheckCircle,
-  Star,
-  ArrowRight,
-  Play,
-  Zap,
-  Globe,
-  Award,
-  Phone,
-  Search
-} from 'lucide-react';
 
 function App() {
-  const [user, setUser] = useState<Patient | Doctor | Hospital | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [loading, setLoading] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -117,55 +96,43 @@ function App() {
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full h-[90vh] overflow-hidden transform transition-all duration-300 scale-100">
               <div className="grid grid-cols-1 md:grid-cols-2 h-full">
-                <div className="hidden md:block bg-gray-50 p-0">
+                <div className="hidden md:block bg-gray-50 p-0 relative overflow-hidden order-last md:order-first">
+                  <div className="absolute inset-0 bg-blue-600/20 z-10"></div>
                   <img
-                    src="http://localhost:8000/static/admin/img/login.jpeg"
+                    src="/Login.jpg"
                     alt="Login"
                     className="w-full h-full object-cover"
                   />
+                  <div className="absolute top-12 left-12 z-20 text-white">
+                    <h2 className="text-4xl font-bold font-serif italic mb-4 drop-shadow-lg">Medico Health</h2>
+                    <p className="text-lg max-w-xs drop-shadow-md">
+                      Your trusted partner in healthcare excellence and patient management.
+                    </p>
+                  </div>
                 </div>
-                <div className="p-8 overflow-y-auto h-full">
-                  <div className="flex justify-between items-center mb-6">
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900">
-                        {authMode === 'login' ? 'Welcome Back' : 'Patient Register'}
-                      </h2>
-                      <p className="text-gray-600 text-sm mt-1">
-                        {authMode === 'login'
-                          ? 'Sign in to access your healthcare dashboard'
-                          : 'Create your account to get started'}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setShowAuthModal(false)}
-                      className="text-gray-400 hover:text-gray-600 text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-all duration-200"
-                    >
-                      ×
-                    </button>
+                <div className="p-8 overflow-y-auto h-full flex flex-col relative bg-white order-first md:order-last no-scrollbar">
+                  <button
+                    onClick={() => setShowAuthModal(false)}
+                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-all duration-200 z-50"
+                  >
+                    ×
+                  </button>
+                  
+                  <div className="w-full max-w-md mx-auto my-auto pt-10 pb-10">
+                    {authMode === 'login' ? (
+                      <LoginForm 
+                        onSubmit={handleLogin} 
+                        loading={loading} 
+                        onRegisterClick={() => setAuthMode('register')} 
+                      />
+                    ) : (
+                      <RegisterForm 
+                        onSubmit={handleRegister} 
+                        loading={loading} 
+                        onLoginClick={() => setAuthMode('login')}
+                      />
+                    )}
                   </div>
-                  <div className="mb-6">
-                    <div className="flex space-x-2">
-                      <Button
-                        variant={authMode === 'register' ? 'primary' : 'ghost'}
-                        onClick={() => setAuthMode('register')}
-                        className="rounded-full px-6 bg-gradient-to-r from-blue-500 to-indigo-500"
-                      >
-                        Sign Up
-                      </Button>
-                      <Button
-                        variant={authMode === 'login' ? 'secondary' : 'ghost'}
-                        onClick={() => setAuthMode('login')}
-                        className="rounded-full px-6 bg-gray-900 text-white hover:bg-gray-800"
-                      >
-                        Register
-                      </Button>
-                    </div>
-                  </div>
-                  {authMode === 'login' ? (
-                    <LoginForm onSubmit={handleLogin} loading={loading} />
-                  ) : (
-                    <RegisterForm onSubmit={handleRegister} loading={loading} />
-                  )}
                 </div>
               </div>
             </div>
@@ -178,9 +145,7 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
-        {user.userType !== 'hospital' && (
-          <Header user={user as Patient | Doctor} onLogout={handleLogout} />
-        )}
+        <Header user={user} onLogout={handleLogout} />
         <AppRoutes user={user} onLogout={handleLogout} />
       </div>
     </Router>

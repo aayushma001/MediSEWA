@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Patient, Doctor, Hospital
+from .models import User, Hospital
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'user_type', 'is_staff')
@@ -10,6 +10,4 @@ class CustomUserAdmin(UserAdmin):
     )
 
 admin.site.register(User, CustomUserAdmin)
-admin.site.register(Patient)
-admin.site.register(Doctor)
 admin.site.register(Hospital)

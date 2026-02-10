@@ -1,4 +1,4 @@
-import { Patient, Doctor, Hospital, LoginFormData, RegisterFormData } from '../types';
+import { User, LoginFormData, RegisterFormData } from '../types';
 import { authAPI } from '../services/api';
 
 // Token management functions
@@ -21,7 +21,7 @@ export const clearStoredAuth = () => {
   localStorage.removeItem('user');
 };
 
-export const login = async (formData: LoginFormData): Promise<Patient | Doctor | Hospital> => {
+export const login = async (formData: LoginFormData): Promise<User> => {
   try {
     console.log('=== LOGIN ATTEMPT ===');
     console.log('Form data:', formData);
@@ -38,54 +38,28 @@ export const login = async (formData: LoginFormData): Promise<Patient | Doctor |
       throw new Error('Invalid response format from server');
     }
     
-    const user = response.user;
-    
-    // Transform the response to match our interface and store transformed user
-    if (formData.userType === 'patient') {
-      const transformedUser: Patient = {
-        id: user.user.id.toString(),
-        user: user.user,
-        userType: 'patient' as const,
-        name: `${user.user.first_name} ${user.user.last_name}`,
-        fatherName: user.father_name,
-        father_name: user.father_name,
-        assigned_doctor: user.assigned_doctor,
-        assigned_doctor_name: user.assigned_doctor_name,
-        assigned_doctor_specialization: user.assigned_doctor_specialization,
-        illness_description: user.illness_description,
-        patient_unique_id: user.patient_unique_id,
-        nid: user.nid,
-        consent_signed: user.consent_signed
-      };
-      console.log('Transformed patient user:', transformedUser);
-      setStoredAuth(response.tokens, transformedUser);
-      return transformedUser;
-    } else if (formData.userType === 'doctor') {
-      const transformedUser: Doctor = {
-        id: user.user.id.toString(),
-        user: user.user,
-        userType: 'doctor' as const,
-        name: `${user.user.first_name} ${user.user.last_name}`,
-        specialization: user.specialization,
-        hospital: user.hospital,
-        doctor_unique_id: user.doctor_unique_id
-      };
-      console.log('Transformed doctor user:', transformedUser);
-      setStoredAuth(response.tokens, transformedUser);
-      return transformedUser;
-    } else {
-      const transformedUser: Hospital = {
-        id: user.user.id.toString(),
-        user: user.user,
-        userType: 'hospital' as const,
-        name: user.hospital_name,
-        hospital_name: user.hospital_name,
-        address: user.address
-      };
-      console.log('Transformed hospital user:', transformedUser);
-      setStoredAuth(response.tokens, transformedUser);
-      return transformedUser;
+    // Use the user data directly or map it if necessary
+    const user: User = {
+      id: response.user.user.id.toString(),
+      first_name: response.user.user.first_name,
+      last_name: response.user.user.last_name,
+      email: response.user.user.email,
+      mobile: response.user.user.mobile,
+      user_type: response.user.user.user_type,
+      created_at: response.user.user.created_at,
+      name: `${response.user.user.first_name} ${response.user.user.last_name}`
+    };
+
+    if (user.user_type === 'doctor') {
+      user.doctor_profile = response.user;
+    } else if (user.user_type === 'hospital') {
+      user.hospital_profile = response.user;
     }
+    
+    console.log('Transformed user:', user);
+    setStoredAuth(response.tokens, user);
+    return user;
+
   } catch (error) {
     console.error('Login error:', error);
     clearStoredAuth();
@@ -93,7 +67,7 @@ export const login = async (formData: LoginFormData): Promise<Patient | Doctor |
   }
 };
 
-export const register = async (formData: RegisterFormData): Promise<Patient | Doctor | Hospital> => {
+export const register = async (formData: RegisterFormData): Promise<User> => {
   try {
     const nameParts = formData.name.trim().split(' ');
     const firstName = nameParts[0] || '';
@@ -107,31 +81,17 @@ export const register = async (formData: RegisterFormData): Promise<Patient | Do
       user_type: formData.userType,
       password: formData.password,
       confirm_password: formData.confirmPassword,
-      ...(formData.userType === 'patient' && {
-        father_name: formData.fatherName,
-        assigned_doctor_id: formData.assignedDoctorId ? parseInt(formData.assignedDoctorId) : null,
-        illness_description: formData.illnessDescription,
-        street_no: formData.street_no,
-        province: formData.province,
-        city: formData.city,
-        blood_group: formData.blood_group,
-        health_allergies: formData.health_allergies,
-        recent_checkups: formData.recent_checkups,
-        nid: formData.nid
-      }),
-      ...(formData.userType === 'doctor' && {
-        specialization: formData.specialization,
-        latitude: formData.latitude,
-        longitude: formData.longitude,
-      hospital_id: (formData as any).hospitalId ? parseInt((formData as any).hospitalId) : null,
-      nmic_id: formData.nmicId
-      }),
-      ...(formData.userType === 'hospital' && {
-        hospital_name: formData.hospitalName,
-        address: formData.address,
-        latitude: formData.latitude,
-        longitude: formData.longitude
-      })
+      // Doctor specific
+      specialization: formData.specialization,
+      qualification: formData.qualification,
+      consent_accepted: formData.consentAccepted,
+      // Hospital specific
+      hospital_name: formData.hospitalName,
+      address: formData.address,
+      pan_number: formData.panNumber,
+      registration_number: formData.registrationNumber,
+      contact_number: formData.contactNumber,
+      website: formData.website
     };
     
     console.log('=== FRONTEND REGISTRATION DEBUG ===');
@@ -145,51 +105,20 @@ export const register = async (formData: RegisterFormData): Promise<Patient | Do
       throw new Error('Invalid response format from server');
     }
     
-    const user = response.user;
+    const user: User = {
+      id: response.user.user.id.toString(),
+      first_name: response.user.user.first_name,
+      last_name: response.user.user.last_name,
+      email: response.user.user.email,
+      mobile: response.user.user.mobile,
+      user_type: response.user.user.user_type,
+      created_at: response.user.user.created_at,
+      name: `${response.user.user.first_name} ${response.user.user.last_name}`
+    };
     
-    // Transform the response to match our interface and store transformed user
-    if (formData.userType === 'patient') {
-      const transformedUser: Patient = {
-        id: user.user.id.toString(),
-        user: user.user,
-        userType: 'patient' as const,
-        name: `${user.user.first_name} ${user.user.last_name}`,
-        fatherName: user.father_name,
-        father_name: user.father_name,
-        assigned_doctor: user.assigned_doctor,
-        assigned_doctor_name: user.assigned_doctor_name,
-        assigned_doctor_specialization: user.assigned_doctor_specialization,
-        illness_description: user.illness_description,
-        patient_unique_id: user.patient_unique_id,
-        nid: user.nid,
-        consent_signed: user.consent_signed
-      };
-      setStoredAuth(response.tokens, transformedUser);
-      return transformedUser;
-    } else if (formData.userType === 'doctor') {
-      const transformedUser: Doctor = {
-        id: user.user.id.toString(),
-        user: user.user,
-        userType: 'doctor' as const,
-        name: `${user.user.first_name} ${user.user.last_name}`,
-        specialization: user.specialization,
-        hospital: user.hospital,
-        doctor_unique_id: user.doctor_unique_id
-      };
-      setStoredAuth(response.tokens, transformedUser);
-      return transformedUser;
-    } else {
-      const transformedUser: Hospital = {
-        id: user.user.id.toString(),
-        user: user.user,
-        userType: 'hospital' as const,
-        name: user.hospital_name,
-        hospital_name: user.hospital_name,
-        address: user.address
-      };
-      setStoredAuth(response.tokens, transformedUser);
-      return transformedUser;
-    }
+    setStoredAuth(response.tokens, user);
+    return user;
+
   } catch (error) {
     console.error('=== REGISTRATION ERROR ===');
     console.error('Error object:', error);
@@ -198,26 +127,8 @@ export const register = async (formData: RegisterFormData): Promise<Patient | Do
   }
 };
 
-export const getDoctors = async (): Promise<Doctor[]> => {
-  try {
-    const response = await authAPI.getDoctors();
-    return response.map((doctor: any) => ({
-      id: doctor.user.id.toString(),
-      name: `${doctor.user.first_name} ${doctor.user.last_name}`,
-      email: doctor.user.email,
-      mobile: doctor.user.mobile,
-      userType: 'doctor' as const,
-      specialization: doctor.specialization,
-      createdAt: doctor.user.created_at
-    }));
-  } catch (error) {
-    console.error('Error fetching doctors:', error);
-    return [];
-  }
-};
-
 // Function to restore user session on app load
-export const restoreUserSession = (): Patient | Doctor | Hospital | null => {
+export const restoreUserSession = (): User | null => {
   try {
     const token = getStoredToken();
     const user = getStoredUser();

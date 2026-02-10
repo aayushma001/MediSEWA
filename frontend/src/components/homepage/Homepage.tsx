@@ -245,14 +245,14 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
                 className="rounded-full px-6 py-2.5 font-medium shadow-md hover:shadow-lg transition-all bg-blue-500 hover:bg-blue-600 text-white flex items-center space-x-2"
               >
                 <Lock className="h-4 w-4" />
-                <span>Sign Up</span>
+                <span>Login</span>
               </Button>
               <Button
                 onClick={() => onOpenAuthModal('register')}
                 className="rounded-full px-6 py-2.5 font-medium shadow-md hover:shadow-lg transition-all bg-gray-900 hover:bg-gray-800 text-white flex items-center space-x-2"
               >
                 <User className="h-4 w-4" />
-                <span>Register</span>
+                <span>Sign-up</span>
               </Button>
               <button className="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors lg:hidden">
                 <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -265,27 +265,33 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
       </nav>
 
       {/* Hero Section */}
-      <div className="homepage-hero relative min-h-[600px] flex items-center pb-32">
+      <div className="homepage-hero relative min-h-[600px] flex items-center pb-32 pt-24">
+        {/* Floating UI Elements - Fixed position */}
+        <div className="fixed bottom-8 right-8 bg-white rounded-full shadow-2xl px-6 py-4 animate-float-delayed flex items-center gap-3 whitespace-nowrap z-50 border border-blue-100">
+           <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+              <Phone className="h-5 w-5 text-green-600" />
+           </div>
+           <div>
+             <p className="text-xs text-gray-500 font-medium">Need help?</p>
+             <p className="text-sm font-bold text-gray-900">Call your doctor</p>
+           </div>
+        </div>
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
-            <div className="text-white z-20">
+            <div className="text-white z-20 -mt-24">
               {/* Stats Badge */}
-              <div className="inline-flex items-center bg-white/95 backdrop-blur-sm rounded-full px-5 py-3 mb-6 shadow-xl">
-                <div className="flex -space-x-2 mr-3">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white"></div>
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white"></div>
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 border-2 border-white"></div>
+              <button 
+                onClick={() => onOpenAuthModal('login')}
+                className="inline-flex items-center bg-white/95 backdrop-blur-sm rounded-full px-6 py-4 mb-8 shadow-xl hover:bg-white transition-colors cursor-pointer group"
+              >
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors">
+                  <Calendar className="h-4 w-4 text-blue-600" />
                 </div>
-                <span className="text-gray-800 text-sm font-semibold">5K+ Appointments</span>
-                <span className="mx-2 text-gray-400">•</span>
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                  ))}
-                </div>
-                <span className="text-gray-800 text-sm font-semibold ml-2">5.0 Ratings</span>
-              </div>
+                <span className="text-gray-800 text-sm font-bold">Book your appointment today</span>
+                <ArrowRight className="h-4 w-4 text-gray-400 ml-2 group-hover:translate-x-1 transition-transform" />
+              </button>
 
               {/* Main Heading */}
               <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-8">
@@ -298,12 +304,12 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
               </h1>
 
               {/* Search Bar */}
-              <div className="bg-white rounded-full px-6 py-4 shadow-2xl flex items-center space-x-4 mb-10">
+              <div className="bg-white rounded-full px-8 py-3 shadow-2xl flex items-center space-x-4 mb-8">
                 <div className="relative">
                   <select
                     value={selectedSpeciality}
                     onChange={(e) => setSelectedSpeciality(e.target.value)}
-                    className="appearance-none bg-gray-50 rounded-full px-4 py-3 text-sm font-medium text-gray-700 pr-10 outline-none cursor-pointer border border-gray-200"
+                    className="appearance-none bg-gray-50 rounded-full px-6 py-3 text-sm font-medium text-gray-700 pr-10 outline-none cursor-pointer border border-gray-200"
                   >
                     <option value="">Select Speciality</option>
                     {specialities.map((s) => (
@@ -320,61 +326,31 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search for Medical Procedures, hospitals"
-                  className="flex-1 outline-none text-gray-700 px-2 text-sm"
+                  className="flex-1 outline-none text-gray-700 px-2 text-base"
                 />
                 <Button
                   onClick={handleSearch}
-                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 py-3 font-medium shadow-lg"
+                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 font-medium shadow-lg"
                 >
-                  Search
+                  <Search className="h-6 w-6" />
                 </Button>
               </div>
             </div>
 
             {/* Right Doctor Image Placeholder */}
-            <div className="relative flex justify-center items-center lg:justify-end">
-              <div className="relative">
-                {/* Doctor image placeholder */}
-                <div className="w-96 h-96 rounded-full bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm border border-white/20 flex items-center justify-center">
-                  <User className="h-32 w-32 text-white/40" />
-                </div>
-
-                {/* Floating UI Elements */}
-                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center space-x-3 bg-white rounded-full shadow-2xl px-4 py-3 animate-float">
-                  <button className="w-12 h-12 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
-                    <Phone className="h-5 w-5 rotate-180" />
-                  </button>
-                  <button className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center shadow-md hover:scale-110 transition-transform">
-                    <Video className="h-5 w-5 text-gray-700" />
-                  </button>
-                  <button className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center shadow-md hover:scale-110 transition-transform">
-                    <Phone className="h-5 w-5 text-gray-700" />
-                  </button>
-                  <button className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center shadow-md hover:scale-110 transition-transform">
-                    <Mic className="h-5 w-5 text-gray-700" />
-                  </button>
-                </div>
-
-                {/* Theme toggle buttons */}
-                <div className="absolute -right-8 top-24 flex flex-col space-y-3 animate-float-delayed">
-                  <button className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:scale-110 transition-transform">
-                    <svg className="h-5 w-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                    </svg>
-                  </button>
-                  <button className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:scale-110 transition-transform">
-                    <svg className="h-5 w-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </button>
-                </div>
+            <div className="relative flex justify-center items-center lg:justify-end lg:items-end mt-10 lg:-mt-24">
+              <div className="relative z-10">
+                <img 
+                  src="/Hero.png" 
+                  alt="Doctor" 
+                  className="h-auto max-h-[650px] w-auto object-contain drop-shadow-2xl" 
+                />
               </div>
             </div>
           </div>
 
           {/* Service Icons Row */}
-          <div className="grid grid-cols-3 sm:grid-cols-7 gap-4 mt-16 bg-white rounded-3xl p-6 shadow-2xl">
+          <div className="grid grid-cols-3 sm:grid-cols-7 gap-4 -mt-20 relative z-30 bg-white rounded-3xl p-6 shadow-2xl mx-4 lg:mx-0">
             <div className="flex flex-col items-center text-center group cursor-pointer">
               <div className="w-14 h-14 rounded-full bg-blue-500 text-white flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-lg">
                 <Calendar className="h-6 w-6" />

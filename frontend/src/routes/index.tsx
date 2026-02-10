@@ -1,13 +1,11 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { PatientDashboard } from '../components/patient/PatientDashboard';
+import { User } from '../types';
 import { DoctorDashboard } from '../components/doctor/DoctorDashboard';
-import { AdminDashboard } from '../components/admin/AdminDashboard';
-import { ConsentPage } from '../components/auth/ConsentPage';
-import { Patient, Doctor, Hospital } from '../types';
+import { HospitalDashboard } from '../components/hospital/HospitalDashboard';
 
 interface AppRoutesProps {
-  user: Patient | Doctor | Hospital;
+  user: User;
   onLogout: () => void;
 }
 
@@ -17,52 +15,28 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({ user, onLogout }) => {
       <Route
         path="/"
         element={
-          user.userType === 'patient' ? (
-            (user as Patient).consent_signed ? (
-              <Navigate to="/patient/dashboard" replace />
-            ) : (
-              <Navigate to="/consent" replace />
-            )
-          ) : user.userType === 'doctor' ? (
-            <DoctorDashboard doctor={user as Doctor} />
+          user.user_type === 'doctor' ? (
+            <DoctorDashboard user={user} onLogout={onLogout} />
+          ) : user.user_type === 'hospital' ? (
+            <HospitalDashboard user={user} onLogout={onLogout} />
           ) : (
-            <AdminDashboard hospital={user as Hospital} onLogout={onLogout} />
+            <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
+                <h1 className="text-2xl font-bold mb-4">Welcome to HealthCare Platform</h1>
+                <p className="text-gray-600">Patient Dashboard is under construction.</p>
+            </div>
           )
         }
       />
-      <Route
-        path="/dashboard"
+      <Route 
+        path="/settings" 
         element={
-          user.userType === 'patient' ? (
-            <Navigate to="/patient/dashboard" replace />
-          ) : user.userType === 'doctor' ? (
-            <DoctorDashboard doctor={user as Doctor} />
+          user.user_type === 'doctor' ? (
+            <DoctorDashboard user={user} onLogout={onLogout} initialTab="profile-settings" />
           ) : (
-            <AdminDashboard hospital={user as Hospital} onLogout={onLogout} />
+            <Navigate to="/" replace />
           )
-        }
+        } 
       />
-      
-      {/* Patient routes */}
-      {user.userType === 'patient' && (
-        <>
-          <Route path="/patient/dashboard" element={<PatientDashboard patient={user as Patient} />} />
-          <Route path="/patient/book-appointment" element={<PatientDashboard patient={user as Patient} />} />
-          <Route path="/patient/appointments" element={<PatientDashboard patient={user as Patient} />} />
-          <Route path="/patient/records" element={<PatientDashboard patient={user as Patient} />} />
-          <Route path="/patient/emergency" element={<PatientDashboard patient={user as Patient} />} />
-        </>
-      )}
-      
-      {/* Admin specific routes */}
-      {user.userType === 'hospital' && (
-        <Route path="/admin/*" element={<AdminDashboard hospital={user as Hospital} onLogout={onLogout} />} />
-      )}
-      
-      {user.userType === 'patient' && (
-        <Route path="/consent" element={<ConsentPage />} />
-      )}
-
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
