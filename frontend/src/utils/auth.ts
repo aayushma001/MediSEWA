@@ -25,19 +25,19 @@ export const login = async (formData: LoginFormData): Promise<User> => {
   try {
     console.log('=== LOGIN ATTEMPT ===');
     console.log('Form data:', formData);
-    
+
     const response = await authAPI.login({
       email: formData.email,
       password: formData.password,
       user_type: formData.userType
     });
-    
+
     console.log('Login API response:', response);
-    
+
     if (!response.user || !response.tokens) {
       throw new Error('Invalid response format from server');
     }
-    
+
     // Use the user data directly or map it if necessary
     const user: User = {
       id: response.user.user.id.toString(),
@@ -55,7 +55,7 @@ export const login = async (formData: LoginFormData): Promise<User> => {
     } else if (user.user_type === 'hospital') {
       user.hospital_profile = response.user;
     }
-    
+
     console.log('Transformed user:', user);
     setStoredAuth(response.tokens, user);
     return user;
@@ -72,7 +72,7 @@ export const register = async (formData: RegisterFormData): Promise<User> => {
     const nameParts = formData.name.trim().split(' ');
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
-    
+
     const requestData = {
       first_name: firstName,
       last_name: lastName,
@@ -81,30 +81,37 @@ export const register = async (formData: RegisterFormData): Promise<User> => {
       user_type: formData.userType,
       password: formData.password,
       confirm_password: formData.confirmPassword,
-      // Doctor specific
-      specialization: formData.specialization,
-      qualification: formData.qualification,
+      // Doctor specific - Send "N/A" if not a doctor to satisfy backend validation
+      specialization: formData.userType === 'doctor' ? formData.specialization : 'N/A',
+      qualification: formData.userType === 'doctor' ? formData.qualification : 'N/A',
       consent_accepted: formData.consentAccepted,
       // Hospital specific
       hospital_name: formData.hospitalName,
-      address: formData.address,
+      hospital_type: formData.hospitalType,
+      hospital_id: formData.hospitalId,
+      province: formData.province,
+      district: formData.district,
+      city: formData.city,
+      ward: formData.ward,
+      // Construct address from components if main address field is empty
+      address: formData.address || `${formData.province || ''}, ${formData.district || ''}, ${formData.city || ''} - ${formData.ward || ''}`,
       pan_number: formData.panNumber,
       registration_number: formData.registrationNumber,
       contact_number: formData.contactNumber,
       website: formData.website
     };
-    
+
     console.log('=== FRONTEND REGISTRATION DEBUG ===');
     console.log('Form data received:', formData);
     console.log('Request data being sent to API:', requestData);
-    
+
     const response = await authAPI.register(requestData);
     console.log('API response received:', response);
-    
+
     if (!response.user || !response.tokens) {
       throw new Error('Invalid response format from server');
     }
-    
+
     const user: User = {
       id: response.user.user.id.toString(),
       first_name: response.user.user.first_name,
@@ -115,7 +122,41 @@ export const register = async (formData: RegisterFormData): Promise<User> => {
       created_at: response.user.user.created_at,
       name: `${response.user.user.first_name} ${response.user.user.last_name}`
     };
-    
+
+    // Manually attach profile for immediate dashboard access
+    if (user.user_type === 'hospital') {
+      user.hospital_profile = {
+        user: { ...user, hospital_profile: undefined } as User, // Break circular reference
+        hospital_name: formData.hospitalName || '',
+        hospital_id: formData.hospitalId,
+        hospital_type: formData.hospitalType,
+        province: formData.province,
+        district: formData.district,
+        city: formData.city,
+        ward: formData.ward,
+        address: formData.address || '',
+        pan_number: formData.panNumber || '',
+        registration_number: formData.registrationNumber || '',
+        contact_number: formData.contactNumber || '',
+        website: formData.website || '',
+        logo: null
+      };
+    } else if (user.user_type === 'doctor') {
+      // Attach doctor profile if needed, though we focused on Hospital for now
+      user.doctor_profile = {
+        user: { ...user, doctor_profile: undefined } as User, // Break circular reference
+        profile_picture: null,
+        qualification: formData.qualification || '',
+        specialization: formData.specialization || '',
+        experience_years: 0,
+        about: '',
+        is_verified: false,
+        consent_accepted: formData.consentAccepted || false,
+        nmc_number: formData.nmcId,
+        // Add other fields as necessary from formData
+      };
+    }
+
     setStoredAuth(response.tokens, user);
     return user;
 
@@ -132,21 +173,21 @@ export const restoreUserSession = (): User | null => {
   try {
     const token = getStoredToken();
     const user = getStoredUser();
-    
+
     if (!token || !user) {
       return null;
     }
-    
+
     // Check if token is expired (basic check)
     const tokenPayload = JSON.parse(atob(token.split('.')[1]));
     const currentTime = Date.now() / 1000;
-    
+
     if (tokenPayload.exp < currentTime) {
       console.log('Token expired, clearing stored auth');
       clearStoredAuth();
       return null;
     }
-    
+
     console.log('Restoring user session:', user);
     return user;
   } catch (error) {

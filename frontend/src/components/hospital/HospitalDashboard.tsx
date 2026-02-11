@@ -1,99 +1,93 @@
 import React, { useState } from 'react';
 import { User } from '../../types';
-import { 
-  LayoutDashboard, 
-  Calendar, 
-  Stethoscope, 
-  UserRound, 
-  Users, 
-  Star, 
-  CreditCard, 
-  Settings, 
-  FileText, 
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  Calendar,
+  Stethoscope,
+  UserRound,
+  Users,
+  Star,
+  CreditCard,
+  Settings,
+  FileText,
   LogOut,
   Bell,
   Search,
   Menu,
-  MoreVertical
+  User as UserIcon
 } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 
 interface HospitalDashboardProps {
   user: User;
   onLogout: () => void;
 }
 
-const dataRevenue = [
-  { year: '2013', revenue: 60 },
-  { year: '2014', revenue: 100 },
-  { year: '2015', revenue: 240 },
-  { year: '2016', revenue: 120 },
-  { year: '2017', revenue: 80 },
-  { year: '2018', revenue: 100 },
-  { year: '2019', revenue: 300 },
-];
-
-const dataStatus = [
-  { year: '2015', patients: 100, doctors: 30 },
-  { year: '2016', patients: 20, doctors: 60 },
-  { year: '2017', patients: 90, doctors: 70 },
-  { year: '2018', patients: 60, doctors: 80 },
-  { year: '2019', patients: 120, doctors: 160 },
-];
-
 export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', active: true },
-    { icon: Calendar, label: 'Appointments' },
-    { icon: Stethoscope, label: 'Specialities' },
-    { icon: UserRound, label: 'Doctors' },
-    { icon: Users, label: 'Patients' },
-    { icon: Star, label: 'Reviews' },
-    { icon: CreditCard, label: 'Transactions' },
-    { icon: Settings, label: 'Settings' },
-    { icon: FileText, label: 'Reports' },
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/hospital' },
+    { icon: Calendar, label: 'Appointments', path: '/hospital/appointments' },
+    { icon: Stethoscope, label: 'Specialities', path: '/hospital/specialities' },
+    { icon: UserRound, label: 'Doctors', path: '/hospital/doctors' },
+    { icon: Users, label: 'Patients', path: '/hospital/patients' },
+    { icon: Star, label: 'Reviews', path: '/hospital/reviews' },
+    { icon: CreditCard, label: 'Transactions', path: '/hospital/transactions' },
+    { icon: Settings, label: 'Settings', path: '/hospital/settings' },
+    { icon: FileText, label: 'Reports', path: '/hospital/reports' },
+    { icon: UserIcon, label: 'Profile', path: '/hospital/profile' },
   ];
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+  };
+
+  // Determine active item based on current path
+  const isActive = (path: string) => {
+    // Exact match for dashboard home
+    if (path === '/hospital' && (location.pathname === '/hospital' || location.pathname === '/hospital/')) return true;
+    // Prefix match for other routes
+    if (path !== '/hospital' && location.pathname.startsWith(path)) return true;
+    return false;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <aside className={`bg-[#2c3e50] text-white transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'} fixed h-full z-30`}>
-        <div className="h-16 flex items-center justify-center border-b border-gray-700">
-           <h1 className={`font-bold text-xl ${!sidebarOpen && 'hidden'}`}>DOCCURE</h1>
-           {/* Fallback logo if image not available */}
+      <aside className={`bg-[#2c3e50] text-white transition-all duration-300 ${sidebarOpen ? 'w-72' : 'w-20'} fixed h-full z-30`}>
+        {/* Sidebar Header - MediSewa branding restored */}
+        <div className="h-20 flex items-center justify-center border-b border-gray-700 bg-[#243342]">
+          <h1 className={`font-bold text-2xl tracking-wider text-[#00d0f1] ${!sidebarOpen && 'hidden'}`}>MEDISEWA</h1>
+          <span className={`font-bold text-2xl text-[#00d0f1] ${sidebarOpen && 'hidden'}`}>MS</span>
         </div>
-        
-        <div className="py-4">
-          <div className="px-4 mb-4 text-xs text-gray-400 uppercase">Main</div>
-          <nav className="space-y-1">
+
+        <div className="py-6 h-[calc(100vh-5rem)] overflow-y-auto custom-scrollbar">
+          <div className="px-6 mb-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Main</div>
+          <nav className="space-y-2 pb-20">
             {menuItems.map((item, index) => (
-              <a
+              <button
                 key={index}
-                href="#"
-                className={`flex items-center px-4 py-3 text-sm transition-colors ${
-                  item.active 
-                    ? 'bg-[#00d0f1] text-white' 
-                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
-                }`}
+                onClick={() => handleNavigation(item.path)}
+                className={`w-full flex items-center px-6 py-4 text-base font-medium transition-colors border-l-4 ${isActive(item.path)
+                  ? 'bg-[#2c3e50] border-[#00d0f1] text-[#00d0f1]'
+                  : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-700'
+                  }`}
               >
-                <item.icon className="h-5 w-5 mr-3" />
+                <item.icon className={`h-6 w-6 mr-4 ${isActive(item.path) ? 'text-[#00d0f1]' : ''}`} />
                 <span className={`${!sidebarOpen && 'hidden'}`}>{item.label}</span>
-              </a>
+              </button>
             ))}
-            
-            <div className="px-4 mt-8 mb-4 text-xs text-gray-400 uppercase">Pages</div>
-            <a href="#" className="flex items-center px-4 py-3 text-sm text-gray-400 hover:text-white hover:bg-gray-700 transition-colors">
-              <UserRound className="h-5 w-5 mr-3" />
-              <span className={`${!sidebarOpen && 'hidden'}`}>Profile</span>
-            </a>
-            
-            <button 
+
+            <div className="my-6 border-t border-gray-700"></div>
+
+            <button
               onClick={onLogout}
-              className="w-full flex items-center px-4 py-3 text-sm text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+              className="w-full flex items-center px-6 py-4 text-base font-medium text-gray-400 hover:text-red-400 hover:bg-gray-700 border-l-4 border-transparent transition-colors"
             >
-              <LogOut className="h-5 w-5 mr-3" />
+              <LogOut className="h-6 w-6 mr-4" />
               <span className={`${!sidebarOpen && 'hidden'}`}>Logout</span>
             </button>
           </nav>
@@ -101,39 +95,45 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLo
       </aside>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen ? 'ml-72' : 'ml-20'}`}>
         {/* Header */}
         <header className="bg-white h-16 shadow-sm flex items-center justify-between px-6 sticky top-0 z-20">
           <div className="flex items-center">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-md hover:bg-gray-100 mr-4">
-              <Menu className="h-5 w-5 text-gray-600" />
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-md hover:bg-gray-100 mr-4 text-gray-600">
+              <Menu className="h-6 w-6" />
             </button>
-            <div className="relative">
+            <div className="relative hidden md:block">
               <Search className="h-4 w-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input 
-                type="text" 
-                placeholder="Search here" 
-                className="pl-10 pr-4 py-2 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+              <input
+                type="text"
+                placeholder="Search..."
+                className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00d0f1] focus:border-transparent w-64 bg-gray-50"
               />
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-4">
             <button className="relative p-2 hover:bg-gray-100 rounded-full">
-              <Bell className="h-5 w-5 text-gray-600" />
-              <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+              <Bell className="h-6 w-6 text-gray-500" />
+              <span className="absolute top-1.5 right-2 h-2 w-2 bg-red-500 rounded-full border-2 border-white"></span>
             </button>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 border-l pl-4 border-gray-200">
               <div className="text-right hidden md:block">
-                <div className="text-sm font-semibold text-gray-900">{user.hospital_profile?.hospital_name || user.name || 'Admin'}</div>
-                <div className="text-xs text-gray-500">Hospital Administrator</div>
+                <div className="text-sm font-bold text-gray-800">{user.hospital_profile?.hospital_name || 'Hospital Admin'}</div>
+                <div className="text-xs text-gray-500 font-mono">ID: {user.hospital_profile?.hospital_id || 'N/A'}</div>
               </div>
-              <div className="h-10 w-10 rounded-full bg-gray-200 overflow-hidden">
-                <img 
-                  src={user.hospital_profile?.logo || "https://via.placeholder.com/40"} 
-                  alt="Profile" 
-                  className="h-full w-full object-cover"
-                />
+              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden border-2 border-blue-50">
+                {user.hospital_profile?.logo ? (
+                  <img
+                    src={user.hospital_profile.logo}
+                    alt="Profile"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="text-blue-600 font-bold text-lg">
+                    {user.hospital_profile?.hospital_name?.charAt(0).toUpperCase() || 'H'}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -141,204 +141,8 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLo
 
         {/* Dashboard Content */}
         <main className="flex-1 p-8 overflow-y-auto">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-800">Welcome Admin!</h2>
-            <p className="text-gray-500 text-sm">Dashboard</p>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
-              <div>
-                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-blue-50 text-blue-500 mb-4">
-                  <Users className="h-6 w-6" />
-                </div>
-                <div className="text-gray-500 text-sm font-medium">Doctors</div>
-                <div className="text-2xl font-bold text-gray-900">168</div>
-                <div className="mt-2 h-1 w-full bg-blue-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-blue-500 w-[70%]"></div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
-              <div>
-                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-green-50 text-green-500 mb-4">
-                  <UserRound className="h-6 w-6" />
-                </div>
-                <div className="text-gray-500 text-sm font-medium">Patients</div>
-                <div className="text-2xl font-bold text-gray-900">487</div>
-                <div className="mt-2 h-1 w-full bg-green-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-green-500 w-[60%]"></div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
-              <div>
-                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-red-50 text-red-500 mb-4">
-                  <Calendar className="h-6 w-6" />
-                </div>
-                <div className="text-gray-500 text-sm font-medium">Appointment</div>
-                <div className="text-2xl font-bold text-gray-900">485</div>
-                <div className="mt-2 h-1 w-full bg-red-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-red-500 w-[50%]"></div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
-              <div>
-                <div className="flex items-center justify-center h-12 w-12 rounded-full bg-yellow-50 text-yellow-500 mb-4">
-                  <CreditCard className="h-6 w-6" />
-                </div>
-                <div className="text-gray-500 text-sm font-medium">Revenue</div>
-                <div className="text-2xl font-bold text-gray-900">$62523</div>
-                <div className="mt-2 h-1 w-full bg-yellow-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-yellow-500 w-[80%]"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            {/* Revenue Chart */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <h3 className="text-lg font-bold text-gray-800 mb-6">Revenue</h3>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={dataRevenue} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#1b5a90" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#1b5a90" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="year" axisLine={false} tickLine={false} />
-                    <YAxis axisLine={false} tickLine={false} />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="revenue" stroke="#1b5a90" fillOpacity={1} fill="url(#colorRevenue)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            {/* Status Chart */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <h3 className="text-lg font-bold text-gray-800 mb-6">Status</h3>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={dataStatus} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="year" axisLine={false} tickLine={false} />
-                    <YAxis axisLine={false} tickLine={false} />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="patients" stroke="#ff902f" strokeWidth={2} dot={false} />
-                    <Line type="monotone" dataKey="doctors" stroke="#1b5a90" strokeWidth={2} dot={false} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-
-          {/* Lists */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Doctors List */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="p-6 border-b border-gray-100">
-                <h3 className="text-lg font-bold text-gray-800">Doctors List</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-gray-500">
-                  <thead className="bg-gray-50 text-xs uppercase text-gray-700 font-semibold">
-                    <tr>
-                      <th className="px-6 py-4">Doctor Name</th>
-                      <th className="px-6 py-4">Speciality</th>
-                      <th className="px-6 py-4">Earned</th>
-                      <th className="px-6 py-4">Reviews</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-6 py-4 flex items-center">
-                        <img className="h-8 w-8 rounded-full object-cover mr-3" src="https://via.placeholder.com/32" alt="" />
-                        <span className="font-medium text-gray-900">Dr. Ruby Perrin</span>
-                      </td>
-                      <td className="px-6 py-4">Dental</td>
-                      <td className="px-6 py-4 text-gray-900">$3200.00</td>
-                      <td className="px-6 py-4">
-                        <div className="flex text-yellow-400">
-                          <Star className="h-4 w-4 fill-current" />
-                          <Star className="h-4 w-4 fill-current" />
-                          <Star className="h-4 w-4 fill-current" />
-                          <Star className="h-4 w-4 fill-current" />
-                          <Star className="h-4 w-4 text-gray-300" />
-                        </div>
-                      </td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-6 py-4 flex items-center">
-                        <img className="h-8 w-8 rounded-full object-cover mr-3" src="https://via.placeholder.com/32" alt="" />
-                        <span className="font-medium text-gray-900">Dr. Darren Elder</span>
-                      </td>
-                      <td className="px-6 py-4">Dental</td>
-                      <td className="px-6 py-4 text-gray-900">$3100.00</td>
-                      <td className="px-6 py-4">
-                        <div className="flex text-yellow-400">
-                          <Star className="h-4 w-4 fill-current" />
-                          <Star className="h-4 w-4 fill-current" />
-                          <Star className="h-4 w-4 fill-current" />
-                          <Star className="h-4 w-4 fill-current" />
-                          <Star className="h-4 w-4 text-gray-300" />
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Patients List */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="p-6 border-b border-gray-100">
-                <h3 className="text-lg font-bold text-gray-800">Patients List</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm text-gray-500">
-                  <thead className="bg-gray-50 text-xs uppercase text-gray-700 font-semibold">
-                    <tr>
-                      <th className="px-6 py-4">Patient Name</th>
-                      <th className="px-6 py-4">Phone</th>
-                      <th className="px-6 py-4">Last Visit</th>
-                      <th className="px-6 py-4">Paid</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-6 py-4 flex items-center">
-                        <img className="h-8 w-8 rounded-full object-cover mr-3" src="https://via.placeholder.com/32" alt="" />
-                        <span className="font-medium text-gray-900">Charlene Reed</span>
-                      </td>
-                      <td className="px-6 py-4">8286329170</td>
-                      <td className="px-6 py-4">20 Oct 2023</td>
-                      <td className="px-6 py-4 text-gray-900">$100.00</td>
-                    </tr>
-                    <tr className="hover:bg-gray-50">
-                      <td className="px-6 py-4 flex items-center">
-                        <img className="h-8 w-8 rounded-full object-cover mr-3" src="https://via.placeholder.com/32" alt="" />
-                        <span className="font-medium text-gray-900">Travis Trimble</span>
-                      </td>
-                      <td className="px-6 py-4">2077299974</td>
-                      <td className="px-6 py-4">22 Oct 2023</td>
-                      <td className="px-6 py-4 text-gray-900">$200.00</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+          {/* Outlet is where child routes (DashboardHome, Appointments, etc.) are rendered */}
+          <Outlet />
         </main>
       </div>
     </div>

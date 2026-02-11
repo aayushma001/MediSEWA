@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
-from .models import User, Hospital, DoctorProfile
+from .models import User, Hospital, DoctorProfile, PaymentMethod, Notification
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -157,7 +157,18 @@ class HospitalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hospital
         fields = ['user', 'hospital_name', 'address', 'pan_number', 'registration_number', 
-                  'contact_number', 'website', 'logo', 'latitude', 'longitude']
+                  'contact_number', 'website', 'logo', 'latitude', 'longitude', 'description']
+
+class PaymentMethodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentMethod
+        fields = ['id', 'user', 'method_type', 'provider_name', 'account_number', 'account_holder_name', 'is_default']
+        read_only_fields = ['user']
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['id', 'message', 'notification_type', 'is_read', 'created_at']
 
 class DoctorProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)

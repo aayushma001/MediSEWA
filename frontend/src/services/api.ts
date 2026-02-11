@@ -16,7 +16,7 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(token && { Authorization: `Bearer ${token}` }),
-    ...options.headers,
+    ...(options.headers as Record<string, string>),
   };
 
   const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
@@ -39,11 +39,11 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
     if (!response.ok) {
       let errorMessage = 'API request failed';
       let errorData = null;
-      
+
       try {
         errorData = await response.json();
         console.error('API Error Response:', errorData);
-        
+
         // Handle different error formats
         if (typeof errorData === 'object') {
           if (errorData.detail) {
@@ -71,7 +71,7 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
         console.error('Failed to parse error response:', parseError);
         errorMessage = `HTTP ${response.status}: ${response.statusText}`;
       }
-      
+
       throw new Error(errorMessage);
     }
 
@@ -113,34 +113,34 @@ export const authAPI = {
   login: async (data: { email: string; password: string; user_type: string }) => {
     console.log('=== API LOGIN REQUEST ===');
     console.log('Login data:', data);
-    
+
     const response = await apiRequest('/auth/login/', {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    
+
     if (response.tokens) {
       setToken(response.tokens.access);
       localStorage.setItem('refresh_token', response.tokens.refresh);
     }
-    
+
     return response;
   },
 
   register: async (data: any) => {
     console.log('=== API REGISTER REQUEST ===');
     console.log('Register data:', data);
-    
+
     const response = await apiRequest('/auth/register/', {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    
+
     if (response.tokens) {
       setToken(response.tokens.access);
       localStorage.setItem('refresh_token', response.tokens.refresh);
     }
-    
+
     return response;
   },
 
@@ -148,12 +148,12 @@ export const authAPI = {
     console.log('=== API GET DOCTORS REQUEST ===');
     return apiRequest('/auth/doctors/');
   },
-  
+
   getHospitals: async () => {
     console.log('=== API GET HOSPITALS REQUEST ===');
     return apiRequest('/auth/hospitals/');
   },
-  
+
   patientConsent: async () => {
     return apiRequest('/auth/patient/consent/', {
       method: 'POST',
@@ -165,6 +165,41 @@ export const authAPI = {
 export const adminAPI = {
   getDashboardStats: async () => {
     return apiRequest('/auth/dashboard-stats/');
+  },
+
+  updateProfile: async (data: any) => {
+    return apiRequest('/auth/profile/update/', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  getPaymentMethods: async () => {
+    return apiRequest('/auth/payment-methods/');
+  },
+
+  addPaymentMethod: async (data: any) => {
+    return apiRequest('/auth/payment-methods/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deletePaymentMethod: async (id: number) => {
+    return apiRequest(`/auth/payment-methods/${id}/`, {
+      method: 'DELETE',
+    });
+  },
+
+  getNotifications: async () => {
+    return apiRequest('/auth/notifications/');
+  },
+
+  markNotificationsRead: async () => {
+    return apiRequest('/auth/notifications/', {
+      method: 'POST',
+      body: JSON.stringify({ mark_read: true }),
+    });
   },
 };
 

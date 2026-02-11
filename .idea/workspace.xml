@@ -5,206 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="23b02453-bc73-491c-ad7f-5ce4645a26c4" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Medico--main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Medico--main.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/appointments/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/appointments/admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/appointments/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/appointments/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/appointments/migrations/0002_medicalrecord.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/appointments/migrations/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/appointments/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/appointments/serializers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/appointments/tests.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/appointments/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/appointments/views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/authentication/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/management/commands/create_sample_data.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/migrations/0001_initial.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/authentication/migrations/0001_initial.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/migrations/0002_patient_blood_group_patient_health_allergies_and_more.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/migrations/0003_hospital_alter_user_user_type.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/migrations/0004_patient_city_patient_patient_unique_id.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/migrations/0005_doctor_latitude_doctor_longitude_hospital_latitude_and_more.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/migrations/0006_seed_hospitals.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/migrations/0007_doctor_doctor_unique_id_doctor_hospital_and_more.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/migrations/0008_doctor_nmic_id.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/migrations/0009_populate_nmic_id.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/migrations/0010_alter_doctor_nmic_non_null.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/authentication/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/authentication/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/authentication/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/authentication/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/backend/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/doctors/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/doctors/admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/doctors/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/doctors/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/doctors/migrations/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/doctors/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/doctors/serializers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/doctors/tests.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/doctors/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/doctors/views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/healthcare_platform/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/healthcare_platform/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/healthcare_platform/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/healthcare_platform/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/patients/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/patients/admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/patients/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/patients/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/patients/tests.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/patients/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/patients/views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/Dockerfile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/SECURITY.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/SQL_Database_edoc.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/Screenshots/Screenshot (1).png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/Screenshots/Screenshot (10).png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/Screenshots/Screenshot (2).png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/Screenshots/Screenshot (3).png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/Screenshots/Screenshot (4).png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/Screenshots/Screenshot (5).png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/Screenshots/Screenshot (6).png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/Screenshots/Screenshot (7).png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/Screenshots/Screenshot (8).png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/Screenshots/Screenshot (9).png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/admin/add-new.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/admin/add-session.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/admin/appointment.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/admin/delete-appointment.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/admin/delete-doctor.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/admin/delete-session.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/admin/doctors.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/admin/edit-doc.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/admin/index.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/admin/patient.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/admin/schedule.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/connection.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/create-account.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/admin.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/animations.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/font-inter.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-Black.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-BlackItalic.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-Bold.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-BoldItalic.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-ExtraBold.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-ExtraBoldItalic.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-ExtraLight-BETA.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-ExtraLightItalic-BETA.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-Italic.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-Light-BETA.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-LightItalic-BETA.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-Medium.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-MediumItalic.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-Regular.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-SemiBold.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-SemiBoldItalic.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-Thin-BETA.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/fonts/inter/Inter-ThinItalic-BETA.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/index.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/login.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/main.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/patient.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/css/signup.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/docker-compose.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/doctor/appointment.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/doctor/delete-appointment.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/doctor/delete-session.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/doctor/doctors.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/doctor/edit-doc.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/doctor/index.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/doctor/patient.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/doctor/schedule.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/doctor/settings.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/account-create.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/arrow_forward.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/b3.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/b4.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/b8.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/bg01.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/calendar.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/accountsettings.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/add.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/back-iceblue.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/back-white.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/book-balck.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/book-hover.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/book.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/dashboard-hover.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/dashboard.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/delete-iceblue.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/delete-white.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/doctors-hover.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/doctors.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/edit-iceblue.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/edit-white.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/filter-iceblue.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/filter-white.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/home-iceblue.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/home.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/patients-hover.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/patients.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/schedule-hover.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/schedule.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/session-iceblue.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/session.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/settings-iceblue.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/settings.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/view-iceblue.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/icons/view-white.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/info.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/notfound.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/search.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/user.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/img/view-gray.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/login.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/logout.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/patient/appointment.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/patient/booking-complete.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/patient/booking.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/patient/delete-account.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/patient/delete-appointment.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/patient/doctors.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/patient/edit-user.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/patient/index.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/patient/patient.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/patient/schedule.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/patient/settings.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/edoc-doctor-appointment-system-main/signup.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/skeleton.jpg" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/admin/AdminAppointments.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/admin/AdminDashboard.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/admin/AdminDoctors.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/admin/AdminHeader.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/admin/AdminPatients.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/admin/AdminSidebar.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/admin/AdminUploadReport.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/auth/ConsentPage.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/auth/LoginForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/auth/LoginForm.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/components/auth/RegisterForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/auth/RegisterForm.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/doctor/DoctorDashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/doctor/DoctorDashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/doctor/DoctorSessions.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/doctor/NewPatients.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/doctor/OldPatients.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/homepage/Homepage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/homepage/Homepage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/layout/Header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/layout/Header.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/patient/AppointmentHistory.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/patient/BookAppointment.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/patient/DoctorAdvice.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/patient/EmergencySearch.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/patient/HealthAnalytics.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/patient/MedicalRecords.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/patient/MedicationTracker.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/patient/MyAppointments.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/patient/PatientDashboard.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/patient/ProgressReports.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/hospital/HospitalDashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/hospital/HospitalDashboard.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/routes/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/index.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/types/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/types/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/utils/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/utils/auth.ts" afterDir="false" />
@@ -213,6 +18,9 @@
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -226,27 +34,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "main",
-    "junie.onboarding.icon.badge.shown": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "C:\\Users\\katuw\\OneDrive\\Desktop\\Medico--main\\frontend\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\katuw\\OneDrive\\Desktop\\Medico--main\\frontend\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="Medico--main" type="Python.DjangoServer" factoryName="Django server">
       <module name="Medico--main" />
@@ -289,7 +98,13 @@
       <option name="presentableId" value="Default" />
       <updated>1770699033129</updated>
       <workItem from="1770699034724" duration="4069000" />
-      <workItem from="1770718671370" duration="443000" />
+      <workItem from="1770718671370" duration="3656000" />
+      <workItem from="1770723045470" duration="2219000" />
+      <workItem from="1770734890795" duration="3000" />
+      <workItem from="1770735101737" duration="3712000" />
+      <workItem from="1770789380866" duration="593000" />
+      <workItem from="1770797672896" duration="14000" />
+      <workItem from="1770797916826" duration="332000" />
     </task>
     <servers />
   </component>

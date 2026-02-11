@@ -3,8 +3,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import UserRegistrationSerializer, UserLoginSerializer, HospitalSerializer, DoctorProfileSerializer
-from .models import Hospital, DoctorProfile
+from .serializers import UserRegistrationSerializer, UserLoginSerializer, HospitalSerializer, DoctorProfileSerializer, PaymentMethodSerializer, NotificationSerializer
+from .models import Hospital, DoctorProfile, PaymentMethod, Notification
 import traceback
 
 @api_view(['GET'])
@@ -156,4 +156,61 @@ def update_profile(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except DoctorProfile.DoesNotExist:
             return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)
+            
+    elif user.user_type == 'hospital':
+        try:
+            profile = user.hospital_profile
+            serializer = HospitalSerializer(profile, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Hospital.DoesNotExist:
+            return Response({'error': 'Profile not found'}, status=status.HTTP_404_NOT_FOUND)
+
     return Response({'error': 'Invalid user type'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'POST', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def payment_methods(request, method_id=None):
+    if request.method == 'GET':
+        methods = PaymentMethod.objects.filter(user=request.user)
+        serializer = PaymentMethodSerializer(methods, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = PaymentMethodSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'DELETE':
+        if not method_id:
+            return Response({'error': 'Method ID required'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            method = PaymentMethod.objects.get(id=method_id, user=request.user)
+            method.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except PaymentMethod.DoesNotExist:
+            return Response({'error': 'Method not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def notifications(request):
+    if request.method == 'GET':
+        notifs = Notification.objects.filter(user=request.user).order_by('-created_at')
+        serializer = NotificationSerializer(notifs, many=True)
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        # Used to mark as read or create internal notification
+        if 'mark_read' in request.data:
+            Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+            return Response({'status': 'marked read'})
+            
+        serializer = NotificationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { RegisterFormData } from '../../types';
-import { Building, Heart, Stethoscope, ChevronRight, ChevronLeft, Check, Upload, FileText } from 'lucide-react';
+import { Building, Heart, Stethoscope, ChevronRight, ChevronLeft, Check, FileText } from 'lucide-react';
+import { locationData } from '../../utils/locationData';
 
 interface RegisterFormProps {
   onSubmit: (data: RegisterFormData) => Promise<void>;
@@ -20,29 +21,106 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
     password: '',
     confirmPassword: '',
     userType: 'patient', // Default
-    
+
+    // Location
+    province: '',
+    district: '',
+    city: '',
+    ward: '',
+    tole: '',
+
     // Doctor specific
     qualification: '',
     specialization: '',
     nmcId: '',
     resources: '',
     consentAccepted: false,
-    
+    nidNumber: '',
+
     // Patient specific
     bloodGroup: '',
     allergies: '',
-    recentTest: '',
+    recentHealthCheckups: '',
+    nidNumberPatient: '',
+    healthCondition: '',
+    medications: '',
+    generatedId: '',
 
     // Hospital specific
     hospitalName: '',
+    hospitalType: '',
+    hospitalId: '',
     address: '',
     panNumber: '',
     registrationNumber: '',
     contactNumber: '',
     website: ''
   });
-  
+
   const [oauthNotice, setOauthNotice] = useState<string | null>(null);
+
+  // Derived state for location dropdowns
+  const [districts, setDistricts] = useState<string[]>([]);
+  const [cities, setCities] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (formData.province) {
+      const dists = locationData[formData.province] ? Object.keys(locationData[formData.province]) : [];
+      setDistricts(dists);
+      // Reset dependent fields if province changes and current selection is invalid
+      if (!dists.includes(formData.district || '')) {
+        setFormData(prev => ({ ...prev, district: '', city: '' }));
+      }
+    } else {
+      setDistricts([]);
+      setCities([]);
+    }
+  }, [formData.province]);
+
+  useEffect(() => {
+    if (formData.district && formData.province) {
+      const cts = locationData[formData.province][formData.district] || [];
+      setCities(cts);
+      if (!cts.includes(formData.city || '')) {
+        setFormData(prev => ({ ...prev, city: '' }));
+      }
+    } else {
+      setCities([]);
+    }
+  }, [formData.district, formData.province]);
+
+  // Auto-generate Health ID based on address
+  useEffect(() => {
+    if (formData.userType === 'patient' && formData.province && formData.district && formData.city && formData.ward) {
+      const getInitials = (str: string) => {
+        // Simple logic: Take first 2-3 uppercase letters
+        return str.substring(0, 2).toUpperCase();
+      };
+
+      const provCode = getInitials(formData.province);
+      const distCode = formData.district.substring(0, 3).toUpperCase();
+      const cityCode = getInitials(formData.city);
+      const wardCode = formData.ward.padStart(2, '0'); // Ensure 2 digits
+
+      const newId = `${provCode}${distCode}${cityCode}${wardCode}`;
+
+      setFormData(prev => ({ ...prev, generatedId: newId }));
+    } else if (formData.userType === 'hospital' && formData.province && formData.district && formData.city && formData.ward) {
+      const getInitials = (str: string) => {
+        return str.substring(0, 2).toUpperCase();
+      };
+
+      // Hospital Pattern: HOSP + [LocationCode]
+      const provCode = getInitials(formData.province);
+      const distCode = formData.district.substring(0, 3).toUpperCase();
+      const cityCode = getInitials(formData.city);
+      const wardCode = formData.ward.padStart(2, '0');
+
+      const newHospId = `HOSP${provCode}${distCode}${cityCode}${wardCode}`;
+      setFormData(prev => ({ ...prev, hospitalId: newHospId }));
+    }
+  }, [formData.province, formData.district, formData.city, formData.ward, formData.userType]);
+
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +128,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
       alert('Passwords do not match');
       return;
     }
-    
+
     // Basic validation based on user type
     if (!formData.name || !formData.email || !formData.mobile || !formData.password) {
       alert('Please fill in all required fields');
@@ -58,8 +136,14 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
     }
 
     if (formData.userType === 'hospital') {
-      if (!formData.hospitalName || !formData.address || !formData.registrationNumber) {
+      if (!formData.hospitalName || !formData.registrationNumber) {
         alert('Please fill in all hospital details');
+        return;
+      }
+    } else {
+      // Validate Location for Patient/Doctor
+      if (!formData.province || !formData.district || !formData.city || !formData.ward) {
+        alert('Please fill in your full address (Province, District, City, Ward)');
         return;
       }
     }
@@ -75,9 +159,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
     }
     await onSubmit(formData);
   };
-  
+
   const handleSocial = (provider: 'google' | 'facebook' | 'apple') => {
-    setOauthNotice(`${provider.charAt(0).toUpperCase() + provider.slice(1)} sign-up is not yet configured. Please continue with Email/Password for now.`);
+    setOauthNotice(`${provider.charAt(0).toUpperCase() + provider.slice(1)} sign-up is not yet configured.`);
     setTimeout(() => setOauthNotice(null), 5000);
   };
 
@@ -97,16 +181,16 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
   ];
 
   return (
-    <div className="relative pb-4 overflow-x-hidden">
-      <div className="text-center mb-8 pt-4">
-        <h2 className="text-5xl font-bold text-blue-600 mb-3 font-sans tracking-tight uppercase">Create Account</h2>
+    <div className="relative pb-4 w-full">
+      <div className="text-center mb-6 pt-2">
+        <h2 className="text-3xl md:text-5xl font-bold text-blue-600 mb-2 font-sans tracking-tight uppercase">Create Account</h2>
         <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">
           {step === 1 ? 'Join our healthcare community' : 'Terms & Consent'}
         </p>
       </div>
 
       {step === 1 ? (
-        <form onSubmit={handleNext} className="space-y-4">      
+        <form onSubmit={handleNext} className="space-y-4 px-1">
           <div className="bg-gray-50 p-1 rounded-xl mb-4">
             <Select
               name="userType"
@@ -118,11 +202,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
                 { value: 'doctor', label: 'Doctor' },
                 { value: 'hospital', label: 'Hospital Admin' }
               ]}
-              className="bg-transparent border-none focus:ring-0 text-sm font-medium text-gray-600"
+              className="bg-transparent border-none focus:ring-0 text-sm font-medium text-gray-600 w-full"
               required
             />
           </div>
-        
+
           <div className="space-y-3">
             {/* Common Fields */}
             <Input
@@ -136,29 +220,30 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
               required
             />
 
-            <Input
-              name="email"
-              type="email"
-              label=""
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Email Address"
-              className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
-              required
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Input
+                name="email"
+                type="email"
+                label=""
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Email Address"
+                className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                required
+              />
+              <Input
+                name="mobile"
+                type="tel"
+                label=""
+                value={formData.mobile}
+                onChange={handleChange}
+                placeholder="Mobile Number"
+                className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                required
+              />
+            </div>
 
-            <Input
-              name="mobile"
-              type="tel"
-              label=""
-              value={formData.mobile}
-              onChange={handleChange}
-              placeholder="Mobile Number"
-              className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
-              required
-            />
-            
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <Input
                 name="password"
                 type="password"
@@ -169,7 +254,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
                 className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
                 required
               />
-              
+
               <Input
                 name="confirmPassword"
                 type="password"
@@ -182,10 +267,76 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
               />
             </div>
 
+            {/* Address Fields - For Patient, Doctor AND Hospital */}
+            <div className="space-y-3 pt-2 border-t border-gray-100 animate-fadeIn">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Address Details</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <Select
+                  name="province"
+                  label=""
+                  value={formData.province || ''}
+                  onChange={handleChange}
+                  options={[{ value: '', label: 'Province' }, ...Object.keys(locationData).map(p => ({ value: p, label: p }))]}
+                  className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white"
+                />
+                <Select
+                  name="district"
+                  label=""
+                  value={formData.district || ''}
+                  onChange={handleChange}
+                  options={[{ value: '', label: 'District' }, ...districts.map(d => ({ value: d, label: d }))]}
+                  disabled={!formData.province}
+                  className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white"
+                />
+                <Select
+                  name="city"
+                  label=""
+                  value={formData.city || ''}
+                  onChange={handleChange}
+                  options={[{ value: '', label: 'City/Municipality' }, ...cities.map(c => ({ value: c, label: c }))]}
+                  disabled={!formData.district}
+                  className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Input
+                  name="ward"
+                  type="text"
+                  label=""
+                  placeholder="Ward No."
+                  value={formData.ward || ''}
+                  onChange={handleChange}
+                  className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white"
+                />
+                <Input
+                  name="tole"
+                  type="text"
+                  label=""
+                  placeholder="Tole / Street (Optional)"
+                  value={formData.tole || ''}
+                  onChange={handleChange}
+                  className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white"
+                />
+              </div>
+            </div>
+
             {/* Patient Specific Fields */}
             {formData.userType === 'patient' && (
               <div className="space-y-3 pt-2 border-t border-gray-100 animate-fadeIn">
-                <div className="grid grid-cols-2 gap-3">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Health & ID Info</p>
+                <div className="bg-blue-50/50 p-2 rounded-xl border border-blue-100 mb-2">
+                  <Input
+                    name="generatedId"
+                    type="text"
+                    label=""
+                    value={formData.generatedId || ''}
+                    onChange={handleChange}
+                    placeholder="Auto-generated Health ID"
+                    className="rounded-xl border-blue-200 bg-white text-blue-900 font-mono tracking-wider text-center font-bold"
+                    readOnly
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Select
                     name="bloodGroup"
                     label=""
@@ -195,15 +346,46 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
                     className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
                   />
                   <Input
-                    name="recentTest"
+                    name="nidNumberPatient"
                     type="text"
                     label=""
-                    value={formData.recentTest || ''}
+                    placeholder="National ID Number (NID)"
+                    value={formData.nidNumberPatient || ''}
                     onChange={handleChange}
-                    placeholder="Recent Test (Optional)"
                     className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
                   />
                 </div>
+
+                <Input
+                  name="recentHealthCheckups"
+                  type="text"
+                  label=""
+                  value={formData.recentHealthCheckups || ''}
+                  onChange={handleChange}
+                  placeholder="Recent Health Checkups (Optional)"
+                  className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Input
+                    name="healthCondition"
+                    type="text"
+                    label=""
+                    value={formData.healthCondition || ''}
+                    onChange={handleChange}
+                    placeholder="Current Condition (e.g., Mild Headache)"
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                  />
+                  <Input
+                    name="medications"
+                    type="text"
+                    label=""
+                    value={formData.medications || ''}
+                    onChange={handleChange}
+                    placeholder="Current Medications"
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                  />
+                </div>
+
                 <Input
                   name="allergies"
                   type="text"
@@ -219,7 +401,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
             {/* Doctor Specific Fields */}
             {formData.userType === 'doctor' && (
               <div className="space-y-3 pt-2 border-t border-gray-100 animate-fadeIn">
-                <div className="grid grid-cols-2 gap-3">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Professional Details</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Input
                     name="qualification"
                     type="text"
@@ -241,16 +424,28 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
                     required
                   />
                 </div>
-                <Input
-                  name="nmcId"
-                  type="text"
-                  label=""
-                  placeholder="NMC ID / Registration No."
-                  value={formData.nmcId || ''}
-                  onChange={handleChange}
-                  className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
-                  required
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Input
+                    name="nmcId"
+                    type="text"
+                    label=""
+                    placeholder="NMC ID Number"
+                    value={formData.nmcId || ''}
+                    onChange={handleChange}
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                    required
+                  />
+                  <Input
+                    name="nidNumber"
+                    type="text"
+                    label=""
+                    placeholder="National ID Number"
+                    value={formData.nidNumber || ''}
+                    onChange={handleChange}
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                    required
+                  />
+                </div>
                 <textarea
                   name="resources"
                   rows={2}
@@ -262,9 +457,10 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
               </div>
             )}
 
-            {/* Hospital Specific Fields */}
+            {/* Hospital Specific Fields - STICTLY NO Doctor Fields */}
             {formData.userType === 'hospital' && (
               <div className="space-y-3 pt-2 border-t border-gray-100 animate-fadeIn">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Hospital Details</p>
                 <Input
                   name="hospitalName"
                   type="text"
@@ -275,17 +471,41 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
                   className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
                   required
                 />
-                <Input
-                  name="address"
-                  type="text"
-                  label=""
-                  placeholder="Hospital Address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
-                  required
-                />
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Select
+                    name="hospitalType"
+                    label=""
+                    value={formData.hospitalType || ''}
+                    onChange={handleChange}
+                    options={[
+                      { value: '', label: 'Hospital Type' },
+                      { value: 'General', label: 'General' },
+                      { value: 'Specialty', label: 'Specialty' },
+                      { value: 'Pathology', label: 'Pathology' },
+                      { value: 'Neurology', label: 'Neurology' },
+                      { value: 'Dental', label: 'Dental' },
+                      { value: 'Eye', label: 'Eye Care' },
+                      { value: 'Orthopedic', label: 'Orthopedic' },
+                      { value: 'Cardiology', label: 'Cardiology' },
+                      { value: 'Pediatric', label: 'Pediatric' },
+                      { value: 'Clinic', label: 'Clinic/Polyclinic' }
+                    ]}
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                    required
+                  />
+                  <Input
+                    name="hospitalId"
+                    type="text"
+                    label=""
+                    placeholder="Hospital ID (Auto-generated)"
+                    value={formData.hospitalId || ''}
+                    onChange={handleChange}
+                    className="rounded-xl border-blue-200 bg-blue-50/30 text-blue-900 font-mono tracking-wider font-bold"
+                    readOnly
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Input
                     name="panNumber"
                     type="text"
@@ -307,7 +527,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
                     required
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Input
                     name="contactNumber"
                     type="tel"
@@ -331,8 +551,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
             )}
           </div>
 
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-blue-500/30 transition-all duration-300 transform hover:-translate-y-0.5 mt-4 flex items-center justify-center gap-2"
           >
             NEXT STEP <ChevronRight className="w-4 h-4" />
@@ -347,38 +567,43 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-              <Button variant="outline" type="button" className="w-full justify-center h-14 rounded-xl border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-all shadow-sm group" onClick={() => handleSocial('google')}>
-                <svg className="h-6 w-6 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EB4335"/>
-                </svg>
-              </Button>
-              <Button variant="outline" type="button" className="w-full justify-center h-14 rounded-xl border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-all shadow-sm group" onClick={() => handleSocial('facebook')}>
-                <svg className="h-6 w-6 text-[#1877F2] group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                </svg>
-              </Button>
-              <Button variant="outline" type="button" className="w-full justify-center h-14 rounded-xl border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-all shadow-sm group" onClick={() => handleSocial('apple')}>
-                <svg className="h-6 w-6 text-gray-900 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.45-1.62 4.37-1.54 1.81.08 3.2 1.25 4.18 2.52-3.69 1.93-3.1 7.03.54 8.7-.65 1.58-1.55 3.12-4.17 2.55zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-                </svg>
-              </Button>
+          <div className="grid grid-cols-3 gap-2">
+            <Button variant="outline" type="button" className="w-full justify-center h-14 rounded-xl border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-all shadow-sm group" onClick={() => handleSocial('google')}>
+              <svg className="h-6 w-6 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EB4335" />
+              </svg>
+            </Button>
+            <Button variant="outline" type="button" className="w-full justify-center h-14 rounded-xl border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-all shadow-sm group" onClick={() => handleSocial('facebook')}>
+              <svg className="h-6 w-6 text-[#1877F2] group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+              </svg>
+            </Button>
+            <Button variant="outline" type="button" className="w-full justify-center h-14 rounded-xl border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-all shadow-sm group" onClick={() => handleSocial('apple')}>
+              <svg className="h-6 w-6 text-gray-900 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.45-1.62 4.37-1.54 1.81.08 3.2 1.25 4.18 2.55-3.69 1.93-3.1 7.03.54 8.7-.65 1.58-1.55 3.12-4.17 2.55zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+              </svg>
+            </Button>
           </div>
-          
+
           {oauthNotice && (
             <div className="text-center text-xs text-red-500 animate-pulse">{oauthNotice}</div>
           )}
 
-          <div className="text-center mt-6 pb-2">
-             <span className="text-gray-500 text-sm">Already have an account? </span>
-             <button type="button" onClick={onLoginClick} className="text-gray-900 font-bold text-sm hover:underline">Log in</button>
+          <div className="text-center mt-6 pb-2 space-y-2">
+            <div className="text-sm">
+              <span className="text-gray-500">Already have an account? </span>
+              <button type="button" onClick={onLoginClick} className="text-gray-900 font-bold hover:underline">Log in</button>
+            </div>
+            <div>
+              <button type="button" className="text-xs text-gray-400 hover:text-gray-600 underline">Forgot Password?</button>
+            </div>
           </div>
         </form>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-6 animate-fadeIn">
+        <form onSubmit={handleSubmit} className="space-y-6 animate-fadeIn px-1">
           <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
             <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
               <FileText className="w-5 h-5" /> Terms & Privacy
@@ -399,30 +624,30 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
           </div>
 
           <div className="flex items-start space-x-3 p-2">
-             <input
-               type="checkbox"
-               id="consent"
-               checked={formData.consentAccepted}
-               onChange={(e) => setFormData(prev => ({ ...prev, consentAccepted: e.target.checked }))}
-               className="mt-1 w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-             />
-             <label htmlFor="consent" className="text-sm text-gray-600 cursor-pointer select-none">
-               I have read and agree to the <span className="text-blue-600 font-medium">Terms of Service</span> and <span className="text-blue-600 font-medium">Privacy Policy</span>. I consent to the processing of my personal data.
-             </label>
+            <input
+              type="checkbox"
+              id="consent"
+              checked={formData.consentAccepted}
+              onChange={(e) => setFormData(prev => ({ ...prev, consentAccepted: e.target.checked }))}
+              className="mt-1 w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+            />
+            <label htmlFor="consent" className="text-sm text-gray-600 cursor-pointer select-none">
+              I have read and agree to the <span className="text-blue-600 font-medium">Terms of Service</span> and <span className="text-blue-600 font-medium">Privacy Policy</span>. I consent to the processing of my personal data.
+            </label>
           </div>
 
           <div className="grid grid-cols-2 gap-4 pt-4">
-            <Button 
-              type="button" 
+            <Button
+              type="button"
               variant="outline"
               onClick={() => setStep(1)}
               className="w-full h-12 rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50"
             >
               <ChevronLeft className="w-4 h-4 mr-2" /> Back
             </Button>
-            <Button 
-              type="submit" 
-              loading={loading} 
+            <Button
+              type="submit"
+              loading={loading}
               disabled={!formData.consentAccepted}
               className={`w-full h-12 rounded-xl text-white font-semibold shadow-lg transition-all duration-300 ${formData.consentAccepted ? 'bg-blue-600 hover:bg-blue-700 hover:shadow-blue-500/30 transform hover:-translate-y-0.5' : 'bg-gray-400 cursor-not-allowed'}`}
             >
@@ -432,8 +657,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
         </form>
       )}
 
-      {/* Floating Decorative Elements */}
-      <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
+      {/* Floating Decorative Elements - Positioned to not cause overflow */}
+      <div className="absolute top-0 right-0 opacity-10 pointer-events-none overflow-hidden">
         <Building className="h-24 w-24 text-blue-900 transform rotate-12 translate-x-8 -translate-y-8" />
       </div>
       <div className="absolute bottom-20 left-0 opacity-10 pointer-events-none">

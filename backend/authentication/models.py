@@ -24,10 +24,46 @@ class Hospital(models.Model):
     website = models.URLField(blank=True)
     logo = models.ImageField(upload_to='hospital_logos/', null=True, blank=True)
     latitude = models.FloatField(null=True, blank=True)
+    description = models.TextField(blank=True)
     longitude = models.FloatField(null=True, blank=True)
     
     def __str__(self):
         return self.hospital_name
+
+class PaymentMethod(models.Model):
+    PAYMENT_TYPES = (
+        ('bank', 'Bank Account'),
+        ('wallet', 'Digital Wallet'),
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payment_methods')
+    method_type = models.CharField(max_length=10, choices=PAYMENT_TYPES)
+    provider_name = models.CharField(max_length=100) # e.g., Nabil Bank, esewa
+    account_number = models.CharField(max_length=100) # Account number or Wallet ID
+    account_holder_name = models.CharField(max_length=200)
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.provider_name} - {self.user.username}"
+
+class Notification(models.Model):
+    NOTIFICATION_TYPES = (
+        ('info', 'Information'),
+        ('success', 'Success'),
+        ('warning', 'Warning'),
+        ('error', 'Error'),
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    message = models.TextField()
+    notification_type = models.CharField(max_length=10, choices=NOTIFICATION_TYPES, default='info')
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.message[:20]}"
 
 class DoctorProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='doctor_profile')

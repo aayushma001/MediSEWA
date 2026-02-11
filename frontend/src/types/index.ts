@@ -17,6 +17,12 @@ export interface DoctorProfile {
 export interface HospitalProfile {
   user: User;
   hospital_name: string;
+  hospital_id?: string;
+  hospital_type?: string;
+  province?: string;
+  district?: string;
+  city?: string;
+  ward?: string;
   address: string;
   pan_number: string;
   registration_number: string;
@@ -45,19 +51,36 @@ export interface RegisterFormData {
   password: string;
   confirmPassword: string;
   userType: string;
+  // Location Common
+  province?: string;
+  district?: string;
+  city?: string;
+  ward?: string;
+  tole?: string;
+
   // Doctor specific
   specialization?: string;
   qualification?: string;
   nmcId?: string;
   resources?: string;
   consentAccepted?: boolean;
+  nidNumber?: string;
+
   // Patient specific
   bloodGroup?: string;
   allergies?: string;
-  recentTest?: string;
+  recentTest?: string; // Kept for compatibility, can be used for "recent health checkups"
+  recentHealthCheckups?: string; // Added as per new request if different
+  nidNumberPatient?: string;
+  healthCondition?: string;
+  medications?: string;
+  generatedId?: string;
+
   // Hospital specific
   hospitalName?: string;
-  address?: string;
+  hospitalType?: string;
+  hospitalId?: string;
+  address?: string; // Keep as fallback or full address string if needed
   panNumber?: string;
   registrationNumber?: string;
   contactNumber?: string;
