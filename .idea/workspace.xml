@@ -5,31 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="23b02453-bc73-491c-ad7f-5ce4645a26c4" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/authentication/migrations/0004_hospital_description_notification_paymentmethod.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/hospital/pages/Appointments.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/hospital/pages/DashboardHome.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/hospital/pages/Doctors.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/hospital/pages/Patients.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/hospital/pages/Profile.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/hospital/pages/Reports.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/hospital/pages/Reviews.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/hospital/pages/Settings.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/hospital/pages/Specialities.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/components/hospital/pages/Transactions.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/utils/locationData.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/authentication/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/authentication/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/authentication/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/authentication/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/authentication/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/backend/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/auth/RegisterForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/auth/RegisterForm.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/hospital/HospitalDashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/hospital/HospitalDashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/routes/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/services/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/types/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/types/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/utils/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/utils/auth.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,7 +97,7 @@
       <workItem from="1770735101737" duration="3712000" />
       <workItem from="1770789380866" duration="593000" />
       <workItem from="1770797672896" duration="14000" />
-      <workItem from="1770797916826" duration="969000" />
+      <workItem from="1770797916826" duration="2266000" />
     </task>
     <servers />
   </component>

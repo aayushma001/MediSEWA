@@ -48,7 +48,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({ user, onLogout }) => {
           <Route path="patients" element={<Patients />} />
           <Route path="reviews" element={<Reviews />} />
           <Route path="transactions" element={<Transactions />} />
-          <Route path="settings" element={<Settings />} />
+          <Route path="settings" element={<Settings user={user} />} />
           <Route path="reports" element={<Reports />} />
           <Route path="profile" element={<Profile user={user} />} />
         </Route>
