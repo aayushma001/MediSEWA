@@ -1,3 +1,109 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Theme Variables */
+:root,
+[data-theme="light"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #64748b;
+    --border-color: #e2e8f0;
+    --accent-color: #6366f1;
+    --accent-hover: #4f46e5;
+    --sidebar-bg: #2c3e50;
+    --sidebar-text: #ffffff;
+    --page-bg: #f8fafc;
+}
+
+[data-theme="dark"] {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-tertiary: #94a3b8;
+    --border-color: #334155;
+    --accent-color: #818cf8;
+    --accent-hover: #6366f1;
+    --sidebar-bg: #ffffff;
+    --sidebar-text: #0f172a;
+    --page-bg: #000000;
+}
+
+[data-theme="deepblue"] {
+    --bg-primary: #0a1929;
+    --bg-secondary: #132f4c;
+    --bg-tertiary: #1e4976;
+    --text-primary: #e3f2fd;
+    --text-secondary: #90caf9;
+    --text-tertiary: #64b5f6;
+    --border-color: #1e4976;
+    --accent-color: #42a5f5;
+    --accent-hover: #2196f3;
+    --sidebar-bg: #ffffff;
+    --sidebar-text: #0a1929;
+    --page-bg: #001e3c;
+}
+
+/* Apply theme colors */
+body {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Theme-aware utility classes */
+.bg-theme-primary {
+    background-color: var(--bg-primary);
+}
+
+.bg-theme-secondary {
+    background-color: var(--bg-secondary);
+}
+
+.bg-theme-tertiary {
+    background-color: var(--bg-tertiary);
+}
+
+.text-theme-primary {
+    color: var(--text-primary);
+}
+
+.text-theme-secondary {
+    color: var(--text-secondary);
+}
+
+.text-theme-tertiary {
+    color: var(--text-tertiary);
+}
+
+.border-theme {
+    border-color: var(--border-color);
+}
+
+.accent-theme {
+    color: var(--accent-color);
+}
+
+.bg-accent-theme {
+    background-color: var(--accent-color);
+}
+
+.bg-accent-theme:hover {
+    background-color: var(--accent-hover);
+}
+
+/* Sidebar theming */
+.sidebar-themed {
+    background-color: var(--sidebar-bg) !important;
+    color: var(--sidebar-text) !important;
+}
+
+/* Page background theming */
+.page-bg-themed {
+    background-color: var(--page-bg) !important;
+}

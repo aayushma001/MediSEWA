@@ -56,7 +56,8 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
         bio: user.hospital_profile?.description || '',
         email: user.email || '',
         website: user.hospital_profile?.website || '',
-        address: user.hospital_profile?.address || ''
+        address: user.hospital_profile?.address || '',
+        profilePicture: localStorage.getItem('hospital-profile-picture') || ''
     });
 
     // Contact State
@@ -132,6 +133,13 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
         }
     }, [activeTab]);
 
+    // Load and apply saved theme on mount
+    useEffect(() => {
+        const savedTheme = localStorage.getItem('app-theme') || 'light';
+        setGeneralSettings(prev => ({ ...prev, theme: savedTheme }));
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }, []);
+
     const showSuccess = (msg: string) => {
         setSuccessMessage(msg);
         setTimeout(() => setSuccessMessage(null), 3000);
@@ -140,6 +148,41 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
     const showError = (msg: string) => {
         setErrorMessage(msg);
         setTimeout(() => setErrorMessage(null), 3000);
+    };
+
+    // --- Profile Picture Handlers ---
+    const handleProfilePictureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file type
+        const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
+        if (!validTypes.includes(file.type)) {
+            showError('Please upload a PNG, JPEG, or GIF image.');
+            return;
+        }
+
+        // Validate file size (2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            showError('Image size must be under 2MB.');
+            return;
+        }
+
+        // Read and convert to base64
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64String = reader.result as string;
+            setProfile({ ...profile, profilePicture: base64String });
+            localStorage.setItem('hospital-profile-picture', base64String);
+            showSuccess('Profile picture uploaded successfully!');
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleRemoveProfilePicture = () => {
+        setProfile({ ...profile, profilePicture: '' });
+        localStorage.removeItem('hospital-profile-picture');
+        showSuccess('Profile picture removed.');
     };
 
     // --- Profile Handlers ---
@@ -258,6 +301,49 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
 
     const renderAccountTab = () => (
         <div className="space-y-8 animate-in fade-in duration-500">
+            {/* Profile Picture Upload Section */}
+            <div className="flex items-center gap-8 pb-8 border-b border-gray-200">
+                <div className="relative">
+                    <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-gray-200 bg-gray-100 flex items-center justify-center">
+                        {profile.profilePicture ? (
+                            <img
+                                src={profile.profilePicture}
+                                alt="Profile"
+                                className="h-full w-full object-cover"
+                            />
+                        ) : (
+                            <span className="text-5xl font-bold text-gray-400">
+                                {profile.username.charAt(0).toUpperCase() || 'H'}
+                            </span>
+                        )}
+                    </div>
+                </div>
+                <div className="flex-1">
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">Profile Picture</h4>
+                    <p className="text-sm text-gray-500 mb-4">We support PNG, JPEG, and GIF under 2MB</p>
+                    <div className="flex gap-3">
+                        <label className="px-5 py-2.5 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors cursor-pointer flex items-center gap-2">
+                            <Camera className="h-4 w-4" />
+                            Change Image
+                            <input
+                                type="file"
+                                accept="image/png,image/jpeg,image/jpg,image/gif"
+                                onChange={handleProfilePictureUpload}
+                                className="hidden"
+                            />
+                        </label>
+                        {profile.profilePicture && (
+                            <button
+                                onClick={handleRemoveProfilePicture}
+                                className="px-5 py-2.5 bg-red-50 text-red-600 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors"
+                            >
+                                Remove Image
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+
             <div>
                 <h3 className="text-2xl font-bold text-gray-900">Your Profile</h3>
                 <p className="text-gray-500 text-base mt-2">Update your hospital's public information.</p>
@@ -505,10 +591,16 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
                 <p className="text-gray-500 text-base mt-2">Setup public contact details for patients</p>
             </div>
 
-            <div className="grid gap-8">
-                <div className="grid md:grid-cols-2 gap-8">
+            {/* Phone Numbers Section */}
+            <div className="space-y-6">
+                <h4 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                    <Phone className="h-5 w-5 text-indigo-600" /> Phone Numbers
+                </h4>
+                <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-3">
-                        <label className="text-gray-700 font-medium text-lg flex items-center gap-2"><Phone className="h-5 w-5" /> Emergency Contact</label>
+                        <label className="text-gray-700 font-medium text-base flex items-center gap-2">
+                            Emergency Hotline
+                        </label>
                         <input
                             type="tel"
                             placeholder="+977-1-xxxxxxx"
@@ -518,7 +610,7 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
                         />
                     </div>
                     <div className="space-y-3">
-                        <label className="text-gray-700 font-medium text-lg flex items-center gap-2"><Phone className="h-5 w-5" /> Reception / Inquiry</label>
+                        <label className="text-gray-700 font-medium text-base">Reception / Inquiry</label>
                         <input
                             type="tel"
                             placeholder="+977-1-xxxxxxx"
@@ -527,36 +619,157 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
                             onChange={(e) => setContactInfo({ ...contactInfo, reception_phone: e.target.value })}
                         />
                     </div>
+                    <div className="space-y-3">
+                        <label className="text-gray-700 font-medium text-base">Appointment Booking</label>
+                        <input
+                            type="tel"
+                            placeholder="+977-1-xxxxxxx"
+                            className="w-full px-5 py-4 text-base bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                            value={contactInfo.appointment_phone}
+                            onChange={(e) => setContactInfo({ ...contactInfo, appointment_phone: e.target.value })}
+                        />
+                    </div>
+                    <div className="space-y-3">
+                        <label className="text-gray-700 font-medium text-base">Billing Department</label>
+                        <input
+                            type="tel"
+                            placeholder="+977-1-xxxxxxx"
+                            className="w-full px-5 py-4 text-base bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                            value={contactInfo.billing_phone}
+                            onChange={(e) => setContactInfo({ ...contactInfo, billing_phone: e.target.value })}
+                        />
+                    </div>
+                    <div className="space-y-3">
+                        <label className="text-gray-700 font-medium text-base">Fax Number</label>
+                        <input
+                            type="tel"
+                            placeholder="+977-1-xxxxxxx"
+                            className="w-full px-5 py-4 text-base bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                            value={contactInfo.fax_number}
+                            onChange={(e) => setContactInfo({ ...contactInfo, fax_number: e.target.value })}
+                        />
+                    </div>
                 </div>
+            </div>
 
-                <div className="space-y-3">
-                    <label className="text-gray-700 font-medium text-lg flex items-center gap-2"><Mail className="h-5 w-5" /> Support Email</label>
-                    <input
-                        type="email"
-                        placeholder="help@hospital.com"
-                        className="w-full px-5 py-4 text-base bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-                        value={contactInfo.support_email}
-                        onChange={(e) => setContactInfo({ ...contactInfo, support_email: e.target.value })}
-                    />
-                </div>
+            <hr className="border-gray-100" />
 
-                <div className="space-y-3">
-                    <label className="text-gray-700 font-medium text-lg flex items-center gap-2"><MapPin className="h-5 w-5" /> Google Map URL</label>
-                    <input
-                        type="url"
-                        placeholder="https://maps.google.com/..."
-                        className="w-full px-5 py-4 text-base bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
-                        value={contactInfo.map_url}
-                        onChange={(e) => setContactInfo({ ...contactInfo, map_url: e.target.value })}
-                    />
-                    <p className="text-sm text-gray-400">Paste the 'Embed Map' link or Direct Location link here.</p>
+            {/* Email Addresses Section */}
+            <div className="space-y-6">
+                <h4 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                    <Mail className="h-5 w-5 text-indigo-600" /> Email Addresses
+                </h4>
+                <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                        <label className="text-gray-700 font-medium text-base">Support Email</label>
+                        <input
+                            type="email"
+                            placeholder="support@hospital.com"
+                            className="w-full px-5 py-4 text-base bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                            value={contactInfo.support_email}
+                            onChange={(e) => setContactInfo({ ...contactInfo, support_email: e.target.value })}
+                        />
+                    </div>
+                    <div className="space-y-3">
+                        <label className="text-gray-700 font-medium text-base">General Info Email</label>
+                        <input
+                            type="email"
+                            placeholder="info@hospital.com"
+                            className="w-full px-5 py-4 text-base bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                            value={contactInfo.info_email}
+                            onChange={(e) => setContactInfo({ ...contactInfo, info_email: e.target.value })}
+                        />
+                    </div>
                 </div>
+            </div>
 
-                <div className="flex justify-end pt-5">
-                    <button className="px-8 py-3.5 bg-indigo-600 text-white rounded-xl font-medium text-lg hover:bg-indigo-700 transition-colors shadow-sm">
-                        Update Contacts
-                    </button>
+            <hr className="border-gray-100" />
+
+            {/* Social Media Section */}
+            <div className="space-y-6">
+                <h4 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                    <Globe className="h-5 w-5 text-indigo-600" /> Social Media Links
+                </h4>
+                <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                        <label className="text-gray-700 font-medium text-base">Facebook Page</label>
+                        <input
+                            type="url"
+                            placeholder="https://facebook.com/..."
+                            className="w-full px-5 py-4 text-base bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                            value={contactInfo.facebook}
+                            onChange={(e) => setContactInfo({ ...contactInfo, facebook: e.target.value })}
+                        />
+                    </div>
+                    <div className="space-y-3">
+                        <label className="text-gray-700 font-medium text-base">Twitter / X</label>
+                        <input
+                            type="url"
+                            placeholder="https://twitter.com/..."
+                            className="w-full px-5 py-4 text-base bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                            value={contactInfo.twitter}
+                            onChange={(e) => setContactInfo({ ...contactInfo, twitter: e.target.value })}
+                        />
+                    </div>
+                    <div className="space-y-3">
+                        <label className="text-gray-700 font-medium text-base">Instagram</label>
+                        <input
+                            type="url"
+                            placeholder="https://instagram.com/..."
+                            className="w-full px-5 py-4 text-base bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                            value={contactInfo.instagram}
+                            onChange={(e) => setContactInfo({ ...contactInfo, instagram: e.target.value })}
+                        />
+                    </div>
+                    <div className="space-y-3">
+                        <label className="text-gray-700 font-medium text-base">LinkedIn</label>
+                        <input
+                            type="url"
+                            placeholder="https://linkedin.com/company/..."
+                            className="w-full px-5 py-4 text-base bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                            value={contactInfo.linkedin}
+                            onChange={(e) => setContactInfo({ ...contactInfo, linkedin: e.target.value })}
+                        />
+                    </div>
                 </div>
+            </div>
+
+            <hr className="border-gray-100" />
+
+            {/* Operating Hours & Location */}
+            <div className="space-y-6">
+                <h4 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-indigo-600" /> Location & Hours
+                </h4>
+                <div className="space-y-6">
+                    <div className="space-y-3">
+                        <label className="text-gray-700 font-medium text-base">Operating Hours</label>
+                        <input
+                            type="text"
+                            placeholder="Mon-Fri: 8:00 AM - 8:00 PM, Sat-Sun: 9:00 AM - 5:00 PM"
+                            className="w-full px-5 py-4 text-base bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                            value={contactInfo.operating_hours}
+                            onChange={(e) => setContactInfo({ ...contactInfo, operating_hours: e.target.value })}
+                        />
+                    </div>
+                    <div className="space-y-3">
+                        <label className="text-gray-700 font-medium text-base">Google Map URL</label>
+                        <input
+                            type="url"
+                            placeholder="https://maps.google.com/..."
+                            className="w-full px-5 py-4 text-base bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                            value={contactInfo.map_url}
+                            onChange={(e) => setContactInfo({ ...contactInfo, map_url: e.target.value })}
+                        />
+                        <p className="text-sm text-gray-400">Paste the 'Embed Map' link or Direct Location link here.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex justify-end pt-5">
+                <button className="px-8 py-3.5 bg-indigo-600 text-white rounded-xl font-medium text-lg hover:bg-indigo-700 transition-colors shadow-sm">
+                    Update Contacts
+                </button>
             </div>
         </div>
     );
@@ -565,7 +778,7 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
         <div className="space-y-10 animate-in fade-in duration-500">
             <div>
                 <h3 className="text-2xl font-bold text-gray-900">Preferences</h3>
-                <p className="text-gray-500 text-base mt-2">Customization according to your preferences</p>
+                <p className="text-gray-500 text-base mt-2">Customize your application experience</p>
             </div>
 
             {/* Theme Selection */}
@@ -573,20 +786,38 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
                 <label className="text-gray-700 font-medium text-lg">Select Theme</label>
                 <div className="grid grid-cols-3 gap-6">
                     {[
-                        { id: 'light', label: 'Light Mode', icon: Sun, active: generalSettings.theme === 'light' },
-                        { id: 'dark', label: 'Dark Mode', icon: Moon, active: generalSettings.theme === 'dark' },
-                        { id: 'system', label: 'System', icon: Monitor, active: generalSettings.theme === 'system' },
+                        { id: 'light', label: 'Light Mode', icon: Sun, color: 'indigo', active: generalSettings.theme === 'light' },
+                        { id: 'dark', label: 'Dark Mode', icon: Moon, color: 'gray', active: generalSettings.theme === 'dark' },
+                        { id: 'deepblue', label: 'Deep Blue', icon: Monitor, color: 'blue', active: generalSettings.theme === 'deepblue' },
                     ].map(theme => (
                         <div
                             key={theme.id}
-                            onClick={() => setGeneralSettings({ ...generalSettings, theme: theme.id })}
-                            className={`p-6 border-2 rounded-xl cursor-pointer flex flex-col items-center gap-4 transition-all ${theme.active ? 'border-indigo-600 bg-indigo-50' : 'border-gray-200 hover:bg-gray-50'}`}
+                            onClick={() => {
+                                setGeneralSettings({ ...generalSettings, theme: theme.id });
+                                // Apply theme immediately and save to localStorage
+                                document.documentElement.setAttribute('data-theme', theme.id);
+                                localStorage.setItem('app-theme', theme.id);
+                                showSuccess(`Theme changed to ${theme.label}!`);
+                            }}
+                            className={`p-6 border-2 rounded-xl cursor-pointer flex flex-col items-center gap-4 transition-all ${theme.active
+                                ? 'border-indigo-600 bg-indigo-50'
+                                : 'border-gray-200 hover:bg-gray-50'
+                                }`}
                         >
-                            <div className={`p-3 rounded-full ${theme.active ? 'bg-white text-indigo-600 shadow-sm' : 'bg-gray-100 text-gray-500'}`}>
+                            <div className={`p-3 rounded-full ${theme.active
+                                ? 'bg-white shadow-sm'
+                                : 'bg-gray-100 text-gray-500'
+                                } ${theme.id === 'light' ? 'text-indigo-600' :
+                                    theme.id === 'dark' ? 'text-gray-700' :
+                                        'text-blue-600'
+                                }`}>
                                 <theme.icon className="h-8 w-8" />
                             </div>
                             <div className="flex items-center gap-3">
-                                <span className={`font-semibold text-lg ${theme.active ? 'text-indigo-900' : 'text-gray-700'}`}>{theme.label}</span>
+                                <span className={`font-semibold text-lg ${theme.active
+                                    ? 'text-indigo-900'
+                                    : 'text-gray-700'
+                                    }`}>{theme.label}</span>
                                 {theme.active && <CheckCircle className="h-5 w-5 text-indigo-600" />}
                             </div>
                         </div>
@@ -598,9 +829,10 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
 
             {/* Localization */}
             <div className="space-y-8">
+                <h4 className="text-xl font-semibold text-gray-800">Localization</h4>
                 <div className="grid md:grid-cols-2 gap-8">
                     <div className="space-y-3">
-                        <label className="text-gray-700 font-medium text-lg">Language</label>
+                        <label className="text-gray-700 font-medium text-base">Language</label>
                         <div className="relative">
                             <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                             <select
@@ -610,32 +842,218 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
                             >
                                 <option>English (US)</option>
                                 <option>English (UK)</option>
-                                <option>Nepali</option>
-                                <option>Hindi</option>
-                                {/* Add more countries later */}
+                                <option>Nepali (नेपाली)</option>
+                                <option>Hindi (हिन्दी)</option>
+                                <option>Spanish (Español)</option>
+                                <option>French (Français)</option>
+                                <option>German (Deutsch)</option>
+                                <option>Chinese (中文)</option>
+                                <option>Japanese (日本語)</option>
+                                <option>Korean (한국어)</option>
+                                <option>Arabic (العربية)</option>
+                                <option>Portuguese (Português)</option>
+                                <option>Russian (Русский)</option>
+                                <option>Italian (Italiano)</option>
+                                <option>Dutch (Nederlands)</option>
+                                <option>Turkish (Türkçe)</option>
+                                <option>Polish (Polski)</option>
+                                <option>Vietnamese (Tiếng Việt)</option>
+                                <option>Thai (ไทย)</option>
+                                <option>Indonesian (Bahasa Indonesia)</option>
+                                <option>Bengali (বাংলা)</option>
+                                <option>Urdu (اردو)</option>
                             </select>
                             <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 rotate-90" />
                         </div>
                     </div>
 
                     <div className="space-y-3">
-                        <label className="text-gray-700 font-medium text-lg">Time Zone</label>
+                        <label className="text-gray-700 font-medium text-base">Time Zone</label>
                         <div className="relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                             <select
                                 className="w-full pl-12 pr-5 py-4 text-base bg-white border border-gray-200 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
                                 value={generalSettings.timezone}
                                 onChange={(e) => setGeneralSettings({ ...generalSettings, timezone: e.target.value })}
                             >
                                 <option>(GMT+05:45) Kathmandu</option>
+                                <option>(GMT+05:30) India Standard Time</option>
                                 <option>(GMT+00:00) UTC</option>
-                                <option>(GMT-08:00) Pacific Time</option>
-                                {/* Add more */}
+                                <option>(GMT+00:00) London</option>
+                                <option>(GMT+01:00) Paris, Berlin</option>
+                                <option>(GMT+02:00) Cairo, Athens</option>
+                                <option>(GMT+03:00) Moscow, Istanbul</option>
+                                <option>(GMT+04:00) Dubai</option>
+                                <option>(GMT+05:00) Pakistan Standard Time</option>
+                                <option>(GMT+06:00) Dhaka</option>
+                                <option>(GMT+07:00) Bangkok, Jakarta</option>
+                                <option>(GMT+08:00) Singapore, Beijing</option>
+                                <option>(GMT+09:00) Tokyo, Seoul</option>
+                                <option>(GMT+10:00) Sydney</option>
+                                <option>(GMT+12:00) Auckland</option>
+                                <option>(GMT-05:00) Eastern Time (US)</option>
+                                <option>(GMT-06:00) Central Time (US)</option>
+                                <option>(GMT-07:00) Mountain Time (US)</option>
+                                <option>(GMT-08:00) Pacific Time (US)</option>
+                            </select>
+                            <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 rotate-90" />
+                        </div>
+                    </div>
+
+                    <div className="space-y-3">
+                        <label className="text-gray-700 font-medium text-base">Date Format</label>
+                        <div className="relative">
+                            <select
+                                className="w-full px-5 py-4 text-base bg-white border border-gray-200 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                                value={generalSettings.dateFormat}
+                                onChange={(e) => setGeneralSettings({ ...generalSettings, dateFormat: e.target.value })}
+                            >
+                                <option value="MM/DD/YYYY">MM/DD/YYYY (US Format)</option>
+                                <option value="DD/MM/YYYY">DD/MM/YYYY (UK Format)</option>
+                                <option value="YYYY-MM-DD">YYYY-MM-DD (ISO Format)</option>
+                                <option value="DD-MMM-YYYY">DD-MMM-YYYY (e.g., 11-Feb-2026)</option>
                             </select>
                             <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 rotate-90" />
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <hr className="border-gray-100" />
+
+            {/* Notification Preferences */}
+            <div className="space-y-6">
+                <h4 className="text-xl font-semibold text-gray-800">Notification Preferences</h4>
+                <div className="space-y-4">
+                    {[
+                        { key: 'email', label: 'Email Notifications', desc: 'Receive updates via email' },
+                        { key: 'sms', label: 'SMS Notifications', desc: 'Get text messages for important updates' },
+                        { key: 'push', label: 'Push Notifications', desc: 'Browser push notifications' },
+                        { key: 'appointments', label: 'Appointment Reminders', desc: 'Notifications for upcoming appointments' },
+                        { key: 'reviews', label: 'Review Alerts', desc: 'Get notified when patients leave reviews' },
+                    ].map(item => (
+                        <div key={item.key} className="flex items-center justify-between p-5 bg-gray-50 rounded-xl border border-gray-200">
+                            <div>
+                                <p className="font-medium text-gray-900 text-base">{item.label}</p>
+                                <p className="text-sm text-gray-500 mt-1">{item.desc}</p>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    className="sr-only peer"
+                                    checked={generalSettings.notifications[item.key as keyof typeof generalSettings.notifications]}
+                                    onChange={(e) => setGeneralSettings({
+                                        ...generalSettings,
+                                        notifications: { ...generalSettings.notifications, [item.key]: e.target.checked }
+                                    })}
+                                />
+                                <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <hr className="border-gray-100" />
+
+            {/* Accessibility */}
+            <div className="space-y-6">
+                <h4 className="text-xl font-semibold text-gray-800">Accessibility</h4>
+                <div className="space-y-4">
+                    {[
+                        { key: 'highContrast', label: 'High Contrast Mode', desc: 'Increase contrast for better visibility' },
+                        { key: 'largeText', label: 'Large Text', desc: 'Increase font size across the application' },
+                        { key: 'reduceMotion', label: 'Reduce Motion', desc: 'Minimize animations and transitions' },
+                    ].map(item => (
+                        <div key={item.key} className="flex items-center justify-between p-5 bg-gray-50 rounded-xl border border-gray-200">
+                            <div>
+                                <p className="font-medium text-gray-900 text-base">{item.label}</p>
+                                <p className="text-sm text-gray-500 mt-1">{item.desc}</p>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    className="sr-only peer"
+                                    checked={generalSettings.accessibility[item.key as keyof typeof generalSettings.accessibility]}
+                                    onChange={(e) => setGeneralSettings({
+                                        ...generalSettings,
+                                        accessibility: { ...generalSettings.accessibility, [item.key]: e.target.checked }
+                                    })}
+                                />
+                                <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <hr className="border-gray-100" />
+
+            {/* Privacy Settings */}
+            <div className="space-y-6">
+                <h4 className="text-xl font-semibold text-gray-800">Privacy Settings</h4>
+                <div className="space-y-6">
+                    <div className="space-y-3">
+                        <label className="text-gray-700 font-medium text-base">Profile Visibility</label>
+                        <select
+                            className="w-full px-5 py-4 text-base bg-white border border-gray-200 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                            value={generalSettings.privacy.profileVisibility}
+                            onChange={(e) => setGeneralSettings({
+                                ...generalSettings,
+                                privacy: { ...generalSettings.privacy, profileVisibility: e.target.value }
+                            })}
+                        >
+                            <option value="public">Public - Visible to everyone</option>
+                            <option value="registered">Registered Users Only</option>
+                            <option value="private">Private - Only you</option>
+                        </select>
+                    </div>
+                    <div className="flex items-center justify-between p-5 bg-gray-50 rounded-xl border border-gray-200">
+                        <div>
+                            <p className="font-medium text-gray-900 text-base">Show Email Address</p>
+                            <p className="text-sm text-gray-500 mt-1">Display email on public profile</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={generalSettings.privacy.showEmail}
+                                onChange={(e) => setGeneralSettings({
+                                    ...generalSettings,
+                                    privacy: { ...generalSettings.privacy, showEmail: e.target.checked }
+                                })}
+                            />
+                            <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+                    <div className="flex items-center justify-between p-5 bg-gray-50 rounded-xl border border-gray-200">
+                        <div>
+                            <p className="font-medium text-gray-900 text-base">Show Phone Number</p>
+                            <p className="text-sm text-gray-500 mt-1">Display phone on public profile</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={generalSettings.privacy.showPhone}
+                                onChange={(e) => setGeneralSettings({
+                                    ...generalSettings,
+                                    privacy: { ...generalSettings.privacy, showPhone: e.target.checked }
+                                })}
+                            />
+                            <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-indigo-600"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex justify-end pt-5">
+                <button
+                    onClick={() => showSuccess('Preferences saved successfully!')}
+                    className="px-8 py-3.5 bg-indigo-600 text-white rounded-xl font-medium text-lg hover:bg-indigo-700 transition-colors shadow-sm"
+                >
+                    Save Preferences
+                </button>
             </div>
         </div>
     );

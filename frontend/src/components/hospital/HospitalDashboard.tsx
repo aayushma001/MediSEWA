@@ -55,9 +55,9 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLo
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen page-bg-themed flex">
       {/* Sidebar */}
-      <aside className={`bg-[#2c3e50] text-white transition-all duration-300 ${sidebarOpen ? 'w-72' : 'w-20'} fixed h-full z-30`}>
+      <aside className={`sidebar-themed text-white transition-all duration-300 ${sidebarOpen ? 'w-72' : 'w-20'} fixed h-full z-30`}>
         {/* Sidebar Header - MediSewa branding restored */}
         <div className="h-20 flex items-center justify-center border-b border-gray-700 bg-[#243342]">
           <h1 className={`font-bold text-2xl tracking-wider text-[#00d0f1] ${!sidebarOpen && 'hidden'}`}>MEDISEWA</h1>
@@ -97,37 +97,43 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLo
       {/* Main Content */}
       <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen ? 'ml-72' : 'ml-20'}`}>
         {/* Header */}
-        <header className="bg-white h-16 shadow-sm flex items-center justify-between px-6 sticky top-0 z-20">
+        <header className="bg-white h-20 shadow-sm flex items-center justify-between px-6 sticky top-0 z-20">
           <div className="flex items-center">
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-md hover:bg-gray-100 mr-4 text-gray-600">
-              <Menu className="h-6 w-6" />
+              <Menu className="h-7 w-7" />
             </button>
             <div className="relative hidden md:block">
-              <Search className="h-4 w-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="h-5 w-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search..."
-                className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00d0f1] focus:border-transparent w-64 bg-gray-50"
+                className="pl-11 pr-4 py-2.5 border border-gray-200 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#00d0f1] focus:border-transparent w-72 bg-gray-50"
               />
             </div>
           </div>
 
           <div className="flex items-center space-x-4">
             <NotificationsDropdown />
-            <div className="flex items-center space-x-3 ml-4 border-l pl-4 border-gray-200">
+            <div className="flex items-center space-x-4 ml-4 border-l pl-4 border-gray-200">
               <div className="text-right hidden md:block">
-                <div className="text-sm font-bold text-gray-800">{user.hospital_profile?.hospital_name || 'Hospital Admin'}</div>
-                <div className="text-xs text-gray-500 font-mono">ID: {user.hospital_profile?.hospital_id || 'N/A'}</div>
+                <div className="text-lg font-bold text-gray-800">{user.hospital_profile?.hospital_name || 'Hospital Admin'}</div>
+                <div className="text-sm text-gray-500 font-mono">ID: {user.hospital_profile?.hospital_id || 'N/A'}</div>
               </div>
-              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden border-2 border-blue-50">
-                {user.hospital_profile?.logo ? (
+              <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden border-2 border-blue-50">
+                {localStorage.getItem('hospital-profile-picture') ? (
+                  <img
+                    src={localStorage.getItem('hospital-profile-picture') || ''}
+                    alt="Profile"
+                    className="h-full w-full object-cover"
+                  />
+                ) : user.hospital_profile?.logo ? (
                   <img
                     src={user.hospital_profile.logo}
                     alt="Profile"
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span className="text-blue-600 font-bold text-lg">
+                  <span className="text-blue-600 font-bold text-xl">
                     {user.hospital_profile?.hospital_name?.charAt(0).toUpperCase() || 'H'}
                   </span>
                 )}
@@ -137,7 +143,7 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLo
         </header>
 
         {/* Dashboard Content */}
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className="flex-1 p-8 overflow-y-auto page-bg-themed">
           {/* Outlet is where child routes (DashboardHome, Appointments, etc.) are rendered */}
           <Outlet />
         </main>
