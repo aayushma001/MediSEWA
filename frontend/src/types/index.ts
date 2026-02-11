@@ -29,6 +29,7 @@ export interface HospitalProfile {
   contact_number: string;
   website: string;
   logo: string | null;
+  description?: string;
 }
 
 export interface User {

@@ -31,9 +31,9 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
     // Profile State
     const [profile, setProfile] = useState({
         username: user.hospital_profile?.hospital_name || '',
-        handle: user.username || '',
+        handle: user.email.split('@')[0], // Use part of email as handle since username doesn't exist
         phone: user.hospital_profile?.contact_number || user.mobile || '',
-        bio: user.hospital_profile?.description || '', // Added description field support
+        bio: user.hospital_profile?.description || '',
         email: user.email || '',
         website: user.hospital_profile?.website || '',
         address: user.hospital_profile?.address || ''
@@ -49,14 +49,6 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
         account_holder_name: '',
         is_default: false
     });
-
-    // Notification State
-    const [notifications, setNotifications] = useState({
-        email: true,
-        sound: true,
-        browser: false
-    });
-    const [notificationList, setNotificationList] = useState<any[]>([]);
 
     useEffect(() => {
         if (activeTab === 'Payment') {
@@ -572,8 +564,8 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         className={`pb-4 text-sm font-medium transition-all relative whitespace-nowrap ${activeTab === tab
-                                ? 'text-indigo-600'
-                                : 'text-gray-500 hover:text-gray-700'
+                            ? 'text-indigo-600'
+                            : 'text-gray-500 hover:text-gray-700'
                             }`}
                     >
                         {tab}

@@ -113,11 +113,8 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLo
           </div>
 
           <div className="flex items-center space-x-4">
-            <button className="relative p-2 hover:bg-gray-100 rounded-full">
-              <Bell className="h-6 w-6 text-gray-500" />
-              <span className="absolute top-1.5 right-2 h-2 w-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
-            <div className="flex items-center space-x-3 border-l pl-4 border-gray-200">
+            <NotificationsDropdown />
+            <div className="flex items-center space-x-3 ml-4 border-l pl-4 border-gray-200">
               <div className="text-right hidden md:block">
                 <div className="text-sm font-bold text-gray-800">{user.hospital_profile?.hospital_name || 'Hospital Admin'}</div>
                 <div className="text-xs text-gray-500 font-mono">ID: {user.hospital_profile?.hospital_id || 'N/A'}</div>
