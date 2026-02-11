@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { User } from '../../types';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { NotificationsDropdown } from './NotificationsDropdown';
 import {
   LayoutDashboard,
   Calendar,
@@ -12,7 +13,6 @@ import {
   Settings,
   FileText,
   LogOut,
-  Bell,
   Search,
   Menu,
   User as UserIcon
