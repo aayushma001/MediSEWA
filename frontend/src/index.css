@@ -17,6 +17,9 @@
     --sidebar-bg: #2c3e50;
     --sidebar-text: #ffffff;
     --page-bg: #f8fafc;
+    --header-bg: #ffffff;
+    --header-text: #0f172a;
+    --header-border: #e2e8f0;
 }
 
 [data-theme="dark"] {
@@ -32,6 +35,9 @@
     --sidebar-bg: #ffffff;
     --sidebar-text: #0f172a;
     --page-bg: #000000;
+    --header-bg: #1e293b;
+    --header-text: #f8fafc;
+    --header-border: #334155;
 }
 
 [data-theme="deepblue"] {
@@ -47,6 +53,9 @@
     --sidebar-bg: #ffffff;
     --sidebar-text: #0a1929;
     --page-bg: #001e3c;
+    --header-bg: #0a1929;
+    --header-text: #e3f2fd;
+    --header-border: #1e4976;
 }
 
 /* Apply theme colors */
@@ -81,6 +90,18 @@ body {
     color: var(--text-tertiary);
 }
 
+.header-bg-theme {
+    background-color: var(--header-bg);
+}
+
+.header-text-theme {
+    color: var(--header-text);
+}
+
+.header-border-theme {
+    border-color: var(--header-border);
+}
+
 .border-theme {
     border-color: var(--border-color);
 }
@@ -106,4 +127,37 @@ body {
 /* Page background theming */
 .page-bg-themed {
     background-color: var(--page-bg) !important;
+}
+
+/* Header theming */
+.header-themed {
+    background-color: var(--header-bg) !important;
+    color: var(--header-text) !important;
+    border-color: var(--header-border) !important;
+}
+
+/* Settings page theming */
+.settings-themed {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+}
+
+.settings-text-primary {
+    color: var(--text-primary) !important;
+}
+
+.settings-text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+.settings-bg-primary {
+    background-color: var(--bg-primary) !important;
+}
+
+.settings-bg-secondary {
+    background-color: var(--bg-secondary) !important;
+}
+
+.settings-border {
+    border-color: var(--border-color) !important;
 }

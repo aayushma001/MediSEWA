@@ -201,6 +201,13 @@ export const adminAPI = {
       body: JSON.stringify({ mark_read: true }),
     });
   },
+
+  deleteAccount: async (data: { password: string }) => {
+    return apiRequest('/auth/account/delete/', {
+      method: 'DELETE',
+      body: JSON.stringify(data),
+    });
+  },
 };
 
 // Appointments API

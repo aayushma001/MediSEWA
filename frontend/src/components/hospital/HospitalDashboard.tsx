@@ -97,9 +97,9 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLo
       {/* Main Content */}
       <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarOpen ? 'ml-72' : 'ml-20'}`}>
         {/* Header */}
-        <header className="bg-white h-20 shadow-sm flex items-center justify-between px-6 sticky top-0 z-20">
+        <header className="header-themed h-20 shadow-sm flex items-center justify-between px-6 sticky top-0 z-20">
           <div className="flex items-center">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-md hover:bg-gray-100 mr-4 text-gray-600">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-md hover:bg-gray-100 mr-4 header-text-theme">
               <Menu className="h-7 w-7" />
             </button>
             <div className="relative hidden md:block">
@@ -114,10 +114,10 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLo
 
           <div className="flex items-center space-x-4">
             <NotificationsDropdown />
-            <div className="flex items-center space-x-4 ml-4 border-l pl-4 border-gray-200">
+            <div className="flex items-center space-x-4 ml-4 border-l pl-4 header-border-theme">
               <div className="text-right hidden md:block">
-                <div className="text-lg font-bold text-gray-800">{user.hospital_profile?.hospital_name || 'Hospital Admin'}</div>
-                <div className="text-sm text-gray-500 font-mono">ID: {user.hospital_profile?.hospital_id || 'N/A'}</div>
+                <div className="text-lg font-bold header-text-theme">{user.hospital_profile?.hospital_name || 'Hospital Admin'}</div>
+                <div className="text-sm settings-text-secondary font-mono">ID: {user.hospital_profile?.hospital_id || 'N/A'}</div>
               </div>
               <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden border-2 border-blue-50">
                 {localStorage.getItem('hospital-profile-picture') ? (

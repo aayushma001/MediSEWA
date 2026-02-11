@@ -24,7 +24,8 @@ import {
     Plus,
     Trash2,
     Edit2,
-    Key
+    Key,
+    AlertTriangle
 } from 'lucide-react';
 import { User } from '../../../types';
 import { adminAPI } from '../../../services/api';
@@ -127,6 +128,12 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
         password: ''
     });
 
+    // Account Deletion State
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deletePassword, setDeletePassword] = useState('');
+    const [deleteConsent, setDeleteConsent] = useState(false);
+    const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
     useEffect(() => {
         if (activeTab === 'Payment') {
             fetchPaymentMethods();
@@ -183,6 +190,35 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
         setProfile({ ...profile, profilePicture: '' });
         localStorage.removeItem('hospital-profile-picture');
         showSuccess('Profile picture removed.');
+    };
+
+    // --- Account Deletion Handler ---
+    const handleDeleteAccount = async () => {
+        if (!deletePassword) {
+            showError('Please enter your password to confirm deletion.');
+            return;
+        }
+
+        if (!deleteConsent) {
+            showError('Please confirm that you understand the consequences.');
+            return;
+        }
+
+        try {
+            setIsDeletingAccount(true);
+
+            // Call backend API to delete account with password verification
+            await adminAPI.deleteAccount({ password: deletePassword });
+
+            // Clear all localStorage data
+            localStorage.clear();
+
+            // Redirect to homepage
+            window.location.href = '/';
+        } catch (error: any) {
+            showError(error.response?.data?.message || 'Failed to delete account. Please check your password.');
+            setIsDeletingAccount(false);
+        }
     };
 
     // --- Profile Handlers ---
@@ -437,10 +473,10 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
                 <div className="p-8 border border-red-100 rounded-2xl bg-red-50/30 flex items-center justify-between">
                     <div>
                         <h4 className="text-red-700 font-semibold mb-2 text-lg">Delete Account</h4>
-                        <p className="text-red-600/70 text-base">Target all your data and account details.</p>
+                        <p className="text-red-600/70 text-base">Permanently delete your account and all associated data.</p>
                     </div>
                     <button
-                        onClick={() => window.confirm("Are you sure? This is permanent.") && alert("Account deletion request sent to admin.")}
+                        onClick={() => setShowDeleteModal(true)}
                         className="px-6 py-3 bg-red-600 text-white rounded-lg font-medium text-base hover:bg-red-700 transition-colors shadow-sm"
                     >
                         Delete Account
@@ -1294,6 +1330,90 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
                 {activeTab === 'General' && renderGeneralTab()}
                 {activeTab === 'Staff' && renderStaffTab()}
             </div>
+
+            {/* Delete Account Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-in fade-in zoom-in duration-200">
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">
+                                <AlertTriangle className="h-6 w-6 text-red-600" />
+                            </div>
+                            <div>
+                                <h3 className="text-2xl font-bold text-gray-900">Delete Account</h3>
+                                <p className="text-sm text-gray-500">This action cannot be undone</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-5">
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                                <h4 className="font-semibold text-red-800 mb-2">Warning: Permanent Deletion</h4>
+                                <ul className="text-sm text-red-700 space-y-1 list-disc list-inside">
+                                    <li>All hospital data will be permanently deleted</li>
+                                    <li>Patient records and appointments will be removed</li>
+                                    <li>Staff accounts will be deactivated</li>
+                                    <li>Payment methods and subscriptions will be cancelled</li>
+                                    <li>This action cannot be reversed</li>
+                                </ul>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-gray-700 font-medium">Enter your password to confirm</label>
+                                <input
+                                    type="password"
+                                    value={deletePassword}
+                                    onChange={(e) => setDeletePassword(e.target.value)}
+                                    placeholder="Enter password"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                    disabled={isDeletingAccount}
+                                />
+                            </div>
+
+                            <div className="flex items-start gap-3">
+                                <input
+                                    type="checkbox"
+                                    id="deleteConsent"
+                                    checked={deleteConsent}
+                                    onChange={(e) => setDeleteConsent(e.target.checked)}
+                                    className="mt-1 h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                                    disabled={isDeletingAccount}
+                                />
+                                <label htmlFor="deleteConsent" className="text-sm text-gray-700">
+                                    I understand that deleting my account is permanent and all data will be lost forever. I accept full responsibility for this action.
+                                </label>
+                            </div>
+
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    onClick={() => {
+                                        setShowDeleteModal(false);
+                                        setDeletePassword('');
+                                        setDeleteConsent(false);
+                                    }}
+                                    disabled={isDeletingAccount}
+                                    className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleDeleteAccount}
+                                    disabled={isDeletingAccount || !deletePassword || !deleteConsent}
+                                    className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    {isDeletingAccount ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            Deleting...
+                                        </>
+                                    ) : (
+                                        'Delete Account'
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
