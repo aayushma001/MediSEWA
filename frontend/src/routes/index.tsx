@@ -13,6 +13,7 @@ import { Transactions } from '../components/hospital/pages/Transactions';
 import { Settings } from '../components/hospital/pages/Settings';
 import { Reports } from '../components/hospital/pages/Reports';
 import { Profile } from '../components/hospital/pages/Profile';
+import { PatientDashboard } from '../components/patient/PatientDashboard';
 
 interface AppRoutesProps {
   user: User;
@@ -26,15 +27,33 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({ user, onLogout }) => {
         path="/"
         element={
           user.user_type === 'doctor' ? (
-            <DoctorDashboard user={user} onLogout={onLogout} />
+            <DoctorDashboard
+              doctor={{
+                id: user.id,
+                user: user,
+                specialization: user.doctor_profile?.specialization || 'General Physician',
+                medicalDegree: user.doctor_profile?.qualification,
+                experience: user.doctor_profile?.experience_years?.toString(),
+                bio: user.doctor_profile?.about
+              }}
+              onLogout={onLogout}
+            />
           ) : user.user_type === 'hospital' ? (
             <Navigate to="/hospital" replace />
           ) : (
-            <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
-              <h1 className="text-2xl font-bold mb-4">Welcome to HealthCare Platform</h1>
-              <p className="text-gray-600">Patient Dashboard is under construction.</p>
-            </div>
+            <PatientDashboard
+              patient={{
+                id: user.id,
+                user: user,
+                age: 30, // Default/Placeholder age
+                gender: 'Male', // Default/Placeholder gender
+                blood_group: 'O+', // Default/Placeholder
+                address: 'Kathmandu' // Default/Placeholder
+              }}
+              onLogout={onLogout}
+            />
           )
+
         }
       />
 
@@ -57,7 +76,18 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({ user, onLogout }) => {
         path="/settings"
         element={
           user.user_type === 'doctor' ? (
-            <DoctorDashboard user={user} onLogout={onLogout} initialTab="profile-settings" />
+            <DoctorDashboard
+              doctor={{
+                id: user.id,
+                user: user,
+                specialization: user.doctor_profile?.specialization || 'General Physician',
+                medicalDegree: user.doctor_profile?.qualification,
+                experience: user.doctor_profile?.experience_years?.toString(),
+                bio: user.doctor_profile?.about
+              }}
+              onLogout={onLogout}
+              initialTab="profile"
+            />
           ) : (
             <Navigate to="/" replace />
           )

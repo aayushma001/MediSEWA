@@ -29,7 +29,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Plus,
-  Quote
+  Quote,
+  Target, // New Import
+  Eye,    // New Import
+  Hash    // New Import
 } from 'lucide-react';
 import { authAPI } from '../../services/api';
 
@@ -97,20 +100,20 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
     });
   }, [doctors, selectedSpeciality, query]);
 
-  const handleSearch = () => {};
+  const handleSearch = () => { };
 
   // Mock featured doctors data
   const featuredDoctors = filteredDoctors.slice(0, 4).length > 0
     ? filteredDoctors.slice(0, 4).map(d => ({
-        name: `Dr. ${d?.user?.first_name || ''} ${d?.user?.last_name || ''}`,
-        specialty: d.specialization || 'Specialist',
-        location: d?.city || 'Location',
-        distance: '30 Min',
-        rating: 4.8,
-        fee: d?.consultation_fee ? `$${d.consultation_fee}` : '$500',
-        available: true,
-        image: null
-      }))
+      name: `Dr. ${d?.user?.first_name || ''} ${d?.user?.last_name || ''}`,
+      specialty: d.specialization || 'Specialist',
+      location: d?.city || 'Location',
+      distance: '30 Min',
+      rating: 4.8,
+      fee: d?.consultation_fee ? `$${d.consultation_fee}` : '$500',
+      available: true,
+      image: null
+    }))
     : [
       { name: 'Dr. Michael Brown', specialty: 'Psychologist', location: 'Minneapolis, MN', distance: '30 Min', rating: 4.8, fee: '$650', available: true, image: null },
       { name: 'Dr. Nicholas Tello', specialty: 'Pediatrician', location: 'Ogden, IA', distance: '60 Min', rating: 4.9, fee: '$350', available: true, image: null },
@@ -180,22 +183,22 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
             <div className="flex items-center space-x-2">
               <a href="#" className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors">
                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
               </a>
               <a href="#" className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors">
                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
                 </svg>
               </a>
               <a href="#" className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors">
                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                 </svg>
               </a>
               <a href="#" className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors">
                 <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                 </svg>
               </a>
             </div>
@@ -224,18 +227,14 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
               <a href="#" className="text-gray-700 font-medium hover:text-blue-600 transition-colors pb-1">
                 Doctors
               </a>
-              <a href="#" className="text-gray-700 font-medium hover:text-blue-600 transition-colors pb-1">
-                Patients
-              </a>
+
               <a href="#" className="text-gray-700 font-medium hover:text-blue-600 transition-colors pb-1">
                 Pharmacy
               </a>
               <a href="#" className="text-gray-700 font-medium hover:text-blue-600 transition-colors pb-1">
                 Blog
               </a>
-              <a href="#" className="text-gray-700 font-medium hover:text-blue-600 transition-colors pb-1">
-                Admin
-              </a>
+
             </div>
 
             {/* Action Buttons */}
@@ -268,13 +267,13 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
       <div className="homepage-hero relative min-h-[600px] flex items-center pb-32 pt-24">
         {/* Floating UI Elements - Fixed position */}
         <div className="fixed bottom-8 right-8 bg-white rounded-full shadow-2xl px-6 py-4 animate-float-delayed flex items-center gap-3 whitespace-nowrap z-50 border border-blue-100">
-           <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-              <Phone className="h-5 w-5 text-green-600" />
-           </div>
-           <div>
-             <p className="text-xs text-gray-500 font-medium">Need help?</p>
-             <p className="text-sm font-bold text-gray-900">Call your doctor</p>
-           </div>
+          <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+            <Phone className="h-5 w-5 text-green-600" />
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 font-medium">Need help?</p>
+            <p className="text-sm font-bold text-gray-900">Call your doctor</p>
+          </div>
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10">
@@ -282,7 +281,7 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
             {/* Left Content */}
             <div className="text-white z-20 -mt-24">
               {/* Stats Badge */}
-              <button 
+              <button
                 onClick={() => onOpenAuthModal('login')}
                 className="inline-flex items-center bg-white/95 backdrop-blur-sm rounded-full px-6 py-4 mb-8 shadow-xl hover:bg-white transition-colors cursor-pointer group"
               >
@@ -340,10 +339,10 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
             {/* Right Doctor Image Placeholder */}
             <div className="relative flex justify-center items-center lg:justify-end lg:items-end mt-10 lg:-mt-24">
               <div className="relative z-10">
-                <img 
-                  src="/Hero.png" 
-                  alt="Doctor" 
-                  className="h-auto max-h-[650px] w-auto object-contain drop-shadow-2xl" 
+                <img
+                  src="/Hero.png"
+                  alt="Doctor"
+                  className="h-auto max-h-[650px] w-auto object-contain drop-shadow-2xl"
                 />
               </div>
             </div>
@@ -392,6 +391,59 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
                 <Home className="h-6 w-6" />
               </div>
               <span className="text-xs font-medium text-gray-700">Home Care</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      {/* Mission Section */}
+      <div className="py-20 bg-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Image */}
+            <div className="relative">
+              <img src="/Mission.png" alt="Our Mission" className="w-full h-auto object-contain rounded-3xl transition-transform hover:scale-[1.02] duration-500" />
+            </div>
+
+            {/* Right: Content */}
+            <div>
+              <span className="inline-flex items-center gap-1.5 bg-blue-600 text-white px-4 py-1.5 rounded-full text-sm font-semibold mb-6 shadow-sm">
+                <Hash className="h-4 w-4 text-blue-100" />
+                About Us
+              </span>
+
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                We Understand That Each One Is <br className="hidden lg:block" />
+                Unique & Their <span className="text-green-600">Health Journey.</span>
+              </h2>
+
+              <p className="text-gray-600 mb-8 text-lg leading-relaxed">
+                We aim to provide faster diagnosis, clearer insights, and more accurate treatment
+                decisions ensuring every patient receives safe, precise, and personalized care.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                <div className="bg-white border border-gray-100 hover:border-blue-500 transition-all duration-300 rounded-2xl p-6 shadow-md hover:shadow-xl group">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <Target className="text-blue-600 h-6 w-6" />
+                  </div>
+                  <h3 className="font-bold text-xl mb-2 text-gray-900">Our Mission</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">To deliver compassionate, patient-first healthcare by combining expert clinical judgment with technology.</p>
+                </div>
+                <div className="bg-white border border-gray-100 hover:border-green-500 transition-all duration-300 rounded-2xl p-6 shadow-md hover:shadow-xl group">
+                  <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <Eye className="text-green-600 h-6 w-6" />
+                  </div>
+                  <h3 className="font-bold text-xl mb-2 text-gray-900">Our Vision</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">Empower doctors to detect conditions earlier, improve outcomes, and redefine the future of modern healthcare.</p>
+                </div>
+              </div>
+
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-base font-semibold shadow-lg shadow-blue-600/20 transition-all transform hover:translate-y-[-2px]">
+                Know More
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>

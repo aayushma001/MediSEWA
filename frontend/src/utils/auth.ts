@@ -73,7 +73,7 @@ export const register = async (formData: RegisterFormData): Promise<User> => {
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
 
-    const requestData = {
+    const requestData: any = {
       first_name: firstName,
       last_name: lastName,
       email: formData.email,
@@ -81,25 +81,31 @@ export const register = async (formData: RegisterFormData): Promise<User> => {
       user_type: formData.userType,
       password: formData.password,
       confirm_password: formData.confirmPassword,
-      // Doctor specific - Send "N/A" if not a doctor to satisfy backend validation
-      specialization: formData.userType === 'doctor' ? formData.specialization : 'N/A',
-      qualification: formData.userType === 'doctor' ? formData.qualification : 'N/A',
-      consent_accepted: formData.consentAccepted,
-      // Hospital specific
-      hospital_name: formData.hospitalName,
-      hospital_type: formData.hospitalType,
-      hospital_id: formData.hospitalId,
-      province: formData.province,
-      district: formData.district,
-      city: formData.city,
-      ward: formData.ward,
-      // Construct address from components if main address field is empty
       address: formData.address || `${formData.province || ''}, ${formData.district || ''}, ${formData.city || ''} - ${formData.ward || ''}`,
-      pan_number: formData.panNumber,
-      registration_number: formData.registrationNumber,
-      contact_number: formData.contactNumber,
-      website: formData.website
     };
+
+    // Add fields conditionally based on user type
+    if (formData.userType === 'doctor') {
+      requestData.specialization = formData.specialization;
+      requestData.qualification = formData.qualification;
+      requestData.consent_accepted = formData.consentAccepted;
+      requestData.nmc_number = formData.nmcId;
+      requestData.experience_years = 0; // Default or add field
+      requestData.nid = formData.nidNumber;
+      // Ensure we don't send hospital fields
+    } else if (formData.userType === 'hospital') {
+      requestData.hospital_name = formData.hospitalName;
+      requestData.hospital_type = formData.hospitalType;
+      requestData.hospital_id = formData.hospitalId;
+      requestData.province = formData.province;
+      requestData.district = formData.district;
+      requestData.city = formData.city;
+      requestData.ward = formData.ward;
+      requestData.pan_number = formData.panNumber;
+      requestData.registration_number = formData.registrationNumber;
+      requestData.contact_number = formData.contactNumber;
+      requestData.website = formData.website;
+    }
 
     console.log('=== FRONTEND REGISTRATION DEBUG ===');
     console.log('Form data received:', formData);

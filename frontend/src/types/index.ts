@@ -93,3 +93,59 @@ export interface LoginFormData {
   password: string;
   userType: string;
 }
+
+export interface Doctor {
+  id: string;
+  user: User;
+  specialization: string;
+  medicalDegree?: string;
+  experience?: string;
+  bio?: string;
+  nid?: string;
+  registrationNumber?: string;
+  licenseExpiry?: string;
+  languages?: string[];
+  education?: string[];
+  certifications?: string[];
+  signature?: string;
+  inPersonFee?: string;
+  videoFee?: string;
+  city?: string;
+  country?: string;
+  gender?: string;
+  age?: number;
+}
+
+export interface Patient {
+  id: string | number;
+  user: User;
+  father_name?: string;
+  illness_description?: string;
+  age?: number;
+  gender?: string;
+  blood_group?: string;
+  address?: string;
+  condition?: string;
+  lastVisit?: string;
+  status?: string;
+  reports?: any[];
+}
+
+export interface Medication {
+  id: string;
+  appointment?: string;
+  name: string;
+  dosage: string;
+  frequency: string;
+  instructions: string;
+  start_date: string;
+  end_date: string;
+  completed: boolean;
+  timings?: string[];
+}
+
+export interface Appointment {
+  id: string;
+  patient_name?: string;
+  instructions?: string;
+}

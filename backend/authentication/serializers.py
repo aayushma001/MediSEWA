@@ -7,20 +7,22 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(write_only=True)
     
     # Hospital specific
-    hospital_name = serializers.CharField(required=False)
-    address = serializers.CharField(required=False)
-    pan_number = serializers.CharField(required=False)
-    registration_number = serializers.CharField(required=False)
-    contact_number = serializers.CharField(required=False)
-    website = serializers.URLField(required=False)
+    hospital_name = serializers.CharField(required=False, allow_blank=True)
+    address = serializers.CharField(required=False, allow_blank=True)
+    pan_number = serializers.CharField(required=False, allow_blank=True)
+    registration_number = serializers.CharField(required=False, allow_blank=True)
+    contact_number = serializers.CharField(required=False, allow_blank=True)
+    website = serializers.URLField(required=False, allow_blank=True)
     latitude = serializers.FloatField(required=False)
     longitude = serializers.FloatField(required=False)
     
     # Doctor specific
-    specialization = serializers.CharField(required=False)
-    qualification = serializers.CharField(required=False)
+    specialization = serializers.CharField(required=False, allow_blank=True)
+    qualification = serializers.CharField(required=False, allow_blank=True)
     experience_years = serializers.IntegerField(required=False)
     consent_accepted = serializers.BooleanField(required=False)
+    nmc_number = serializers.CharField(required=False, allow_blank=True)
+    nid_number = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = User
@@ -28,7 +30,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                  'password', 'confirm_password', 'hospital_name', 'address',
                  'pan_number', 'registration_number', 'contact_number', 'website',
                  'latitude', 'longitude', 'specialization', 'qualification',
-                 'experience_years', 'consent_accepted']
+                 'experience_years', 'consent_accepted', 'nmc_number', 'nid_number']
 
     def validate(self, attrs):
         if attrs['password'] != attrs['confirm_password']:
@@ -65,10 +67,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         latitude = validated_data.pop('latitude', None)
         longitude = validated_data.pop('longitude', None)
         
-        specialization = validated_data.pop('specialization', None)
-        qualification = validated_data.pop('qualification', None)
+        specialization = validated_data.pop('specialization', '')
+        qualification = validated_data.pop('qualification', '')
         experience_years = validated_data.pop('experience_years', 0)
         consent_accepted = validated_data.pop('consent_accepted', False)
+        nmc_number = validated_data.pop('nmc_number', '')
+        nid_number = validated_data.pop('nid_number', '')
         
         validated_data.pop('confirm_password')
         
@@ -100,6 +104,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 qualification=qualification,
                 experience_years=experience_years,
                 consent_accepted=consent_accepted,
+                nmc_number=nmc_number,
                 is_verified=False  # Default to False as per requirements
             )
         

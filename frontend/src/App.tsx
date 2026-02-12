@@ -142,7 +142,7 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
-        {user.user_type !== 'hospital' && <Header user={user} onLogout={handleLogout} />}
+        {user.user_type !== 'hospital' && user.user_type !== 'doctor' && <Header user={user} onLogout={handleLogout} />}
         <AppRoutes user={user} onLogout={handleLogout} />
       </div>
     </Router>
