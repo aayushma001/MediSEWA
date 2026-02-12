@@ -142,6 +142,18 @@ def get_hospitals(request):
         traceback.print_exc()
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_doctors(request):
+    try:
+        doctors = DoctorProfile.objects.all()
+        serializer = DoctorProfileSerializer(doctors, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        print("Error fetching doctors:", str(e))
+        traceback.print_exc()
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def update_profile(request):

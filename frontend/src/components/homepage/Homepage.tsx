@@ -3,8 +3,6 @@ import './Homepage.css';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import {
-  Stethoscope,
-  Clock,
   Phone,
   ArrowRight,
   Search,
@@ -12,8 +10,6 @@ import {
   Heart,
   Zap,
   Users,
-  CheckCircle,
-  Shield,
   Star,
   MessageSquare,
   FileText,
@@ -22,8 +18,6 @@ import {
   Home,
   Lock,
   User,
-  Video,
-  Mic,
   Calendar,
   MapPin,
   ChevronLeft,
@@ -32,7 +26,8 @@ import {
   Quote,
   Target, // New Import
   Eye,    // New Import
-  Hash    // New Import
+  Wind,
+  Droplets
 } from 'lucide-react';
 import { authAPI } from '../../services/api';
 
@@ -44,18 +39,13 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
   const [doctors, setDoctors] = useState<any[]>([]);
   const [selectedSpeciality, setSelectedSpeciality] = useState('');
   const [query, setQuery] = useState('');
-  const [loading, setLoading] = useState(false);
-
   useEffect(() => {
     const load = async () => {
-      setLoading(true);
       try {
         const ds = await authAPI.getDoctors();
         setDoctors(Array.isArray(ds) ? ds : []);
       } catch (e) {
         setDoctors([]);
-      } finally {
-        setLoading(false);
       }
     };
     load();
@@ -74,17 +64,12 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
   }, [doctors]);
 
   const specialityCounts = useMemo(() => {
-    const counts: Record<string, number> = {
-      'Cardiology': 254,
-      'Orthopedics': 181,
-      'Neurology': 176,
-      'Pediatrics': 124,
-      'Psychiatry': 112,
-      'Endocrinology': 104
-    };
+    const counts: Record<string, number> = {};
     doctors.forEach((d) => {
       const s = String(d.specialization || '');
-      if (s && !counts[s]) counts[s] = 1;
+      if (s) {
+        counts[s] = (counts[s] || 0) + 1;
+      }
     });
     return counts;
   }, [doctors]);
@@ -400,18 +385,19 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
       {/* Mission Section */}
       <div className="py-20 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Left: Image */}
-            <div className="relative">
-              <img src="/Mission.png" alt="Our Mission" className="w-full h-auto object-contain rounded-3xl transition-transform hover:scale-[1.02] duration-500" />
+            <div className="relative h-full">
+              <img src="/Mission.png" alt="Our Mission" className="w-full h-full object-cover rounded-3xl transition-transform hover:scale-[1.02] duration-500 shadow-xl" />
             </div>
 
             {/* Right: Content */}
             <div>
-              <span className="inline-flex items-center gap-1.5 bg-blue-600 text-white px-4 py-1.5 rounded-full text-sm font-semibold mb-6 shadow-sm">
-                <Hash className="h-4 w-4 text-blue-100" />
-                About Us
-              </span>
+              <div className="flex justify-center md:justify-start mb-8">
+                <span className="inline-flex items-center justify-center bg-blue-600 text-white px-8 py-3 rounded-full text-lg font-bold shadow-md uppercase tracking-wide transform hover:scale-105 transition-transform">
+                  About Us
+                </span>
+              </div>
 
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
                 We Understand That Each One Is <br className="hidden lg:block" />
@@ -424,19 +410,19 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                <div className="bg-white border border-gray-100 hover:border-blue-500 transition-all duration-300 rounded-2xl p-6 shadow-md hover:shadow-xl group">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <Target className="text-blue-600 h-6 w-6" />
+                <div className="bg-white border border-gray-100 hover:border-blue-500 transition-all duration-300 rounded-xl p-5 shadow-sm hover:shadow-lg group">
+                  <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <Target className="text-blue-600 h-5 w-5" />
                   </div>
-                  <h3 className="font-bold text-xl mb-2 text-gray-900">Our Mission</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">To deliver compassionate, patient-first healthcare by combining expert clinical judgment with technology.</p>
+                  <h3 className="font-bold text-lg mb-1 text-gray-900">Our Mission</h3>
+                  <p className="text-gray-500 text-xs leading-relaxed">To deliver compassionate, patient-first healthcare by combining expert clinical judgment with technology.</p>
                 </div>
-                <div className="bg-white border border-gray-100 hover:border-green-500 transition-all duration-300 rounded-2xl p-6 shadow-md hover:shadow-xl group">
-                  <div className="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                    <Eye className="text-green-600 h-6 w-6" />
+                <div className="bg-white border border-gray-100 hover:border-green-500 transition-all duration-300 rounded-xl p-5 shadow-sm hover:shadow-lg group">
+                  <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <Eye className="text-green-600 h-5 w-5" />
                   </div>
-                  <h3 className="font-bold text-xl mb-2 text-gray-900">Our Vision</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">Empower doctors to detect conditions earlier, improve outcomes, and redefine the future of modern healthcare.</p>
+                  <h3 className="font-bold text-lg mb-1 text-gray-900">Our Vision</h3>
+                  <p className="text-gray-500 text-xs leading-relaxed">Empower doctors to detect conditions earlier, improve outcomes, and redefine the future of modern healthcare.</p>
                 </div>
               </div>
 
@@ -449,48 +435,82 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
         </div>
       </div>
 
-      {/* Highlighting the Care & Support - Top Specialities Section */}
-      <div className="py-20 bg-gray-50 relative z-10">
+      {/* "Highlighting the Care & Support" - Carousel Section */}
+      <div className="py-20 bg-gray-50 relative z-10 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <span className="inline-block text-sm font-semibold text-blue-600 bg-blue-100 px-4 py-2 rounded-full mb-3">• Top Specialities •</span>
+          <div className="flex flex-col items-center text-center mb-12">
+            <span className="inline-block text-lg font-bold text-white bg-blue-600 px-8 py-3 rounded-full mb-5 shadow-md uppercase tracking-wide transform hover:scale-105 transition-transform">
+              Top Specialties
+            </span>
             <h2 className="text-4xl font-bold text-gray-900">
               Highlighting the <span className="text-blue-600">Care & Support</span>
             </h2>
           </div>
 
-          <div className="relative">
-            <button className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-50">
-              <ChevronLeft className="h-5 w-5 text-gray-600" />
-            </button>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          <div className="relative group px-4">
+            {/* Carousel Container */}
+            <div
+              id="specialties-carousel"
+              className="flex overflow-x-auto gap-4 pb-8 snap-x snap-mandatory scrollbar-hide"
+              style={{ scrollBehavior: 'smooth' }}
+            >
               {[
-                { name: 'Cardiology', count: specialityCounts['Cardiology'] || 254, icon: Heart },
-                { name: 'Orthopedics', count: specialityCounts['Orthopedics'] || 181, icon: Activity },
-                { name: 'Neurology', count: specialityCounts['Neurology'] || 176, icon: Zap },
-                { name: 'Pediatrics', count: specialityCounts['Pediatrics'] || 124, icon: Users },
-                { name: 'Psychiatry', count: specialityCounts['Psychiatry'] || 112, icon: MessageSquare },
-                { name: 'Endocrinology', count: specialityCounts['Endocrinology'] || 104, icon: FileText }
-              ].map((spec) => (
-                <Card key={spec.name} className="p-0 overflow-hidden hover:shadow-xl transition-all group cursor-pointer">
-                  <div className="p-6">
-                    <div className="relative h-32 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl mb-4 flex items-center justify-center overflow-hidden group-hover:scale-105 transition-transform">
-                      <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center">
-                        <spec.icon className="h-8 w-8 text-blue-600" />
-                      </div>
+                { name: 'Cardiology', count: specialityCounts['Cardiology'] || 0, img: '/Cardiology.jpg', icon: Heart },
+                { name: 'Orthopedics', count: specialityCounts['Orthopedics'] || 0, img: '/Orthopedics.jpg', icon: Activity },
+                { name: 'Neurology', count: specialityCounts['Neurology'] || 0, img: '/Neurology.jpg', icon: Zap },
+                { name: 'Pediatrics', count: specialityCounts['Pediatrics'] || 0, img: '/Pediatrics.jpg', icon: Users },
+                { name: 'Psychiatry', count: specialityCounts['Psychiatry'] || 0, img: '/Psychiatry.jpg', icon: MessageSquare },
+                { name: 'Endocrinology', count: specialityCounts['Endocrinology'] || 0, img: '/Endocrinology.jpg', icon: FileText },
+                { name: 'Pulmonology', count: specialityCounts['Pulmonology'] || 0, img: '/Pulmonology.jpg', icon: Wind },
+                { name: 'Urology', count: specialityCounts['Urology'] || 0, img: '/Urology.jpg', icon: Droplets }
+              ].map((spec, idx) => (
+                <div key={idx} className="min-w-[200px] md:min-w-[220px] snap-center">
+                  <div className="bg-white rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group/card relative h-[280px] cursor-pointer border border-gray-100 flex flex-col">
+                    {/* Image Top Half */}
+                    <div className="h-4/6 w-full relative overflow-hidden">
+                      <img
+                        src={spec.img}
+                        alt={spec.name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-black/10 group-hover/card:bg-black/20 transition-colors"></div>
                     </div>
-                    <div className="text-center">
-                      <h3 className="font-bold text-gray-900 mb-1">{spec.name}</h3>
-                      <p className="text-sm text-gray-500">{spec.count} Doctors</p>
+
+                    {/* Content Bottom Half */}
+                    <div className="h-2/6 bg-white relative pt-8 pb-4 px-4 text-center">
+                      {/* Floating Icon - Overlapping */}
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg group-hover/card:scale-110 transition-transform duration-300 z-10 border-4 border-white-50">
+                        <spec.icon className="h-6 w-6 text-blue-600" strokeWidth={2} />
+                      </div>
+
+                      <h3 className="text-lg font-bold text-gray-900 mb-1">{spec.name}</h3>
+                      <p className="text-blue-500 font-medium text-xs">
+                        {spec.count} Doctors
+                      </p>
                     </div>
                   </div>
-                </Card>
+                </div>
               ))}
             </div>
 
-            <button className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-50">
-              <ChevronRight className="h-5 w-5 text-gray-600" />
+            {/* Navigation Arrows */}
+            <button
+              onClick={() => {
+                const carousel = document.getElementById('specialties-carousel');
+                if (carousel) carousel.scrollBy({ left: -240, behavior: 'smooth' });
+              }}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center text-gray-700 hover:text-blue-600 hover:scale-110 transition-all z-20 hidden md:flex border border-gray-100"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+            <button
+              onClick={() => {
+                const carousel = document.getElementById('specialties-carousel');
+                if (carousel) carousel.scrollBy({ left: 240, behavior: 'smooth' });
+              }}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center text-gray-700 hover:text-blue-600 hover:scale-110 transition-all z-20 hidden md:flex border border-gray-100"
+            >
+              <ChevronRight className="h-6 w-6" />
             </button>
           </div>
         </div>

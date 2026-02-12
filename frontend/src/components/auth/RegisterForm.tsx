@@ -413,16 +413,59 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
                     className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
                     required
                   />
-                  <Input
-                    name="specialization"
-                    type="text"
-                    label=""
-                    placeholder="Specialization"
-                    value={formData.specialization}
-                    onChange={handleChange}
-                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
-                    required
-                  />
+                  <div className="relative">
+                    <Select
+                      name="specialization_select"
+                      label=""
+                      value={
+                        ['Cardiology', 'Orthopedics', 'Neurology', 'Pediatrics', 'Psychiatry', 'Endocrinology', 'Pulmonology', 'Urology'].includes(formData.specialization || '')
+                          ? formData.specialization
+                          : (formData.specialization ? 'Other' : '')
+                      }
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === 'Other') {
+                          setFormData(prev => ({ ...prev, specialization: 'Other' }));
+                        } else {
+                          setFormData(prev => ({ ...prev, specialization: val }));
+                        }
+                      }}
+                      options={[
+                        { value: '', label: 'Select Specialization' },
+                        { value: 'Cardiology', label: 'Cardiology' },
+                        { value: 'Orthopedics', label: 'Orthopedics' },
+                        { value: 'Neurology', label: 'Neurology' },
+                        { value: 'Pediatrics', label: 'Pediatrics' },
+                        { value: 'Psychiatry', label: 'Psychiatry' },
+                        { value: 'Endocrinology', label: 'Endocrinology' },
+                        { value: 'Pulmonology', label: 'Pulmonology' },
+                        { value: 'Urology', label: 'Urology' },
+                        { value: 'Other', label: 'Other (Add New)' }
+                      ]}
+                      className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                      required={!formData.specialization}
+                    />
+
+                    {/* Show input if NOT in list (and not empty or is 'Other') */}
+                    {(
+                      (formData.specialization === 'Other') ||
+                      (formData.specialization && !['Cardiology', 'Orthopedics', 'Neurology', 'Pediatrics', 'Psychiatry', 'Endocrinology', 'Pulmonology', 'Urology'].includes(formData.specialization))
+                    ) && (
+                        <div className="mt-2 animate-fadeIn">
+                          <Input
+                            name="specialization"
+                            type="text"
+                            label=""
+                            placeholder="Type Specialization..."
+                            value={formData.specialization === 'Other' ? '' : formData.specialization}
+                            onChange={handleChange}
+                            className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                            autoFocus
+                            required
+                          />
+                        </div>
+                      )}
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Input

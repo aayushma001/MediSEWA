@@ -65,7 +65,6 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLo
         </div>
 
         <div className="py-6 h-[calc(100vh-5rem)] overflow-y-auto custom-scrollbar">
-          <div className="px-6 mb-4 text-sm font-semibold text-gray-400 uppercase tracking-wider">Main</div>
           <nav className="space-y-2 pb-20">
             {menuItems.map((item, index) => (
               <button
