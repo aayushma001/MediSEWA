@@ -13,14 +13,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies first (better caching)
-# IMPORTANT: build context is "backend", so requirements.txt is at the root of context
+# Build context is backend/, so requirements.txt is at the root of the context
 COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip && pip install -r /app/requirements.txt
 
-# Copy Django project (everything inside backend/)
+# Copy Django project
 COPY . /app/
 
-# Build-time env to let collectstatic run
+# Build-time env so collectstatic doesn't fail during image build
 ENV DJANGO_SETTINGS_MODULE=healthcare_platform.settings \
     DEBUG=False \
     SECRET_KEY=django-insecure-build-key \
@@ -29,5 +29,5 @@ ENV DJANGO_SETTINGS_MODULE=healthcare_platform.settings \
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
-# Run gunicorn on Cloud Run's injected PORT
+# Start Django with Gunicorn on Cloud Run's PORT
 CMD ["sh", "-c", "gunicorn healthcare_platform.wsgi:application --bind 0.0.0.0:${PORT} --workers 1 --threads 8 --timeout 0"]
