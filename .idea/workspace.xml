@@ -1,0 +1,579 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="23b02453-bc73-491c-ad7f-5ce4645a26c4" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/.idea/ClimateTemperatureAnomaly.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/.idea/dataSources.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/ClimateTemperatureAnomaly/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/ClimateTemperatureAnomaly/asgi.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/ClimateTemperatureAnomaly/middleware.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/ClimateTemperatureAnomaly/settings.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/ClimateTemperatureAnomaly/urls.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/ClimateTemperatureAnomaly/wsgi.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogIn/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogIn/admin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogIn/apps.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogIn/migrations/0001_initial.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogIn/migrations/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogIn/models.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogIn/tests.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogIn/urls.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogIn/views.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogout/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogout/admin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogout/apps.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogout/migrations/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogout/models.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogout/tests.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogout/urls.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/DashboardLogout/views.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Homepage/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Homepage/admin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Homepage/apps.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Homepage/migrations/0001_initial.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Homepage/migrations/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Homepage/models.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Homepage/tests.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Homepage/urls.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Homepage/views.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/LoginPeople/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/LoginPeople/admin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/LoginPeople/apps.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/LoginPeople/migrations/0001_initial.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/LoginPeople/migrations/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/LoginPeople/models.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/LoginPeople/tests.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/LoginPeople/urls.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/LoginPeople/views.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Models/ModelTrainingFile/ClimateAnalysisTemperatureAnomaly_new.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Models/PklFiles/preprocessing_info.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Models/PklFiles/stl_settings.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Models/PklFiles/temperature_anomaly_model.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/RegisterPeople/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/RegisterPeople/admin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/RegisterPeople/apps.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/RegisterPeople/migrations/0001_initial.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/RegisterPeople/migrations/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/RegisterPeople/models.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/RegisterPeople/tests.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/RegisterPeople/urls.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/RegisterPeople/views.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Templates/DashboardLogin/AdminDashboard.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Templates/DashboardLogin/DashboardLogin.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Templates/Homepage/Homepage.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Templates/Homepage/HowItWorks.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Templates/Homepage/Impact.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Templates/Homepage/LandingPage.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Templates/Homepage/LoginSelection.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Templates/Homepage/Media.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Templates/Homepage/Prediction.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Templates/Homepage/Profile.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Templates/Homepage/PublicBase.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Templates/Homepage/WhatIs.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Templates/Homepage/Why.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Templates/LoginPeople/LoginUser.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/Templates/RegisterPeople/RegisterUser.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/db.sqlite3" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/manage.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/DashboardLogin/AdminDashboard.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/DashboardLogin/DLogin.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/Hero.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/Homepage/Homepage.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/Homepage/LandingPage.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/Homepage/LoginSelection.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/Homepage/media/hero.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/LOGOS.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/LoginPeople/LoginUser.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/RegisterPeople/RegisterUser.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/Temp1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/Temp2.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/TemperatureVideo.mp4" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/anomaly_baseline.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/how_it_works.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/step1_unusual.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/step2_energy.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/step3_health_agri.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/step4_ecosystem.jpeg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/static/why_detect.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/DashboardLogin/AdminDashboard.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/DashboardLogin/DLogin.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/Homepage/Homepage.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/Homepage/LandingPage.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/LOGOS.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/LoginPeople/LoginUser.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/RegisterPeople/RegisterUser.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/TemperatureVideo.mp4" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/css/autocomplete.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/css/base.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/css/changelists.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/css/dark_mode.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/css/dashboard.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/css/forms.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/css/login.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/css/nav_sidebar.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/css/responsive.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/css/responsive_rtl.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/css/rtl.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/css/unusable_password_field.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/css/vendor/select2/LICENSE-SELECT2.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/css/vendor/select2/select2.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/css/vendor/select2/select2.min.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/css/widgets.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/calendar-icons.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-addlink.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-alert-dark.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-alert.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-calendar.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-changelink.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-clock.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-debug-dark.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-debug.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-deletelink.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-hidelink.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-info-dark.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-info.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-no-dark.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-no.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-unknown-alt.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-unknown.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-viewlink.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-yes-dark.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/icon-yes.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/inline-delete.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/search.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/selector-icons.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/sorting-icons.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/tooltag-add.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/img/tooltag-arrowright.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/SelectBox.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/SelectFilter2.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/actions.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/admin/DateTimeShortcuts.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/admin/RelatedObjectLookups.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/autocomplete.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/calendar.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/cancel.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/change_form.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/core.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/filters.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/inlines.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/jquery.init.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/nav_sidebar.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/popup_response.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/prepopulate.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/prepopulate_init.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/theme.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/urlify.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/jquery/LICENSE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/jquery/jquery.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/jquery/jquery.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/LICENSE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/af.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/ar.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/az.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/bg.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/bn.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/bs.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/ca.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/cs.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/da.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/de.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/dsb.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/el.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/en.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/es.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/et.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/eu.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/fa.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/fi.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/fr.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/gl.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/he.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/hi.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/hr.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/hsb.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/hu.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/hy.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/id.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/is.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/it.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/ja.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/ka.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/km.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/ko.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/lt.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/lv.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/mk.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/ms.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/nb.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/ne.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/nl.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/pl.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/ps.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/pt-BR.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/pt.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/ro.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/ru.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/sk.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/sl.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/sq.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/sr-Cyrl.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/sr.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/sv.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/th.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/tk.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/tr.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/uk.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/vi.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/zh-CN.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/i18n/zh-TW.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/select2.full.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/select2/select2.full.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/xregexp/LICENSE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/xregexp/xregexp.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/xregexp/xregexp.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/update_onedrive_files.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../LearnJavascript" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/.idea/Medico--main.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/authentication/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/authentication/admin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/authentication/apps.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/authentication/management/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/authentication/management/commands/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/authentication/migrations/0001_initial.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/authentication/migrations/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/authentication/models.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/authentication/serializers.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/authentication/urls.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/authentication/views.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/db.sqlite3" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/healthcare_platform/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/healthcare_platform/asgi.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/healthcare_platform/settings.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/healthcare_platform/urls.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/healthcare_platform/wsgi.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/manage.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/Hospitals/FrontlineHospital.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/Hospitals/GrandeInternational.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/Hospitals/HamsHospital.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/Hospitals/MedicityHospital.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/Hospitals/NagarikHospital.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/Hospitals/VenusHospital.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/css/autocomplete.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/css/base.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/css/changelists.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/css/dark_mode.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/css/dashboard.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/css/forms.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/css/login.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/css/nav_sidebar.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/css/responsive.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/css/responsive_rtl.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/css/rtl.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/css/unusable_password_field.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/css/vendor/select2/LICENSE-SELECT2.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/css/vendor/select2/select2.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/css/vendor/select2/select2.min.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/css/widgets.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/LICENSE" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/README.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/calendar-icons.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/gis/move_vertex_off.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/gis/move_vertex_on.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/icon-addlink.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/icon-alert.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/icon-calendar.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/icon-changelink.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/icon-clock.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/icon-deletelink.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/icon-hidelink.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/icon-no.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/icon-unknown-alt.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/icon-unknown.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/icon-viewlink.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/icon-yes.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/inline-delete.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/search.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/selector-icons.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/sorting-icons.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/tooltag-add.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/img/tooltag-arrowright.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/SelectBox.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/SelectFilter2.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/actions.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/admin/DateTimeShortcuts.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/admin/RelatedObjectLookups.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/autocomplete.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/calendar.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/cancel.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/change_form.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/core.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/filters.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/inlines.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/jquery.init.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/nav_sidebar.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/popup_response.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/prepopulate.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/prepopulate_init.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/theme.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/unusable_password_field.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/urlify.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/jquery/LICENSE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/jquery/jquery.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/jquery/jquery.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/LICENSE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/af.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/ar.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/az.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/bg.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/bn.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/bs.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/ca.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/cs.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/da.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/de.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/dsb.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/el.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/en.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/es.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/et.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/eu.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/fa.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/fi.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/fr.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/gl.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/he.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/hi.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/hr.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/hsb.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/hu.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/hy.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/id.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/is.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/it.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/ja.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/ka.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/km.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/ko.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/lt.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/lv.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/mk.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/ms.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/nb.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/ne.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/nl.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/pl.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/ps.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/pt-BR.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/pt.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/ro.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/ru.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/sk.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/sl.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/sq.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/sr-Cyrl.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/sr.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/sv.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/th.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/tk.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/tr.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/uk.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/vi.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/zh-CN.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/i18n/zh-TW.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/select2.full.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/select2/select2.full.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/xregexp/LICENSE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/xregexp/xregexp.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/admin/js/vendor/xregexp/xregexp.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/css/bootstrap-theme.min.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/css/bootstrap-theme.min.css.map" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/css/bootstrap-tweaks.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/css/bootstrap.min.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/css/bootstrap.min.css.map" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/css/default.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/css/font-awesome-4.0.3.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/css/prettify.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/docs/css/base.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/docs/css/highlight.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/docs/css/jquery.json-view.min.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/docs/img/favicon.ico" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/docs/img/grid.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/docs/js/api.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/docs/js/highlight.pack.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/docs/js/jquery.json-view.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/fonts/fontawesome-webfont.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/fonts/fontawesome-webfont.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/fonts/fontawesome-webfont.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/fonts/fontawesome-webfont.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/fonts/glyphicons-halflings-regular.eot" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/fonts/glyphicons-halflings-regular.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/fonts/glyphicons-halflings-regular.ttf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/fonts/glyphicons-halflings-regular.woff" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/fonts/glyphicons-halflings-regular.woff2" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/img/glyphicons-halflings-white.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/img/glyphicons-halflings.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/img/grid.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/js/ajax-form.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/js/bootstrap.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/js/coreapi-0.1.1.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/js/csrf.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/js/default.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/js/jquery-3.7.1.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/js/load-ajax-form.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/backend/staticfiles/rest_framework/js/prettify-min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/.bolt/config.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/.bolt/prompt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/eslint.config.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/package-lock.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/postcss.config.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/App.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/components/auth/LoginForm.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/components/auth/RegisterForm.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/components/doctor/DoctorDashboard.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/components/homepage/Homepage.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/components/homepage/Homepage.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/components/layout/Header.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/components/patient/AppointmentHistory.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/components/patient/DoctorAdvice.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/components/patient/HealthAnalytics.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/components/patient/MedicationTracker.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/components/patient/PatientDashboard.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/components/patient/ProgressReports.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/components/ui/Button.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/components/ui/Card.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/components/ui/Input.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/components/ui/Select.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/index.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/main.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/routes/index.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/services/api.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/types/index.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/utils/auth.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/utils/mockData.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/src/vite-env.d.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/tailwind.config.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/tsconfig.app.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/tsconfig.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/tsconfig.node.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/vite.config.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../desktop.ini" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="39SoqD3rkl0mgKqMDbUfeaalucG" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "C:\\Users\\katuw\\OneDrive\\Desktop\\Medico--main\\frontend\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="Medico--main" type="Python.DjangoServer" factoryName="Django server">
+      <module name="Medico--main" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <option name="port" value="8000" />
+      <option name="host" value="" />
+      <option name="additionalOptions" value="" />
+      <option name="browserUrl" value="" />
+      <option name="runTestServer" value="false" />
+      <option name="runNoReload" value="false" />
+      <option name="useCustomRunCommand" value="false" />
+      <option name="customRunCommand" value="" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-a71380e98a7c-JavaScript-PY-252.28238.29" />
+        <option value="bundled-python-sdk-a101402ee41c-968fe969f28a-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.28238.29" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="23b02453-bc73-491c-ad7f-5ce4645a26c4" name="Changes" comment="" />
+      <created>1770699033129</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1770699033129</updated>
+      <workItem from="1770699034724" duration="4069000" />
+      <workItem from="1770718671370" duration="3656000" />
+      <workItem from="1770723045470" duration="2219000" />
+      <workItem from="1770734890795" duration="3000" />
+      <workItem from="1770735101737" duration="3712000" />
+      <workItem from="1770789380866" duration="593000" />
+      <workItem from="1770797672896" duration="14000" />
+      <workItem from="1770797916826" duration="5910000" />
+      <workItem from="1770819145680" duration="5653000" />
+      <workItem from="1770869048042" duration="3648000" />
+      <workItem from="1771005170957" duration="3569000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

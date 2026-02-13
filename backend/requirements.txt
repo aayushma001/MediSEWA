@@ -1,0 +1,8 @@
+Django
+djangorestframework
+django-cors-headers
+Pillow
+python-decouple
+djangorestframework-simplejwt
+gunicorn
+whitenoise
