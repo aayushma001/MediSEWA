@@ -12,19 +12,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
   && rm -rf /var/lib/apt/lists/*
 
-# Install Python deps first (better caching)
-COPY backend/requirements.txt /app/requirements.txt
+# Install Python dependencies first (better caching)
+# IMPORTANT: build context is "backend", so requirements.txt is at the root of context
+COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip && pip install -r /app/requirements.txt
 
-# Copy Django project
-COPY backend/ /app/
+# Copy Django project (everything inside backend/)
+COPY . /app/
 
-# Optional: build-time env to let collectstatic run without crashing
-# Adjust module if needed
+# Build-time env to let collectstatic run
 ENV DJANGO_SETTINGS_MODULE=healthcare_platform.settings \
-    DEBUG=False
+    DEBUG=False \
+    SECRET_KEY=django-insecure-build-key \
+    DATABASE_URL=sqlite:///db.sqlite3
 
-# Collect static files (requires correct settings)
+# Collect static files
 RUN python manage.py collectstatic --noinput
 
 # Run gunicorn on Cloud Run's injected PORT
