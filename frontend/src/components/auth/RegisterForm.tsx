@@ -5,14 +5,13 @@ import { Select } from '../ui/Select';
 import { RegisterFormData } from '../../types';
 import { locationData } from '../../utils/locationData';
 import { Building, Heart, Stethoscope, ChevronRight, ChevronLeft, Check, FileText, Search, MapPin } from 'lucide-react';
+import { authAPI } from '../../services/api';
 
 interface RegisterFormProps {
   onSubmit: (data: RegisterFormData) => Promise<void>;
   loading?: boolean;
   onLoginClick: () => void;
 }
-
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, onLoginClick }) => {
   // Step 1: Email, Step 2: OTP, Step 3: Full Form
@@ -186,23 +185,13 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/send-otp/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone_or_email: formData.email })
-      });
-
-      if (response.ok) {
-        setOtpSent(true);
-        setStep(2);
-        alert("OTP sent to your email!");
-      } else {
-        const data = await response.json();
-        alert(data.error || "Failed to send OTP.");
-      }
-    } catch (error) {
+      await authAPI.sendOTP(formData.email);
+      setOtpSent(true);
+      setStep(2);
+      alert("OTP sent to your email!");
+    } catch (error: any) {
       console.error("Error sending OTP:", error);
-      alert("Network error. Please try again.");
+      alert(error.message || "Failed to send OTP.");
     }
   };
 
@@ -213,23 +202,13 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/verify-otp/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone_or_email: formData.email, otp_code: otpCode })
-      });
-
-      if (response.ok) {
-        setOtpVerified(true);
-        setStep(3); // Move to full form
-        alert("Email verified successfully!");
-      } else {
-        const data = await response.json();
-        alert(data.error || "Invalid OTP.");
-      }
-    } catch (error) {
+      await authAPI.verifyOTP(formData.email, otpCode);
+      setOtpVerified(true);
+      setStep(3); // Move to full form
+      alert("Email verified successfully!");
+    } catch (error: any) {
       console.error("Error verifying OTP:", error);
-      alert("Network error. Please try again.");
+      alert(error.message || "Invalid OTP.");
     }
   };
 

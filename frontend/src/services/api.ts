@@ -1,4 +1,9 @@
 let API_BASE_URL = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_API_BASE_URL) || 'http://127.0.0.1:8000/api';
+// Ensure no trailing slash
+if (API_BASE_URL.endsWith('/')) {
+  API_BASE_URL = API_BASE_URL.slice(0, -1);
+}
+
 export const MEDIA_URL = API_BASE_URL.replace('/api', '');
 const FALLBACK_BASES = ['http://localhost:8000/api'];
 
@@ -25,17 +30,28 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
     delete headers['Content-Type'];
   }
 
-  console.log(`Making API request to: ${API_BASE_URL}${endpoint}`);
-  console.log('Headers:', headers);
-  console.log('Options:', options);
+  // Ensure endpoint starts with / if not present
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+
+  console.log(`Making API request to: ${API_BASE_URL}${cleanEndpoint}`);
 
   try {
     const doFetch = async (base: string) => {
-      return fetch(`${base}${endpoint}`, { ...options, headers });
+      return fetch(`${base}${cleanEndpoint}`, { ...options, headers });
     };
     let response = await doFetch(API_BASE_URL);
 
     console.log(`Response status: ${response.status}`);
+
+    if (response.status === 401) {
+      // Token expired or invalid
+      removeToken();
+      // Optional: Redirect to login or trigger a global event
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
+      throw new Error('Session expired. Please login again.');
+    }
 
     if (!response.ok) {
       let errorMessage = 'API request failed';
@@ -82,21 +98,22 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
     }
 
     const data = await response.json();
-    console.log('API Response data:', data);
     return data;
   } catch (error) {
     console.error('API Request failed:', error);
+    // Only fallback on network errors, not 4xx/5xx responses from main server
     const isNetworkError = error instanceof TypeError || String(error).includes('Failed to fetch');
+
     if (isNetworkError) {
       for (const fb of FALLBACK_BASES) {
         try {
           console.warn(`Retrying API request with fallback base URL: ${fb}`);
-          const resp = await fetch(`${fb}${endpoint}`, {
+          const resp = await fetch(`${fb}${cleanEndpoint}`, {
             ...options,
             headers,
           });
           if (resp.ok) {
-            API_BASE_URL = fb;
+            API_BASE_URL = fb; // Switch to working mirror if successful
             const data = await resp.json().catch(() => ({}));
             return data;
           }
@@ -112,9 +129,6 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
 // Authentication API
 export const authAPI = {
   login: async (data: { email: string; password: string; user_type: string }) => {
-    console.log('=== API LOGIN REQUEST ===');
-    console.log('Login data:', data);
-
     const response = await apiRequest('/auth/login/', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -129,9 +143,6 @@ export const authAPI = {
   },
 
   register: async (data: any) => {
-    console.log('=== API REGISTER REQUEST ===');
-    console.log('Register data:', data);
-
     const response = await apiRequest('/auth/register/', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -145,13 +156,25 @@ export const authAPI = {
     return response;
   },
 
+  sendOTP: async (emailOrPhone: string) => {
+    return apiRequest('/auth/send-otp/', {
+      method: 'POST',
+      body: JSON.stringify({ phone_or_email: emailOrPhone })
+    });
+  },
+
+  verifyOTP: async (emailOrPhone: string, code: string) => {
+    return apiRequest('/auth/verify-otp/', {
+      method: 'POST',
+      body: JSON.stringify({ phone_or_email: emailOrPhone, otp_code: code })
+    });
+  },
+
   getDoctors: async () => {
-    console.log('=== API GET DOCTORS REQUEST ===');
     return apiRequest('/auth/doctors/');
   },
 
   getHospitals: async () => {
-    console.log('=== API GET HOSPITALS REQUEST ===');
     return apiRequest('/auth/hospitals/');
   },
 
