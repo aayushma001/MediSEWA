@@ -3,8 +3,8 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { RegisterFormData } from '../../types';
-import { Building, Heart, Stethoscope, ChevronRight, ChevronLeft, Check, FileText } from 'lucide-react';
 import { locationData } from '../../utils/locationData';
+import { Building, Heart, Stethoscope, ChevronRight, ChevronLeft, Check, FileText, Search, MapPin } from 'lucide-react';
 
 interface RegisterFormProps {
   onSubmit: (data: RegisterFormData) => Promise<void>;
@@ -12,8 +12,17 @@ interface RegisterFormProps {
   onLoginClick: () => void;
 }
 
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
 export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, onLoginClick }) => {
+  // Step 1: Email, Step 2: OTP, Step 3: Full Form
   const [step, setStep] = useState(1);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [addressSearch, setAddressSearch] = useState('');
+  const [addressSuggestions, setAddressSuggestions] = useState<string[]>([]);
+
   const [formData, setFormData] = useState<RegisterFormData>({
     name: '',
     email: '',
@@ -36,6 +45,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
     resources: '',
     consentAccepted: false,
     nidNumber: '',
+    doctorId: '',
 
     // Patient specific
     bloodGroup: '',
@@ -118,12 +128,123 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
 
       const newHospId = `HOSP${provCode}${distCode}${cityCode}${wardCode}`;
       setFormData(prev => ({ ...prev, hospitalId: newHospId }));
-    }
-  }, [formData.province, formData.district, formData.city, formData.ward, formData.userType]);
+    } else if (formData.userType === 'doctor' && formData.name && formData.qualification && formData.province && formData.district && formData.city && formData.ward) {
+      const getInitials = (str: string) => {
+        return str.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 3);
+      };
 
+      const nameInitials = getInitials(formData.name);
+      const qualCode = formData.qualification.split(',')[0].trim().toUpperCase().substring(0, 4);
+
+      const provCode = formData.province.substring(0, 2).toUpperCase();
+      const distCode = formData.district.substring(0, 3).toUpperCase();
+      const cityCode = formData.city.substring(0, 2).toUpperCase();
+      const wardCode = formData.ward.padStart(2, '0');
+
+      const newDocId = `DOC-${nameInitials}-${qualCode}-${provCode}${distCode}${cityCode}${wardCode}`;
+      setFormData(prev => ({ ...prev, doctorId: newDocId }));
+    }
+  }, [formData.province, formData.district, formData.city, formData.ward, formData.userType, formData.name, formData.qualification]);
+
+
+  // Address Autocomplete Logic
+  useEffect(() => {
+    if (addressSearch.length > 2) {
+      // Mock logic: If user types "Kathmandu", suggest "Kathmandu, Bagmati"
+      if ("kathmandu".includes(addressSearch.toLowerCase())) {
+        setAddressSuggestions(["Kathmandu, Bagmati"]);
+      } else if ("lalitpur".includes(addressSearch.toLowerCase())) {
+        setAddressSuggestions(["Lalitpur, Bagmati"]);
+      } else if ("pokhara".includes(addressSearch.toLowerCase())) {
+        setAddressSuggestions(["Pokhara, Gandaki"]);
+      } else {
+        setAddressSuggestions([]);
+      }
+    } else {
+      setAddressSuggestions([]);
+    }
+  }, [addressSearch]);
+
+  const handleAddressSelect = (suggestion: string) => {
+    setAddressSearch(suggestion);
+    setAddressSuggestions([]);
+
+    // Auto-fill based on suggestion
+    if (suggestion.includes("Kathmandu")) {
+      setFormData(prev => ({ ...prev, province: "Bagmati", district: "Kathmandu", city: "Kathmandu" }));
+    } else if (suggestion.includes("Lalitpur")) {
+      setFormData(prev => ({ ...prev, province: "Bagmati", district: "Lalitpur", city: "Lalitpur" }));
+    } else if (suggestion.includes("Pokhara")) {
+      setFormData(prev => ({ ...prev, province: "Gandaki", district: "Kaski", city: "Pokhara" }));
+    }
+  };
+
+  const handleSendOTP = async () => {
+    if (!formData.email) {
+      alert("Please enter your email address first.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/api/auth/send-otp/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone_or_email: formData.email })
+      });
+
+      if (response.ok) {
+        setOtpSent(true);
+        setStep(2);
+        alert("OTP sent to your email!");
+      } else {
+        const data = await response.json();
+        alert(data.error || "Failed to send OTP.");
+      }
+    } catch (error) {
+      console.error("Error sending OTP:", error);
+      alert("Network error. Please try again.");
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    if (!otpCode) {
+      alert("Please enter the OTP sent to your email.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/api/auth/verify-otp/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone_or_email: formData.email, otp_code: otpCode })
+      });
+
+      if (response.ok) {
+        setOtpVerified(true);
+        setStep(3); // Move to full form
+        alert("Email verified successfully!");
+      } else {
+        const data = await response.json();
+        alert(data.error || "Invalid OTP.");
+      }
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      alert("Network error. Please try again.");
+    }
+  };
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
+    if (step === 1) {
+      handleSendOTP();
+      return;
+    }
+    if (step === 2) {
+      handleVerifyOTP();
+      return;
+    }
+
+    /* Original Step 1 logic moved to here (now Step 3 internal) */
     if (formData.password !== formData.confirmPassword) {
       alert('Passwords do not match');
       return;
@@ -135,6 +256,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
       return;
     }
 
+    /* ... rest of validation ... */
     if (formData.userType === 'hospital') {
       if (!formData.hospitalName || !formData.registrationNumber) {
         alert('Please fill in all hospital details');
@@ -148,7 +270,13 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
       }
     }
 
-    setStep(2);
+    // If implementing multi-step form inside the verified state:
+    // setInnerStep(2); 
+    // OR just submit if it's a single long form now.
+    // For now, let's assume we submit here or show the second part of the form if it was split?
+    // The original code had step 1 -> step 2 (Terms).
+    // So here we go to Terms (Step 4 technically in our new flow)
+    setStep(4);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -189,8 +317,61 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
         </p>
       </div>
 
-      {step === 1 ? (
-        <form onSubmit={handleNext} className="space-y-4 px-1">
+      {step === 1 && (
+        <div className="space-y-4 px-1 animate-fadeIn">
+          <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 text-center mb-4">
+            <h3 className="font-semibold text-blue-900">Step 1: Verify Email</h3>
+            <p className="text-sm text-gray-600">Enter your email to receive a verification code.</p>
+          </div>
+          <Input
+            name="email"
+            type="email"
+            label=""
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Enter your Email Address"
+            className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+            required
+          />
+          <Button onClick={handleSendOTP} className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-xl py-3 mt-4">
+            Send Verification Code
+          </Button>
+
+          <div className="text-center mt-6 pb-2 space-y-2">
+            <div className="text-sm">
+              <span className="text-gray-500">Already have an account? </span>
+              <button type="button" onClick={onLoginClick} className="text-gray-900 font-bold hover:underline">Log in</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="space-y-4 px-1 animate-fadeIn">
+          <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 text-center mb-4">
+            <h3 className="font-semibold text-blue-900">Step 2: Enter Code</h3>
+            <p className="text-sm text-gray-600">Enter the 6-digit code sent to <b>{formData.email}</b></p>
+          </div>
+          <Input
+            name="otpCode"
+            type="text"
+            label=""
+            value={otpCode}
+            onChange={(e) => setOtpCode(e.target.value)}
+            placeholder="Enter 6-digit OTP"
+            className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors text-center text-2xl tracking-widest"
+            required
+            maxLength={6}
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <Button variant="outline" onClick={() => setStep(1)} className="rounded-xl">Back</Button>
+            <Button onClick={handleVerifyOTP} className="bg-green-500 hover:bg-green-600 text-white rounded-xl">Verify & Continue</Button>
+          </div>
+        </div>
+      )}
+
+      {step === 3 && (
+        <form onSubmit={handleNext} className="space-y-4 px-1 animate-fadeIn">
           <div className="bg-gray-50 p-1 rounded-xl mb-4">
             <Select
               name="userType"
@@ -228,7 +409,8 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Email Address"
-                className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                className="rounded-xl border-gray-200 bg-gray-100 focus:bg-white transition-colors cursor-not-allowed"
+                readOnly
                 required
               />
               <Input
@@ -270,6 +452,30 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
             {/* Address Fields - For Patient, Doctor AND Hospital */}
             <div className="space-y-3 pt-2 border-t border-gray-100 animate-fadeIn">
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Address Details</p>
+
+              {/* Address Auto-complete */}
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-gray-400" />
+                </div>
+                <Input
+                  name="addressSearch"
+                  label=""
+                  value={addressSearch}
+                  onChange={(e) => setAddressSearch(e.target.value)}
+                  placeholder="Search City (e.g. Kathmandu)..."
+                  className="pl-10 rounded-xl border-blue-200 bg-blue-50/30 focus:bg-white transition-colors mb-2"
+                />
+                {addressSuggestions.length > 0 && (
+                  <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto">
+                    {addressSuggestions.map((s, i) => (
+                      <li key={i} onClick={() => handleAddressSelect(s)} className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-sm flex items-center gap-2">
+                        <MapPin className="w-3 h-3 text-blue-500" /> {s}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Select
                   name="province"
@@ -349,7 +555,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
                     name="nidNumberPatient"
                     type="text"
                     label=""
-                    placeholder="National ID Number (NID)"
+                    placeholder="NID (e.g. 123-456-789)"
                     value={formData.nidNumberPatient || ''}
                     onChange={handleChange}
                     className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
@@ -402,6 +608,18 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
             {formData.userType === 'doctor' && (
               <div className="space-y-3 pt-2 border-t border-gray-100 animate-fadeIn">
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Professional Details</p>
+                <div className="bg-blue-50/50 p-2 rounded-xl border border-blue-100 mb-2">
+                  <Input
+                    name="doctorId"
+                    type="text"
+                    label=""
+                    value={formData.doctorId || ''}
+                    onChange={handleChange}
+                    placeholder="Doctor ID (Auto-generated)"
+                    className="rounded-xl border-blue-200 bg-white text-blue-900 font-mono tracking-wider text-center font-bold"
+                    readOnly
+                  />
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <Input
                     name="qualification"
@@ -482,7 +700,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
                     name="nidNumber"
                     type="text"
                     label=""
-                    placeholder="National ID Number"
+                    placeholder="NID (e.g. 123-456-789)"
                     value={formData.nidNumber || ''}
                     onChange={handleChange}
                     className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
@@ -645,7 +863,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
             </div>
           </div>
         </form>
-      ) : (
+      )}
+
+      {step === 4 && (
         <form onSubmit={handleSubmit} className="space-y-6 animate-fadeIn px-1">
           <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
             <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
@@ -683,7 +903,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
             <Button
               type="button"
               variant="outline"
-              onClick={() => setStep(1)}
+              onClick={() => setStep(3)}
               className="w-full h-12 rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50"
             >
               <ChevronLeft className="w-4 h-4 mr-2" /> Back

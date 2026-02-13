@@ -34,7 +34,8 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({ user, onLogout }) => {
                 specialization: user.doctor_profile?.specialization || 'General Physician',
                 medicalDegree: user.doctor_profile?.qualification,
                 experience: user.doctor_profile?.experience_years?.toString(),
-                bio: user.doctor_profile?.about
+                bio: user.doctor_profile?.about,
+                doctor_unique_id: user.doctor_profile?.doctor_unique_id
               }}
               onLogout={onLogout}
             />
@@ -45,15 +46,74 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({ user, onLogout }) => {
               patient={{
                 id: user.id,
                 user: user,
-                age: 30, // Default/Placeholder age
-                gender: 'Male', // Default/Placeholder gender
-                blood_group: 'O+', // Default/Placeholder
-                address: 'Kathmandu' // Default/Placeholder
+                age: user.patient_profile?.age || 30,
+                gender: user.patient_profile?.gender || 'Male',
+                blood_group: user.patient_profile?.blood_group || 'O+',
+                address: user.patient_profile?.address || 'Kathmandu',
+                patient_unique_id: user.patient_profile?.patient_unique_id || 'Generating...',
+                mobile: user.patient_profile?.mobile || user.mobile,
+                phone_number: user.patient_profile?.phone_number,
+                alternate_phone: user.patient_profile?.alternate_phone,
+                bloodGroup: user.patient_profile?.bloodGroup,
+                nidNumberPatient: user.patient_profile?.nidNumberPatient,
+                nid_number: user.patient_profile?.nid_number,
+                healthCondition: user.patient_profile?.healthCondition,
+                health_condition: user.patient_profile?.health_condition,
+                medications: user.patient_profile?.medications,
+                allergies: user.patient_profile?.allergies,
+                emergency_contact: user.patient_profile?.emergency_contact,
+                emergency_contact_name: user.patient_profile?.emergency_contact_name,
+                province: user.patient_profile?.province,
+                district: user.patient_profile?.district,
+                city: user.patient_profile?.city,
+                postal_code: user.patient_profile?.postal_code,
+                date_of_birth: user.patient_profile?.date_of_birth,
+                profile_image: user.patient_profile?.profile_image
               }}
               onLogout={onLogout}
             />
           )
 
+        }
+      />
+
+      <Route
+        path="/patient/*"
+        element={
+          user.user_type === 'patient' ? (
+            <PatientDashboard
+              patient={{
+                id: user.id,
+                user: user,
+                age: user.patient_profile?.age || 30,
+                gender: user.patient_profile?.gender || 'Male',
+                blood_group: user.patient_profile?.blood_group || 'O+',
+                address: user.patient_profile?.address || 'Kathmandu',
+                patient_unique_id: user.patient_profile?.patient_unique_id || 'Generating...',
+                mobile: user.patient_profile?.mobile || user.mobile,
+                phone_number: user.patient_profile?.phone_number,
+                alternate_phone: user.patient_profile?.alternate_phone,
+                bloodGroup: user.patient_profile?.bloodGroup,
+                nidNumberPatient: user.patient_profile?.nidNumberPatient,
+                nid_number: user.patient_profile?.nid_number,
+                healthCondition: user.patient_profile?.healthCondition,
+                health_condition: user.patient_profile?.health_condition,
+                medications: user.patient_profile?.medications,
+                allergies: user.patient_profile?.allergies,
+                emergency_contact: user.patient_profile?.emergency_contact,
+                emergency_contact_name: user.patient_profile?.emergency_contact_name,
+                province: user.patient_profile?.province,
+                district: user.patient_profile?.district,
+                city: user.patient_profile?.city,
+                postal_code: user.patient_profile?.postal_code,
+                date_of_birth: user.patient_profile?.date_of_birth,
+                profile_image: user.patient_profile?.profile_image
+              }}
+              onLogout={onLogout}
+            />
+          ) : (
+            <Navigate to="/" replace />
+          )
         }
       />
 
@@ -83,7 +143,8 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({ user, onLogout }) => {
                 specialization: user.doctor_profile?.specialization || 'General Physician',
                 medicalDegree: user.doctor_profile?.qualification,
                 experience: user.doctor_profile?.experience_years?.toString(),
-                bio: user.doctor_profile?.about
+                bio: user.doctor_profile?.about,
+                doctor_unique_id: user.doctor_profile?.doctor_unique_id
               }}
               onLogout={onLogout}
               initialTab="profile"

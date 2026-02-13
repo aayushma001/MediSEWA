@@ -1,12 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from '../ui/Card';
-import { Clock, Users, ArrowRight, Coffee, Calendar, Plus, Trash2, Edit2 } from 'lucide-react';
+import { Clock, Users, ArrowRight, Coffee, Calendar, Plus, Trash2, Edit2, Loader } from 'lucide-react';
 import { Hospital } from './DoctorDashboard';
 import { Appointment } from '../../types';
+import { adminAPI } from '../../services/api';
+import { getStoredUser } from '../../utils/auth';
 
 interface HospitalScheduleProps {
     hospital: Hospital;
-    onStartConsultation: (appointment: Appointment) => void;
+    hospitalId?: string; // Optional if hospital prop has ID
+    doctorId?: string; // Optional, defaults to current user
+    onStartConsultation?: (appointment: Appointment) => void;
+    isEditable?: boolean;
 }
 
 interface TimeSlot {
@@ -24,18 +29,51 @@ interface ScheduleSession {
     isFinalized: boolean;
 }
 
-export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, onStartConsultation }) => {
+export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, hospitalId: propHospitalId, doctorId: propDoctorId, onStartConsultation, isEditable = true }) => {
     const [sessions, setSessions] = useState<ScheduleSession[]>([]);
     const [newSessionStartTime, setNewSessionStartTime] = useState('09:00');
     const [newSessionEndTime, setNewSessionEndTime] = useState('17:00');
-    const [showAddSession, setShowAddSession] = useState(true);
+    const [showAddSession, setShowAddSession] = useState(false);
     const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+
+    const user = getStoredUser();
+    const activeDoctorId = propDoctorId || (user?.user_type === 'doctor' ? user.doctor_profile?.id : null);
+    const activeHospitalId = propHospitalId || hospital.id;
+
+    useEffect(() => {
+        fetchSchedule();
+    }, [activeDoctorId, activeHospitalId, selectedDate]);
+
+    const fetchSchedule = async () => {
+        if (!activeDoctorId || !activeHospitalId) return;
+        setIsLoading(true);
+        try {
+            const data = await adminAPI.getSchedules(
+                activeDoctorId,
+                activeHospitalId,
+                selectedDate
+            );
+            if (data && data.length > 0) {
+                // Assuming session_data is a list of sessions or we map it
+                setSessions(data[0].session_data || []);
+            } else {
+                setSessions([]);
+                setShowAddSession(true);
+            }
+        } catch (error) {
+            console.error("Failed to fetch schedule:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     // Generate time slots based on start and end time
     const generateSlots = (startTime: string, endTime: string): TimeSlot[] => {
         const generatedSlots: TimeSlot[] = [];
-        const start = new Date(`2026-02-12 ${startTime}`);
-        const end = new Date(`2026-02-12 ${endTime}`);
+        const start = new Date(`${selectedDate} ${startTime}`);
+        const end = new Date(`${selectedDate} ${endTime}`);
 
         let current = new Date(start);
         let slotIndex = 0;
@@ -72,8 +110,8 @@ export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, on
 
     const handleAddSession = () => {
         if (newSessionStartTime && newSessionEndTime) {
-            const start = new Date(`2026-02-12 ${newSessionStartTime}`);
-            const end = new Date(`2026-02-12 ${newSessionEndTime}`);
+            const start = new Date(`${selectedDate} ${newSessionStartTime}`);
+            const end = new Date(`${selectedDate} ${newSessionEndTime}`);
 
             if (end <= start) {
                 alert('End time must be after start time');
@@ -82,8 +120,8 @@ export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, on
 
             // Check for overlapping sessions
             const hasOverlap = sessions.some(session => {
-                const sessionStart = new Date(`2026-02-12 ${session.startTime}`);
-                const sessionEnd = new Date(`2026-02-12 ${session.endTime}`);
+                const sessionStart = new Date(`${selectedDate} ${session.startTime}`);
+                const sessionEnd = new Date(`${selectedDate} ${session.endTime}`);
                 return (start < sessionEnd && end > sessionStart);
             });
 
@@ -109,33 +147,64 @@ export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, on
         }
     };
 
-    const handleFinalizeSession = (sessionId: string) => {
-        setSessions(sessions.map(session =>
+    const handleFinalizeSession = async (sessionId: string) => {
+        const updatedSessions = sessions.map(session =>
             session.id === sessionId
                 ? { ...session, isFinalized: true }
                 : session
-        ));
+        );
 
-        console.log('Finalizing session for hospital:', hospital.name);
-        const sessionToFinalize = sessions.find(s => s.id === sessionId);
-        console.log('Session:', sessionToFinalize);
+        setSessions(updatedSessions);
 
-        // TODO: API call to save session
-        // const response = await api.post('/doctor/schedule', {
-        //   hospital_id: hospital.id,
-        //   session: sessionToFinalize,
-        //   date: '2026-02-12'
-        // });
+        if (!activeDoctorId || !activeHospitalId) {
+            alert("Error: Missing Doctor or Hospital ID");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            await adminAPI.saveSchedule(
+                activeDoctorId,
+                activeHospitalId,
+                selectedDate,
+                updatedSessions
+            );
+            console.log('Schedule saved successfully');
+        } catch (error: any) {
+            console.error('Failed to save schedule:', error);
+            const errorMsg = error.response?.data?.error || error.message || 'Unknown error';
+            alert(`Failed to save schedule: ${errorMsg}`);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    const handleDeleteSession = (sessionId: string) => {
+    const handleDeleteSession = async (sessionId: string) => {
         const session = sessions.find(s => s.id === sessionId);
         if (session && session.isFinalized) {
             if (!window.confirm('This session is finalized. Are you sure you want to delete it?')) {
                 return;
             }
         }
-        setSessions(sessions.filter(s => s.id !== sessionId));
+
+        const updatedSessions = sessions.filter(s => s.id !== sessionId);
+        setSessions(updatedSessions);
+
+        // Auto-save if deleting a finalized session
+        if (session?.isFinalized) {
+            try {
+                await adminAPI.saveSchedule(
+                    activeDoctorId!,
+                    activeHospitalId,
+                    selectedDate,
+                    updatedSessions
+                );
+            } catch (error: any) {
+                console.error("Failed to update schedule after deletion:", error);
+                const errorMsg = error.response?.data?.error || error.message || 'Unknown error';
+                alert(`Failed to auto-save change: ${errorMsg}`);
+            }
+        }
     };
 
     const handleEditSession = (sessionId: string) => {
@@ -148,8 +217,8 @@ export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, on
     };
 
     const handleUpdateSession = (sessionId: string, newStart: string, newEnd: string) => {
-        const start = new Date(`2026-02-12 ${newStart}`);
-        const end = new Date(`2026-02-12 ${newEnd}`);
+        const start = new Date(`${selectedDate} ${newStart}`);
+        const end = new Date(`${selectedDate} ${newEnd}`);
 
         if (end <= start) {
             alert('End time must be after start time');
@@ -159,8 +228,8 @@ export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, on
         // Check for overlapping with other sessions
         const hasOverlap = sessions.some(session => {
             if (session.id === sessionId) return false; // Don't check against itself
-            const sessionStart = new Date(`2026-02-12 ${session.startTime}`);
-            const sessionEnd = new Date(`2026-02-12 ${session.endTime}`);
+            const sessionStart = new Date(`${selectedDate} ${session.startTime}`);
+            const sessionEnd = new Date(`${selectedDate} ${session.endTime}`);
             return (start < sessionEnd && end > sessionStart);
         });
 
@@ -227,13 +296,36 @@ export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, on
         0
     );
 
+    if (isLoading && sessions.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center p-20 bg-white rounded-3xl shadow-xl">
+                <Loader className="w-12 h-12 text-blue-600 animate-spin mb-4" />
+                <p className="text-gray-500 font-medium">Loading schedule...</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="space-y-6">
+        <div className="relative space-y-6">
+            {isLoading && (
+                <div className="absolute top-0 right-0 p-2">
+                    <Loader className="w-5 h-5 text-blue-600 animate-spin" />
+                </div>
+            )}
             {/* Hospital Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900">{hospital.name}</h2>
+                    <h2 className="text-2xl font-bold text-gray-900">{hospital.name || 'Hospital Name'}</h2>
                     <p className="text-gray-500 text-sm mt-1">{hospital.address}</p>
+                    <div className="mt-4 flex items-center gap-2">
+                        <label className="text-sm font-medium text-gray-600">Schedule Date:</label>
+                        <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="text-sm border border-gray-200 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 outline-none"
+                        />
+                    </div>
                 </div>
                 <div className="flex space-x-2">
                     <div className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold flex items-center">
@@ -270,7 +362,7 @@ export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, on
             )}
 
             {/* Add New Session Button */}
-            {!showAddSession && (
+            {isEditable && !showAddSession && (
                 <button
                     onClick={() => setShowAddSession(true)}
                     className="w-full p-4 border-2 border-dashed border-blue-300 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors flex items-center justify-center gap-2 text-blue-700 font-bold"
@@ -281,7 +373,7 @@ export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, on
             )}
 
             {/* Add Session Form */}
-            {showAddSession && (
+            {isEditable && showAddSession && (
                 <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
                     <h3 className="font-bold text-gray-900 mb-4 flex items-center">
                         <Clock size={20} className="mr-2 text-blue-600" />
@@ -343,7 +435,7 @@ export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, on
                             )}
                         </div>
                         <div className="flex gap-2">
-                            {!session.isFinalized ? (
+                            {isEditable && !session.isFinalized ? (
                                 <>
                                     <button
                                         onClick={() => handleEditSession(session.id)}
@@ -367,13 +459,15 @@ export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, on
                                     </button>
                                 </>
                             ) : (
-                                <button
-                                    onClick={() => handleDeleteSession(session.id)}
-                                    className="px-3 py-1.5 bg-red-100 text-red-700 font-medium rounded-lg hover:bg-red-200 transition-colors text-sm flex items-center gap-1"
-                                >
-                                    <Trash2 size={14} />
-                                    Delete
-                                </button>
+                                isEditable && (
+                                    <button
+                                        onClick={() => handleDeleteSession(session.id)}
+                                        className="px-3 py-1.5 bg-red-100 text-red-700 font-medium rounded-lg hover:bg-red-200 transition-colors text-sm flex items-center gap-1"
+                                    >
+                                        <Trash2 size={14} />
+                                        Delete
+                                    </button>
+                                )
                             )}
                         </div>
                     </div>
@@ -444,7 +538,7 @@ export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, on
                                     </div>
                                     {(slot.status === 'booked' || slot.status === 'emergency') && (
                                         <button
-                                            onClick={() => slot.appointment && onStartConsultation(slot.appointment)}
+                                            onClick={() => slot.appointment && onStartConsultation?.(slot.appointment)}
                                             className={`${slot.status === 'emergency'
                                                 ? 'text-red-600 hover:bg-red-600 animate-pulse'
                                                 : 'text-blue-600 hover:bg-blue-600'
@@ -477,7 +571,7 @@ export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, on
                         {allWaitingPatients.map((slot, i) => (
                             <div
                                 key={slot.id}
-                                onClick={() => slot.appointment && onStartConsultation(slot.appointment)}
+                                onClick={() => slot.appointment && onStartConsultation?.(slot.appointment)}
                                 className={`p-5 flex items-center justify-between border-b border-gray-50 last:border-0 cursor-pointer group transition-colors ${slot.status === 'emergency'
                                     ? 'hover:bg-red-50/50 bg-red-50/20'
                                     : 'hover:bg-indigo-50/50'

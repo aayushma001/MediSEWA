@@ -12,6 +12,7 @@ export interface DoctorProfile {
   address?: string;
   gender?: string;
   date_of_birth?: string;
+  doctor_unique_id?: string;
 }
 
 export interface HospitalProfile {
@@ -43,6 +44,7 @@ export interface User {
   name?: string; // Optional for compatibility if needed
   doctor_profile?: DoctorProfile;
   hospital_profile?: HospitalProfile;
+  patient_profile?: any; // Using any for now to avoid circular dependency issues, or I can define PatientProfile
 }
 
 export interface RegisterFormData {
@@ -66,6 +68,7 @@ export interface RegisterFormData {
   resources?: string;
   consentAccepted?: boolean;
   nidNumber?: string;
+  doctorId?: string;
 
   // Patient specific
   bloodGroup?: string;
@@ -103,17 +106,23 @@ export interface Doctor {
   bio?: string;
   nid?: string;
   registrationNumber?: string;
+  registration_number?: string;
   licenseExpiry?: string;
+  license_expiry?: string;
   languages?: string[];
   education?: string[];
   certifications?: string[];
   signature?: string;
   inPersonFee?: string;
+  in_person_fee?: string;
   videoFee?: string;
+  video_fee?: string;
   city?: string;
   country?: string;
   gender?: string;
   age?: number;
+  doctor_unique_id?: string;
+  specializations?: string[];
 }
 
 export interface Patient {
@@ -129,6 +138,25 @@ export interface Patient {
   lastVisit?: string;
   status?: string;
   reports?: any[];
+  patient_unique_id?: string;
+  city?: string;
+  province?: string;
+  district?: string;
+  mobile?: string;
+  bloodGroup?: string;
+  nidNumberPatient?: string;
+  healthCondition?: string;
+  medications?: string;
+  allergies?: string;
+  phone_number?: string;
+  alternate_phone?: string;
+  nid_number?: string;
+  health_condition?: string;
+  emergency_contact?: string;
+  emergency_contact_name?: string;
+  postal_code?: string;
+  date_of_birth?: string;
+  profile_image?: string;
 }
 
 export interface Medication {
@@ -148,4 +176,10 @@ export interface Appointment {
   id: string;
   patient_name?: string;
   instructions?: string;
+  patientCondition?: string;
+  time?: string;
+  status?: string;
+  date?: string;
+  doctor_id?: string;
+  hospital_id?: string;
 }

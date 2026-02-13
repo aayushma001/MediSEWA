@@ -7,6 +7,7 @@ import { DoctorProfile } from './DoctorProfile';
 import { PatientConsultation } from './PatientConsultation';
 import { DoctorChatbot } from './DoctorChatbot';
 import { HospitalSchedule } from './HospitalSchedule';
+import { adminAPI } from '../../services/api';
 
 import {
   Users,
@@ -24,7 +25,6 @@ import {
   Settings,
   TrendingUp,
   AlertCircle,
-  FileText,
   Video,
   Award,
   Heart,
@@ -61,10 +61,11 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [activeConsultation, setActiveConsultation] = useState<any>(null);
   const [showAddHospitalModal, setShowAddHospitalModal] = useState(false);
+  const [pendingConnections, setPendingConnections] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>(null);
 
   // Add Hospital Form State
   const [newHospitalCode, setNewHospitalCode] = useState('');
-  const [newHospitalName, setNewHospitalName] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationError, setVerificationError] = useState('');
 
@@ -80,40 +81,45 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
   // Load hospitals from API on component mount
   useEffect(() => {
     loadDoctorHospitals();
+    loadPendingConnections();
+    loadDashboardStats();
   }, [doctor.id]);
+
+  const loadDashboardStats = async () => {
+    try {
+      const data = await adminAPI.getDashboardStats();
+      setStats(data);
+    } catch (error) {
+      console.error('Error loading dashboard stats:', error);
+    }
+  };
+
+  const loadPendingConnections = async () => {
+    try {
+      const data = await adminAPI.getConnections('pending');
+      setPendingConnections(data);
+    } catch (error) {
+      console.error('Error loading pending connections:', error);
+    }
+  };
 
   const loadDoctorHospitals = async () => {
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch(`/api/doctor/${doctor.id}/hospitals`);
-      // const data = await response.json();
-      // setHospitals(data.hospitals);
+      const data = await adminAPI.getConnections();
+      const mappedHospitals = data.map((h: any) => ({
+        id: h.hospital_unique_id || h.user?.id || h.id, // Fallback to user ID if unique_id missing
+        backendId: h.user?.id || h.id, // We need the actual PK for API calls
+        name: h.hospital_name,
+        address: h.address,
+        patients: 0, // Placeholder
+        color: generateRandomColor(),
+        hospitalCode: h.hospital_unique_id
+      }));
 
-      // Mock data for now - replace with API call
-      const mockHospitals: Hospital[] = [
-        {
-          id: '1',
-          name: 'City Hospital',
-          address: 'Main Street, Kathmandu',
-          patients: 156,
-          color: 'bg-emerald-500',
-          hospitalCode: 'CH001'
-        },
-        {
-          id: '2',
-          name: 'Mercy Clinic',
-          address: 'Patan Dhoka, Lalitpur',
-          patients: 89,
-          color: 'bg-blue-500',
-          hospitalCode: 'MC002'
-        },
-      ];
+      setHospitals(mappedHospitals);
 
-      setHospitals(mockHospitals);
-
-      // Set first hospital as selected by default
-      if (mockHospitals.length > 0 && !selectedHospital) {
-        setSelectedHospital(mockHospitals[0]);
+      if (mappedHospitals.length > 0 && !selectedHospital) {
+        setSelectedHospital(mappedHospitals[0]);
       }
     } catch (error) {
       console.error('Error loading hospitals:', error);
@@ -123,72 +129,46 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
   const handleAddHospital = async () => {
     setVerificationError('');
 
-    if (!newHospitalCode.trim() || !newHospitalName.trim()) {
-      setVerificationError('Please fill in all fields');
+    if (!newHospitalCode.trim()) {
+      setVerificationError('Please enter the hospital ID');
       return;
     }
 
     setIsVerifying(true);
 
     try {
-      // TODO: Replace with actual API call to verify hospital
-      // const response = await fetch('/api/doctor/verify-hospital', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     hospital_code: newHospitalCode,
-      //     hospital_name: newHospitalName,
-      //     doctor_id: doctor.id
-      //   })
-      // });
-      // const data = await response.json();
+      const response = await adminAPI.connectEntity(newHospitalCode);
 
-      // Mock verification - simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Refresh connection lists
+      await loadDoctorHospitals();
+      await loadPendingConnections();
 
-      // Mock response - replace with actual API response
-      const mockVerification = {
-        success: true,
-        hospital: {
-          id: `hosp-${Date.now()}`,
-          name: newHospitalName,
-          address: 'Address from Database',
-          patients: 0,
-          color: generateRandomColor(),
-          hospitalCode: newHospitalCode
-        }
-      };
+      // Reset form and close modal
+      setNewHospitalCode('');
+      setShowAddHospitalModal(false);
 
-      if (mockVerification.success) {
-        // Add hospital to list
-        const newHospital = mockVerification.hospital;
-        setHospitals([...hospitals, newHospital]);
-
-        // TODO: Save to backend
-        // await fetch('/api/doctor/add-hospital', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({
-        //     doctor_id: doctor.id,
-        //     hospital_id: newHospital.id
-        //   })
-        // });
-
-        // Reset form and close modal
-        setNewHospitalCode('');
-        setNewHospitalName('');
-        setShowAddHospitalModal(false);
-        setSelectedHospital(newHospital);
-
-        alert(`Successfully added ${newHospital.name}!`);
-      } else {
-        setVerificationError('Hospital verification failed. Please check the code and name.');
-      }
+      alert(response.message || `Successfully sent connection request!`);
     } catch (error: any) {
       console.error('Error adding hospital:', error);
       setVerificationError(error.message || 'Failed to add hospital. Please try again.');
     } finally {
       setIsVerifying(false);
+    }
+  };
+
+  const handleConfirmConnection = async (connectionId: string, status: 'active' | 'rejected') => {
+    try {
+      await adminAPI.confirmConnection(connectionId, status);
+      await loadPendingConnections();
+      await loadDoctorHospitals();
+      if (status === 'active') {
+        alert('Connection approved!');
+      } else {
+        alert('Connection rejected.');
+      }
+    } catch (error) {
+      console.error('Error confirming connection:', error);
+      alert('Failed to update connection status.');
     }
   };
 
@@ -208,8 +188,8 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
 
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'appointments', label: 'Appointments', icon: Calendar, badge: hospitals.reduce((acc, h) => acc + h.patients, 0) },
-    { id: 'patients', label: 'Patients', icon: Users, badge: 24 },
+    { id: 'appointments', label: 'Appointments', icon: Calendar, badge: stats?.appointments_today || 0 },
+    { id: 'patients', label: 'Patients', icon: Users, badge: stats?.total_patients || 0 },
     { id: 'reviews', label: 'Reviews', icon: Star, badge: 12 },
     { id: 'overall', label: 'Overall Stats', icon: BarChart3 },
     { id: 'profile', label: 'Profile', icon: User },
@@ -230,40 +210,63 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
       );
     }
 
-    if (!selectedHospital) {
-      return (
-        <Card className="p-12 text-center border-2 border-dashed border-gray-300">
-          <Building2 size={48} className="mx-auto text-gray-400 mb-4" />
-          <h3 className="text-lg font-bold text-gray-900 mb-2">No Hospital Selected</h3>
-          <p className="text-sm text-gray-500 mb-4">
-            Please select a hospital from the sidebar or add a new one to get started
-          </p>
-          <button
-            onClick={() => setShowAddHospitalModal(true)}
-            className="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Plus size={16} className="inline mr-2" />
-            Add Hospital
-          </button>
-        </Card>
-      );
-    }
-
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardOverview hospital={selectedHospital} onStartConsultation={(apt: any) => setActiveConsultation(apt)} />;
+        return (
+          <DashboardOverview
+            hospital={selectedHospital}
+            pendingConnections={pendingConnections}
+            stats={stats}
+            onConfirmConnection={handleConfirmConnection}
+            onStartConsultation={(apt: any) => setActiveConsultation(apt)}
+          />
+        );
       case 'appointments':
-        return <HospitalSchedule hospital={selectedHospital} onStartConsultation={(apt: any) => setActiveConsultation(apt)} />;
+        if (!selectedHospital) {
+          return (
+            <Card className="p-12 text-center border-2 border-dashed border-gray-300">
+              <Building2 size={48} className="mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-bold text-gray-900 mb-2">No Hospital Selected</h3>
+              <p className="text-sm text-gray-500 mb-4">
+                Please select a hospital from the sidebar to manage specific appointments
+              </p>
+              <button
+                onClick={() => setShowAddHospitalModal(true)}
+                className="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Plus size={16} className="inline mr-2" />
+                Add Hospital
+              </button>
+            </Card>
+          );
+        }
+        return (
+          <HospitalSchedule
+            hospital={selectedHospital}
+            hospitalId={(selectedHospital as any).backendId || selectedHospital.id}
+            doctorId={doctor.id}
+            isEditable={false}
+            onStartConsultation={(apt: any) => setActiveConsultation(apt)}
+          />
+        );
       case 'patients':
         return <PatientsView doctorId={doctor.id} />;
-      case 'reviews':
-        return <ReviewsView />;
       case 'overall':
         return <OverallStatsView hospitals={hospitals} />;
       case 'profile':
         return <DoctorProfile doctor={doctor} onUpdate={(updates) => setDoctor(prev => ({ ...prev, ...updates } as Doctor))} />;
+      case 'reviews':
+        return <ReviewsView />;
       default:
-        return <DashboardOverview hospital={selectedHospital} onStartConsultation={(apt: any) => setActiveConsultation(apt)} />;
+        return (
+          <DashboardOverview
+            hospital={selectedHospital}
+            pendingConnections={pendingConnections}
+            stats={stats}
+            onConfirmConnection={handleConfirmConnection}
+            onStartConsultation={(apt: any) => setActiveConsultation(apt)}
+          />
+        );
     }
   };
 
@@ -278,43 +281,28 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
                 setShowAddHospitalModal(false);
                 setVerificationError('');
                 setNewHospitalCode('');
-                setNewHospitalName('');
               }}
               className="absolute top-4 right-4 p-1 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <X size={20} className="text-gray-500" />
             </button>
 
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Add New Hospital</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Connect to Hospital</h2>
             <p className="text-sm text-gray-500 mb-6">
-              Enter the hospital code and name to verify and add to your dashboard
+              Enter the unique hospital ID to link your profile and start managing appointments
             </p>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Hospital Code
+                  Hospital Unique ID
                 </label>
                 <input
                   type="text"
                   value={newHospitalCode}
                   onChange={(e) => setNewHospitalCode(e.target.value)}
-                  placeholder="e.g., CH001, MC002"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  disabled={isVerifying}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Hospital Name
-                </label>
-                <input
-                  type="text"
-                  value={newHospitalName}
-                  onChange={(e) => setNewHospitalName(e.target.value)}
-                  placeholder="e.g., City Hospital"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., HOSP-CITY-KTM-P1D2"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono"
                   disabled={isVerifying}
                 />
               </div>
@@ -331,7 +319,6 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
                     setShowAddHospitalModal(false);
                     setVerificationError('');
                     setNewHospitalCode('');
-                    setNewHospitalName('');
                   }}
                   className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors"
                   disabled={isVerifying}
@@ -623,17 +610,23 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
 };
 
 // Dashboard Overview Component
-const DashboardOverview: React.FC<{ hospital: Hospital; onStartConsultation: (apt: any) => void }> = ({ hospital, onStartConsultation }) => {
-  const stats = [
-    { label: 'Appointments', value: 8, subtext: '3 remaining • 5 completed', icon: Calendar, color: 'blue', badge: 'Today' },
-    { label: 'Total Patients', value: hospital.patients, subtext: '+12 this week', icon: Users, color: 'emerald', trend: <TrendingUp size={18} /> },
-    { label: 'Emergency Cases', value: 1, subtext: 'Immediate attention needed', icon: AlertCircle, color: 'red', pulse: true },
+const DashboardOverview: React.FC<{
+  hospital: Hospital | null;
+  pendingConnections: any[];
+  stats: any;
+  onConfirmConnection: (id: string, status: 'active' | 'rejected') => void;
+  onStartConsultation: (apt: any) => void
+}> = ({ hospital, pendingConnections, stats, onConfirmConnection, onStartConsultation }) => {
+  const stats_items = [
+    { label: 'Appointments', value: stats?.appointments_today || 0, subtext: 'Total for today', icon: Calendar, color: 'blue', badge: 'Today' },
+    { label: 'Total Patients', value: stats?.total_patients || 0, subtext: 'Unique patients', icon: Users, color: 'emerald', trend: <TrendingUp size={18} /> },
+    { label: 'Emergency Cases', value: stats?.emergency_cases || 0, subtext: 'Require attention', icon: AlertCircle, color: 'red', pulse: stats?.emergency_cases > 0 },
     { label: 'New Reviews', value: 12, subtext: '98% positive feedback', icon: Star, color: 'amber', badge: '4.9★' },
   ];
 
   return (
     <div className="space-y-6">
-      {hospital.isOnline && (
+      {hospital && hospital.isOnline && (
         <Card className="p-4 bg-gradient-to-r from-cyan-50 to-blue-50 border-2 border-cyan-200">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-cyan-500 rounded-xl">
@@ -647,8 +640,65 @@ const DashboardOverview: React.FC<{ hospital: Hospital; onStartConsultation: (ap
         </Card>
       )}
 
+      {!hospital && (
+        <Card className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-blue-600 rounded-xl">
+              <LayoutDashboard size={24} className="text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900">Dr. Personal Overview</h3>
+              <p className="text-sm text-gray-600">Viewing aggregate data across all affiliations</p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Pending Connections Section */}
+      {pendingConnections.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="text-lg font-bold text-gray-900 flex items-center">
+            <Bell size={20} className="mr-2 text-amber-500 animate-bounce" />
+            Connection Requests ({pendingConnections.length})
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {pendingConnections.map((conn) => (
+              <Card key={conn.connection_id} className="p-4 border-2 border-amber-100 bg-amber-50/30">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-white font-bold">
+                      {conn.hospital_name[0]}
+                    </div>
+                    <div>
+                      <p className="font-bold text-gray-900">{conn.hospital_name}</p>
+                      <p className="text-xs text-gray-500">{conn.address}</p>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => onConfirmConnection(conn.connection_id, 'active')}
+                      className="p-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors shadow-sm"
+                      title="Accept"
+                    >
+                      <Check size={16} />
+                    </button>
+                    <button
+                      onClick={() => onConfirmConnection(conn.connection_id, 'rejected')}
+                      className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                      title="Reject"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, i) => {
+        {stats_items.map((stat, i) => {
           const Icon = stat.icon;
           const bgColors = {
             blue: 'from-blue-500 to-blue-600',
@@ -682,32 +732,41 @@ const DashboardOverview: React.FC<{ hospital: Hospital; onStartConsultation: (ap
       <Card className="p-0 border-0 shadow-lg overflow-hidden">
         <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-5 py-3 flex justify-between items-center">
           <h3 className="text-white font-bold flex items-center text-base">
-            <Clock size={18} className="mr-2 text-emerald-400" /> Next Patient - 10:15 AM
+            <Clock size={18} className="mr-2 text-emerald-400" />
+            {stats?.next_patient ? `Next Patient - ${stats.next_patient.time.split(' - ')[0]}` : 'No Upcoming Patients'}
           </h3>
-          <span className="bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full">CONFIRMED</span>
+          {stats?.next_patient && (
+            <span className="bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full">{stats.next_patient.status}</span>
+          )}
         </div>
         <div className="p-5">
-          <div className="flex items-center gap-4">
-            <img src="https://avatar.iran.liara.run/public/15" alt="Patient" className="w-20 h-20 rounded-xl border-4 border-blue-100 shadow-lg" />
-            <div className="flex-1">
-              <h4 className="text-xl font-bold text-gray-900">Sarah Jenkins</h4>
-              <p className="text-gray-500 text-sm">32 years • Female • Blood Type: O+</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <span className="px-2 py-1 bg-red-100 text-red-700 rounded-lg text-xs font-semibold">Hypertension</span>
-                <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold">Follow-up</span>
+          {stats?.next_patient ? (
+            <div className="flex items-center gap-4">
+              <div className="w-20 h-20 rounded-xl border-4 border-blue-100 shadow-lg bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-2xl">
+                {stats.next_patient.name[0]}
+              </div>
+              <div className="flex-1">
+                <h4 className="text-xl font-bold text-gray-900">{stats.next_patient.name}</h4>
+                <p className="text-gray-500 text-sm">Today • Scheduled for {stats.next_patient.time}</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold">{stats.next_patient.condition}</span>
+                </div>
+              </div>
+              <div className="flex flex-col space-y-2">
+                <Button
+                  onClick={() => onStartConsultation({
+                    patient_name: stats.next_patient.name,
+                    patientCondition: stats.next_patient.condition
+                  })}
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 text-sm"
+                ><Video size={14} className="mr-1" /> Start</Button>
               </div>
             </div>
-            <div className="flex flex-col space-y-2">
-              <Button variant="outline" className="text-sm"><FileText size={14} className="mr-1" /> Records</Button>
-              <Button
-                onClick={() => onStartConsultation({
-                  patient_name: 'Sarah Jenkins',
-                  instructions: 'Hypertension Follow-up'
-                })}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 text-sm"
-              ><Video size={14} className="mr-1" /> Start</Button>
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-gray-500 text-sm">You have no more appointments scheduled for today.</p>
             </div>
-          </div>
+          )}
         </div>
       </Card>
     </div>

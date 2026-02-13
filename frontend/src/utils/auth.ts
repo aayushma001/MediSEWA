@@ -40,7 +40,7 @@ export const login = async (formData: LoginFormData): Promise<User> => {
 
     // Use the user data directly or map it if necessary
     const user: User = {
-      id: response.user.user.id.toString(),
+      id: response.user.user.id,
       first_name: response.user.user.first_name,
       last_name: response.user.user.last_name,
       email: response.user.user.email,
@@ -54,9 +54,13 @@ export const login = async (formData: LoginFormData): Promise<User> => {
       user.doctor_profile = response.user;
     } else if (user.user_type === 'hospital') {
       user.hospital_profile = response.user;
+    } else if (user.user_type === 'patient') {
+      // Extract patient_profile from the nested user object
+      user.patient_profile = response.user.user.patient_profile || {};
     }
 
     console.log('Transformed user:', user);
+    console.log('Patient profile:', user.patient_profile);
     setStoredAuth(response.tokens, user);
     return user;
 
@@ -92,6 +96,7 @@ export const register = async (formData: RegisterFormData): Promise<User> => {
       requestData.nmc_number = formData.nmcId;
       requestData.experience_years = 0; // Default or add field
       requestData.nid = formData.nidNumber;
+      requestData.doctor_id = formData.doctorId;
       // Ensure we don't send hospital fields
     } else if (formData.userType === 'hospital') {
       requestData.hospital_name = formData.hospitalName;
@@ -159,10 +164,16 @@ export const register = async (formData: RegisterFormData): Promise<User> => {
         is_verified: false,
         consent_accepted: formData.consentAccepted || false,
         nmc_number: formData.nmcId,
+        doctor_unique_id: formData.doctorId,
         // Add other fields as necessary from formData
       };
+    } else if (user.user_type === 'patient') {
+      // Extract patient_profile from the nested user object
+      user.patient_profile = response.user.user?.patient_profile || {};
     }
 
+    console.log('Registration successful, user:', user);
+    console.log('Patient profile:', user.patient_profile);
     setStoredAuth(response.tokens, user);
     return user;
 

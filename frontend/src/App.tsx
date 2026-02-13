@@ -9,11 +9,21 @@ import { User, LoginFormData, RegisterFormData } from './types';
 import { Homepage } from './components/homepage/Homepage';
 
 function App() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>({
+    id: '123',
+    first_name: 'Test',
+    last_name: 'Patient',
+    email: 'test@example.com',
+    mobile: '1234567890',
+    user_type: 'patient',
+    created_at: new Date().toISOString()
+  });
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [loading, setLoading] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [initializing, setInitializing] = useState(true);
+
+  const [error, setError] = useState<string | null>(null);
 
   // Restore user session on app load
   useEffect(() => {
@@ -27,12 +37,15 @@ function App() {
   const handleLogin = async (data: LoginFormData) => {
     try {
       setLoading(true);
+      setError(null);
       const user = await login(data);
+      console.log('Login successful, setting user:', user);
       setUser(user);
       setShowAuthModal(false);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.';
-      alert(errorMessage);
+      console.error('Login error in App:', errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -41,6 +54,7 @@ function App() {
   const handleRegister = async (data: RegisterFormData) => {
     try {
       setLoading(true);
+      setError(null);
       console.log('Starting registration process...');
       const user = await register(data);
       console.log('Registration successful, user:', user);
@@ -49,8 +63,7 @@ function App() {
     } catch (error) {
       console.error('Registration failed in App component:', error);
       const errorMessage = error instanceof Error ? error.message : 'Registration failed. Please try again.';
-      console.error('Showing error message to user:', errorMessage);
-      alert(errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -61,11 +74,13 @@ function App() {
     setUser(null);
     setAuthMode('login');
     setShowAuthModal(false);
+    setError(null);
   };
 
   const openAuthModal = (mode: 'login' | 'register') => {
     setAuthMode(mode);
     setShowAuthModal(true);
+    setError(null);
   };
 
   useEffect(() => {
@@ -93,7 +108,12 @@ function App() {
         <Homepage onOpenAuthModal={openAuthModal} />
         {showAuthModal && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full h-[90vh] overflow-hidden transform transition-all duration-300 scale-100 flex flex-col md:flex-row">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full h-[90vh] overflow-hidden transform transition-all duration-300 scale-100 flex flex-col md:flex-row relative">
+              {error && (
+                <div className="absolute top-0 left-0 right-0 bg-red-500 text-white p-2 text-center z-[60] font-bold">
+                  {error}
+                </div>
+              )}
               <div className="hidden md:block w-1/2 bg-gray-50 relative overflow-hidden">
                 <div className="absolute inset-0 bg-blue-600/20 z-10"></div>
                 <img
@@ -115,6 +135,7 @@ function App() {
                 >
                   &times;
                 </button>
+
 
                 <div className="w-full max-w-md mx-auto my-auto pt-4 pb-10">
                   {authMode === 'login' ? (
@@ -142,7 +163,7 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
-        {user.user_type !== 'hospital' && user.user_type !== 'doctor' && <Header user={user} onLogout={handleLogout} />}
+        {user.user_type !== 'hospital' && user.user_type !== 'doctor' && user.user_type !== 'patient' && <Header user={user} onLogout={handleLogout} />}
         <AppRoutes user={user} onLogout={handleLogout} />
       </div>
     </Router>

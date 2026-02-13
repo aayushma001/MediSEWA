@@ -167,10 +167,48 @@ export const adminAPI = {
     return apiRequest('/auth/dashboard-stats/');
   },
 
+  getProfile: async () => {
+    return apiRequest('/auth/profile/');
+  },
+
   updateProfile: async (data: any) => {
     return apiRequest('/auth/profile/update/', {
       method: 'PATCH',
       body: JSON.stringify(data),
+    });
+  },
+
+  connectEntity: async (id: string) => {
+    return apiRequest('/auth/connect/', {
+      method: 'POST',
+      body: JSON.stringify({ id }),
+    });
+  },
+
+  confirmConnection: async (id: string, status: 'active' | 'rejected') => {
+    return apiRequest('/auth/confirm-connection/', {
+      method: 'POST',
+      body: JSON.stringify({ id, status }),
+    });
+  },
+
+  getConnections: async (statusFilter = 'active') => {
+    return apiRequest(`/auth/connections/?status=${statusFilter}`);
+  },
+
+  getSchedules: async (doctorId: string, hospitalId: string, date: string) => {
+    return apiRequest(`/auth/schedules/?doctor_id=${doctorId}&hospital_id=${hospitalId}&date=${date}`);
+  },
+
+  saveSchedule: async (doctorId: string, hospitalId: string, date: string, sessionData: any) => {
+    return apiRequest('/auth/schedules/', {
+      method: 'POST',
+      body: JSON.stringify({
+        doctor_id: doctorId,
+        hospital_id: hospitalId,
+        date: date,
+        session_data: sessionData
+      }),
     });
   },
 

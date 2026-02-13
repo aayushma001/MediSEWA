@@ -3,21 +3,15 @@ import { Doctor } from '../../types';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { SignatureManager } from './SignatureManager';
+import { adminAPI } from '../../services/api';
 import {
-    Shield,
-    GraduationCap,
-    Phone,
-    Mail,
+    Award,
+    MapPin,
     Plus,
     Trash2,
     Loader,
-    Award,
-    MapPin,
-    Calendar,
-    DollarSign,
-    Clock,
-    Languages,
-    Building,
+    Phone,
+    Mail,
     Edit2,
     X,
     FileText,
@@ -25,8 +19,10 @@ import {
     Stethoscope,
     BadgeCheck,
     Bookmark,
-    Heart,
-    ChevronRight,
+    Shield,
+    GraduationCap,
+    DollarSign,
+    Languages,
 } from 'lucide-react';
 
 interface DoctorProfileProps {
@@ -39,7 +35,6 @@ export const DoctorProfile: React.FC<DoctorProfileProps> = ({ doctor, onUpdate }
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isAddingQualification, setIsAddingQualification] = useState(false);
-    const [isEditingProfile, setIsEditingProfile] = useState(false);
 
     // Form states
     const [newEducation, setNewEducation] = useState('');
@@ -55,14 +50,8 @@ export const DoctorProfile: React.FC<DoctorProfileProps> = ({ doctor, onUpdate }
     const fetchProfile = async () => {
         setIsLoading(true);
         try {
-            const token = localStorage.getItem('access_token');
-            const response = await fetch('http://127.0.0.1:8000/api/doctors/profile/', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                onUpdate(data);
-            }
+            const data = await adminAPI.getProfile();
+            onUpdate(data);
         } catch (error) {
             console.error("Failed to fetch profile:", error);
         } finally {
@@ -73,19 +62,8 @@ export const DoctorProfile: React.FC<DoctorProfileProps> = ({ doctor, onUpdate }
     const handleSaveToBackend = async (updates: Partial<Doctor>) => {
         setIsSaving(true);
         try {
-            const token = localStorage.getItem('access_token');
-            const response = await fetch('http://127.0.0.1:8000/api/doctors/profile/', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(updates)
-            });
-            if (response.ok) {
-                const data = await response.json();
-                onUpdate(data);
-            }
+            const data = await adminAPI.updateProfile(updates);
+            onUpdate(data);
         } catch (error) {
             console.error("Error saving profile:", error);
         } finally {
@@ -102,7 +80,7 @@ export const DoctorProfile: React.FC<DoctorProfileProps> = ({ doctor, onUpdate }
     };
 
     const handleRemoveEducation = (index: number) => {
-        const updatedEducation = (doctor.education || []).filter((_, i) => i !== index);
+        const updatedEducation = (doctor.education || []).filter((_edu: string, i: number) => i !== index);
         handleSaveToBackend({ education: updatedEducation });
     };
 
@@ -172,6 +150,10 @@ export const DoctorProfile: React.FC<DoctorProfileProps> = ({ doctor, onUpdate }
                             <div className="flex items-center gap-2">
                                 <MapPin size={16} className="text-gray-400" />
                                 <span>{doctor.city || 'Kathmandu'}, {doctor.country || 'Nepal'}</span>
+                            </div>
+                            <div className="flex items-center gap-2 bg-blue-50 px-2 py-1 rounded border border-blue-100">
+                                <Bookmark size={14} className="text-blue-600" />
+                                <span className="font-mono font-bold text-blue-900 text-xs">ID: {doctor.doctor_unique_id || 'Generating...'}</span>
                             </div>
                         </div>
                     </div>

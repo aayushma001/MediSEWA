@@ -10,8 +10,10 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = [
     "medico-lyev.onrender.com",     # your backend hosted on Render
     "localhost",
-    "127.0.0.1"
+    "127.0.0.1",
+    "testserver"
 ]
+
 
 
 INSTALLED_APPS = [
@@ -126,3 +128,23 @@ CORS_ALLOW_ALL_ORIGINS = True  # Only for development
 
 # Custom User Model
 AUTH_USER_MODEL = 'authentication.User'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+ 
+# Session and Cookie settings for development
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = False
+
+
+
+
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')

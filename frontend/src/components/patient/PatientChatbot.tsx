@@ -14,11 +14,9 @@ import {
     AlertCircle,
     Sparkles,
     ChevronDown,
-    Clock,
     MapPin,
     Phone
 } from 'lucide-react';
-import { Button } from '../ui/Button';
 
 interface Message {
     id: string;
@@ -228,8 +226,8 @@ export const PatientChatbot: React.FC<PatientChatbotProps> = ({ patient, onClose
                         <div className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
                             <div className={`flex items-start space-x-2 max-w-[85%] ${message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
                                 <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${message.type === 'user'
-                                        ? 'bg-blue-600'
-                                        : 'bg-gradient-to-br from-purple-500 to-purple-600'
+                                    ? 'bg-blue-600'
+                                    : 'bg-gradient-to-br from-purple-500 to-purple-600'
                                     }`}>
                                     {message.type === 'user' ? (
                                         <User className="text-white" size={16} />
@@ -239,8 +237,8 @@ export const PatientChatbot: React.FC<PatientChatbotProps> = ({ patient, onClose
                                 </div>
                                 <div className="flex flex-col space-y-1">
                                     <div className={`px-4 py-2.5 rounded-2xl ${message.type === 'user'
-                                            ? 'bg-blue-600 text-white rounded-tr-sm'
-                                            : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-tl-sm'
+                                        ? 'bg-blue-600 text-white rounded-tr-sm'
+                                        : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-tl-sm'
                                         }`}>
                                         <p className="text-sm whitespace-pre-line leading-relaxed">{message.content}</p>
                                     </div>
@@ -337,10 +335,10 @@ export const PatientChatbot: React.FC<PatientChatbotProps> = ({ patient, onClose
                 {/* Quick Access Buttons */}
                 <div className="flex items-center justify-center space-x-2 mt-3 pt-3 border-t border-gray-100">
                     {[
-                        { icon: Calendar, label: 'Appointments', color: 'blue' },
-                        { icon: Pill, label: 'Medications', color: 'emerald' },
-                        { icon: Heart, label: 'Vitals', color: 'red' },
-                        { icon: AlertCircle, label: 'Emergency', color: 'orange' },
+                        { icon: Calendar, label: 'Appointments', color: 'text-blue-500' },
+                        { icon: Pill, label: 'Medications', color: 'text-emerald-500' },
+                        { icon: Heart, label: 'Vitals', color: 'text-red-500' },
+                        { icon: AlertCircle, label: 'Emergency', color: 'text-orange-500' },
                     ].map((item, idx) => {
                         const Icon = item.icon;
                         return (
@@ -349,7 +347,7 @@ export const PatientChatbot: React.FC<PatientChatbotProps> = ({ patient, onClose
                                 onClick={() => setInputValue(item.label)}
                                 className={`flex-1 flex flex-col items-center space-y-1 p-2 hover:bg-gray-50 rounded-lg transition-all group`}
                             >
-                                <Icon size={16} className={`text-${item.color}-500 group-hover:scale-110 transition-transform`} />
+                                <Icon size={16} className={`${item.color} group-hover:scale-110 transition-transform`} />
                                 <span className="text-[10px] text-gray-600 font-medium">{item.label}</span>
                             </button>
                         );
