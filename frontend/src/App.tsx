@@ -160,11 +160,16 @@ function App() {
     );
   }
 
+  const handleUserUpdate = (updatedUser: User) => {
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  };
+
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
         {user.user_type !== 'hospital' && user.user_type !== 'doctor' && user.user_type !== 'patient' && <Header user={user} onLogout={handleLogout} />}
-        <AppRoutes user={user} onLogout={handleLogout} />
+        <AppRoutes user={user} onLogout={handleLogout} onUserUpdate={handleUserUpdate} />
       </div>
     </Router>
   );

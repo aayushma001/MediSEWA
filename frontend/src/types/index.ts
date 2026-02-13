@@ -13,24 +13,39 @@ export interface DoctorProfile {
   gender?: string;
   date_of_birth?: string;
   doctor_unique_id?: string;
+  consultation_fee?: number;
+}
+
+export interface Department {
+  id: string;
+  name: string;
+  description: string;
+  icon?: string;
 }
 
 export interface HospitalProfile {
   user: User;
   hospital_name: string;
-  hospital_id?: string;
+  hospital_unique_id?: string;
+  hospital_id?: string; // Keep for backward compatibility if any
   hospital_type?: string;
   province?: string;
   district?: string;
   city?: string;
   ward?: string;
+  tole?: string;
   address: string;
   pan_number: string;
   registration_number: string;
   contact_number: string;
   website: string;
   logo: string | null;
+  latitude?: number;
+  longitude?: number;
   description?: string;
+  beds?: number;
+  opening_hours?: string;
+  departments?: Department[];
 }
 
 export interface User {
@@ -182,4 +197,18 @@ export interface Appointment {
   date?: string;
   doctor_id?: string;
   hospital_id?: string;
+}
+
+export interface MedicalRecord {
+  id: number;
+  patient: number;
+  doctor: number;
+  hospital: number;
+  appointment: number | null;
+  title: string;
+  description: string;
+  report_file: string;
+  created_at: string;
+  doctor_name: string;
+  hospital_name: string;
 }

@@ -1,4 +1,5 @@
 let API_BASE_URL = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_API_BASE_URL) || 'http://127.0.0.1:8000/api';
+export const MEDIA_URL = API_BASE_URL.replace('/api', '');
 const FALLBACK_BASES = ['http://localhost:8000/api'];
 
 // Token management
@@ -246,6 +247,28 @@ export const adminAPI = {
       body: JSON.stringify(data),
     });
   },
+
+  // Department Management
+  getDepartments: async () => {
+    return apiRequest('/auth/departments/');
+  },
+  createDepartment: async (data: { name: string; description: string }) => {
+    return apiRequest('/auth/departments/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  updateDepartment: async (id: string | number, data: { name?: string; description?: string }) => {
+    return apiRequest(`/auth/departments/${id}/`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+  deleteDepartment: async (id: string | number) => {
+    return apiRequest(`/auth/departments/${id}/`, {
+      method: 'DELETE',
+    });
+  },
 };
 
 // Appointments API
@@ -288,18 +311,47 @@ export const appointmentsAPI = {
     });
   },
 
-  createAppointment: async (data: any) => {
-    return apiRequest('/appointments/create/', {
-      method: 'POST',
-      body: JSON.stringify(data),
+  updateAppointmentStatus: async (id: number | string, status: string) => {
+    return apiRequest(`/auth/appointments/${id}/manage/`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
     });
   },
 
-  updateAppointmentStatus: async (id: string, status: string) => {
-    return apiRequest(`/appointments/${id}/status/`, {
-      method: 'PUT',
-      body: JSON.stringify({ status }),
+  // New Patient Booking Flow
+  getHospitals: async () => {
+    return apiRequest('/auth/patient/hospitals/');
+  },
+
+  getHospitalDoctors: async (hospitalId: string) => {
+    return apiRequest(`/auth/patient/hospitals/${hospitalId}/doctors/`);
+  },
+
+  getDoctorSchedule: async (doctorId: string, hospitalId: string, date: string) => {
+    return apiRequest(`/auth/patient/schedule/${doctorId}/${hospitalId}/?date=${date}`);
+  },
+
+  bookAppointment: async (data: any) => {
+    return apiRequest('/auth/patient/appointments/', {
+      method: 'POST',
+      body: data instanceof FormData ? data : JSON.stringify(data),
     });
+  },
+
+  getAppointments: async () => {
+    return apiRequest('/auth/patient/appointments/');
+  },
+
+  getHospitalAppointments: async () => {
+    return apiRequest('/auth/hospital/appointments/');
+  },
+
+  getHospitalReports: async () => {
+    return apiRequest('/auth/hospital/reports/');
+  },
+
+  getDoctorAppointments: async () => {
+    return apiRequest('/auth/doctor/appointments/');
   },
 
   createAdvice: async (data: any) => {
@@ -327,13 +379,20 @@ export const appointmentsAPI = {
   },
 
   getPatientMedicalRecords: async (patientId: string) => {
-    return apiRequest(`/appointments/medical-records/patient/${patientId}/`);
+    return apiRequest(`/auth/patient/${patientId}/reports/`);
   },
 
   createMedicalRecord: async (data: any) => {
     return apiRequest('/appointments/medical-records/create/', {
       method: 'POST',
       body: JSON.stringify(data),
+    });
+  },
+
+  uploadMedicalReport: async (formData: FormData) => {
+    return apiRequest('/auth/reports/upload/', {
+      method: 'POST',
+      body: formData,
     });
   },
 };
@@ -345,7 +404,7 @@ export const patientsAPI = {
   },
 
   getPatientDetail: async (patientId: string) => {
-    return apiRequest(`/patients/${patientId}/`);
+    return apiRequest(`/auth/patients/${patientId}/`);
   },
 
   deletePatient: async (id: string) => {

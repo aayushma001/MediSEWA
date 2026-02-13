@@ -18,9 +18,10 @@ import { PatientDashboard } from '../components/patient/PatientDashboard';
 interface AppRoutesProps {
   user: User;
   onLogout: () => void;
+  onUserUpdate: (user: User) => void;
 }
 
-export const AppRoutes: React.FC<AppRoutesProps> = ({ user, onLogout }) => {
+export const AppRoutes: React.FC<AppRoutesProps> = ({ user, onLogout, onUserUpdate }) => {
   return (
     <Routes>
       <Route
@@ -119,7 +120,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({ user, onLogout }) => {
 
       {/* Nested Hospital Routes */}
       {user.user_type === 'hospital' && (
-        <Route path="/hospital" element={<HospitalDashboard user={user} onLogout={onLogout} />}>
+        <Route path="/hospital" element={<HospitalDashboard user={user} onLogout={onLogout} onUserUpdate={onUserUpdate} />}>
           <Route index element={<DashboardHome />} />
           <Route path="appointments" element={<Appointments />} />
           <Route path="specialities" element={<Specialities />} />

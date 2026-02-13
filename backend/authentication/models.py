@@ -206,3 +206,52 @@ class DoctorSchedule(models.Model):
 
     def __str__(self):
         return f"Schedule for {self.doctor} at {self.hospital} on {self.date}"
+
+class Appointment(models.Model):
+    STATUS_CHOICES = (
+        ('pending', 'Pending Verification'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    )
+    CONSULTATION_TYPES = (
+        ('online', 'Video Consultation'),
+        ('offline', 'In-Person Visit'),
+    )
+
+    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE, related_name='appointments')
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE, related_name='appointments')
+    hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='appointments')
+    date = models.DateField()
+    time_slot = models.CharField(max_length=50) # e.g., "09:00 - 09:10"
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    consultation_type = models.CharField(max_length=10, choices=CONSULTATION_TYPES, default='online')
+    payment_screenshot = models.ImageField(upload_to='appointment_payments/', null=True, blank=True)
+    symptoms = models.TextField(blank=True)
+    meeting_link = models.URLField(max_length=500, blank=True, null=True)
+    booking_reference = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-date', '-time_slot']
+
+    def __str__(self):
+        return f"Appointment: {self.patient} with {self.doctor} on {self.date}"
+
+class MedicalReport(models.Model):
+    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE, related_name='medical_reports')
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='generated_reports')
+    hospital = models.ForeignKey(Hospital, on_delete=models.SET_NULL, null=True, blank=True, related_name='hospital_reports')
+    appointment = models.ForeignKey(Appointment, on_delete=models.SET_NULL, null=True, blank=True, related_name='reports')
+    
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    report_file = models.FileField(upload_to='medical_reports/')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Report: {self.title} for {self.patient}"

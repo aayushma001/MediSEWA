@@ -16,11 +16,13 @@ import {
   Lightbulb,
   Users,
   Bell,
-  Brain
+  Brain,
+  Clock
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import BookAppointment from './BookAppointment';
 import { MyAppointments } from './MyAppointments';
+import { appointmentsAPI } from '../../services/api';
 import { MedicalRecords } from './MedicalRecords';
 import { EmergencySearch } from './EmergencySearch';
 import { TherapyWellness } from './TherapyWellness';
@@ -86,7 +88,7 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({ patient, onL
   };
 
   // Full bleed for certain tabs
-  const isFullBleed = activeTab === 'book-appointment' || activeTab === 'emergency';
+  // const isFullBleed = activeTab === 'book-appointment' || activeTab === 'emergency';
 
   const renderContent = () => {
     switch (activeTab) {
@@ -200,12 +202,41 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({ patient, onL
   );
 };
 
+/* ── Badge Component ────────────────────────────────────────── */
+const Badge: React.FC<{ children: React.ReactNode, className?: string }> = ({ children, className = "" }) => (
+  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm ${className}`}>
+    {children}
+  </span>
+);
+
 /* ── Health Feed (Home) ──────────────────────────────────────── */
 const HealthFeed: React.FC<{ patient: Patient; onNavigate: (id: string) => void }> = ({
   patient,
   onNavigate,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [nextAppointment, setNextAppointment] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchNext = async () => {
+      try {
+        const data = await appointmentsAPI.getAppointments();
+        if (data && data.length > 0) {
+          // Sort by date/time and filter for non-cancelled
+          const upcoming = data
+            .filter((a: any) => a.status !== 'cancelled' && a.status !== 'completed')
+            .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+          setNextAppointment(upcoming);
+        }
+      } catch (err) {
+        console.error("Feed fetch failed:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNext();
+  }, []);
 
   const feedItems = [
     {
@@ -347,15 +378,50 @@ const HealthFeed: React.FC<{ patient: Patient; onNavigate: (id: string) => void 
             <h3 className="text-xl font-bold">Your Next Appointment</h3>
             <Calendar className="h-6 w-6" />
           </div>
-          <p className="text-blue-100 mb-4">
-            You don't have any upcoming appointments yet
-          </p>
-          <Button
-            onClick={() => onNavigate('book-appointment')}
-            className="bg-white text-blue-600 hover:bg-blue-50 w-full py-3"
-          >
-            Schedule Your First Appointment
-          </Button>
+          {loading ? (
+            <div className="animate-pulse flex space-x-4">
+              <div className="flex-1 space-y-4 py-1">
+                <div className="h-4 bg-blue-400 rounded w-3/4"></div>
+                <div className="h-4 bg-blue-400 rounded"></div>
+              </div>
+            </div>
+          ) : nextAppointment ? (
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <div className="bg-white/20 p-2 rounded-lg">
+                  <Clock className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-bold text-lg">{nextAppointment.doctor_name}</p>
+                  <p className="text-blue-100 text-sm">{nextAppointment.date} @ {nextAppointment.time_slot}</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Badge className={nextAppointment.status === 'approved' ? 'bg-green-400 text-white' : 'bg-blue-400 text-white'}>
+                  {nextAppointment.status}
+                </Badge>
+                <span className="text-xs text-blue-100">Location: {nextAppointment.hospital_name}</span>
+              </div>
+              <Button
+                onClick={() => onNavigate('appointments')}
+                className="bg-white text-blue-600 hover:bg-blue-50 w-full py-3 mt-2"
+              >
+                View Details
+              </Button>
+            </div>
+          ) : (
+            <>
+              <p className="text-blue-100 mb-4">
+                You don't have any upcoming appointments yet
+              </p>
+              <Button
+                onClick={() => onNavigate('book-appointment')}
+                className="bg-white text-blue-600 hover:bg-blue-50 w-full py-3"
+              >
+                Schedule Your First Appointment
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>

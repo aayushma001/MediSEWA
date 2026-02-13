@@ -3,7 +3,8 @@ from django.contrib.auth import authenticate
 from django.db import transaction
 from .models import (
     User, Hospital, DoctorProfile, PaymentMethod, Notification, 
-    PatientProfile, Department, DoctorHospitalConnection, DoctorSchedule
+    PatientProfile, Department, DoctorHospitalConnection, DoctorSchedule,
+    Appointment, MedicalReport
 )
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -292,21 +293,65 @@ class UserSerializer(serializers.ModelSerializer):
 class PatientProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = PatientProfile
-        fields = ['date_of_birth', 'gender', 'age', 'phone_number', 'alternate_phone',
+        fields = ['id', 'date_of_birth', 'gender', 'age', 'phone_number', 'alternate_phone',
                   'emergency_contact', 'emergency_contact_name', 'blood_group', 'nid_number',
                   'health_condition', 'medications', 'allergies', 'province', 'district',
                   'city', 'address', 'postal_code', 'profile_image', 'patient_unique_id',
                   'created_at', 'updated_at']
 
+class DepartmentSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+    class Meta:
+        model = Department
+        fields = ['id', 'name', 'description', 'icon']
+
 class HospitalSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    departments = DepartmentSerializer(many=True, required=False)
 
     class Meta:
         model = Hospital
         fields = ['user', 'hospital_name', 'hospital_type', 'hospital_unique_id', 'address', 
                   'province', 'district', 'city', 'ward', 'tole',
                   'pan_number', 'registration_number', 'contact_number', 'website', 
-                  'logo', 'latitude', 'longitude', 'description', 'beds', 'opening_hours']
+                  'logo', 'latitude', 'longitude', 'description', 'beds', 'opening_hours', 'departments']
+
+    def update(self, instance, validated_data):
+        departments_data = validated_data.pop('departments', None)
+        
+        # Update hospital fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if departments_data is not None:
+            # Simple sync strategy: delete existing and recreate
+            # Or a more complex one: keep existing by ID
+            keep_depts = []
+            for dept_data in departments_data:
+                dept_id = dept_data.get('id')
+                if dept_id and str(dept_id).isdigit():
+                    try:
+                        dept = Department.objects.get(id=dept_id, hospital=instance)
+                        for attr, value in dept_data.items():
+                            setattr(dept, attr, value)
+                        dept.save()
+                        keep_depts.append(dept.id)
+                    except Department.DoesNotExist:
+                        # If ID provided but not found, create as new
+                        dept_data.pop('id', None)
+                        dept = Department.objects.create(hospital=instance, **dept_data)
+                        keep_depts.append(dept.id)
+                else:
+                    # No valid ID, create new
+                    dept_data.pop('id', None)
+                    dept = Department.objects.create(hospital=instance, **dept_data)
+                    keep_depts.append(dept.id)
+            
+            # Remove departments not in the new list
+            instance.departments.exclude(id__in=keep_depts).delete()
+
+        return instance
 
 class PaymentMethodSerializer(serializers.ModelSerializer):
     class Meta:
@@ -324,9 +369,9 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = DoctorProfile
-        fields = ['user', 'profile_picture', 'qualification', 'specialization', 
+        fields = ['id', 'user', 'profile_picture', 'qualification', 'specialization', 
                   'experience_years', 'about', 'is_verified', 'consent_accepted',
-                  'nmc_number', 'doctor_unique_id', 'contact_number', 'address', 'gender', 'date_of_birth']
+                  'nmc_number', 'doctor_unique_id', 'contact_number', 'address', 'gender', 'date_of_birth', 'consultation_fee']
 
 class DoctorScheduleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -336,3 +381,32 @@ class DoctorScheduleSerializer(serializers.ModelSerializer):
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
+
+class AppointmentSerializer(serializers.ModelSerializer):
+    patient_name = serializers.CharField(source='patient.user.get_full_name', read_only=True)
+    doctor_name = serializers.CharField(source='doctor.user.get_full_name', read_only=True)
+    hospital_name = serializers.CharField(source='hospital.hospital_name', read_only=True)
+    patient_details = UserSerializer(source='patient.user', read_only=True)
+    
+    class Meta:
+        model = Appointment
+        fields = [
+            'id', 'patient', 'doctor', 'hospital', 'date', 'time_slot', 
+            'status', 'consultation_type', 'payment_screenshot', 'symptoms', 
+            'meeting_link', 'booking_reference', 'created_at', 'updated_at',
+            'patient_name', 'doctor_name', 'hospital_name', 'patient_details'
+        ]
+        read_only_fields = ['status', 'meeting_link', 'created_at', 'updated_at']
+
+class MedicalReportSerializer(serializers.ModelSerializer):
+    doctor_name = serializers.CharField(source='doctor.user.get_full_name', read_only=True)
+    hospital_name = serializers.CharField(source='hospital.hospital_name', read_only=True)
+    
+    class Meta:
+        model = MedicalReport
+        fields = [
+            'id', 'patient', 'doctor', 'hospital', 'appointment', 
+            'title', 'description', 'report_file', 'created_at', 
+            'doctor_name', 'hospital_name'
+        ]
+        read_only_fields = ['created_at']

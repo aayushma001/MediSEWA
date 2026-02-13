@@ -4,15 +4,21 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.views import APIView
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
 from django.contrib.auth import update_session_auth_hash
 from .serializers import (
-    UserRegistrationSerializer, UserLoginSerializer, HospitalSerializer, 
-    DoctorProfileSerializer, PaymentMethodSerializer, NotificationSerializer,
-    ChangePasswordSerializer, DoctorScheduleSerializer
+    UserRegistrationSerializer, UserLoginSerializer, UserSerializer,
+    HospitalSerializer, DoctorProfileSerializer, PatientProfileSerializer,
+    PaymentMethodSerializer, NotificationSerializer, ChangePasswordSerializer, 
+    DoctorScheduleSerializer, AppointmentSerializer, DepartmentSerializer,
+    MedicalReportSerializer
 )
-from .models import Hospital, DoctorProfile, PaymentMethod, Notification, OTP, DoctorHospitalConnection, DoctorSchedule
+from .models import (
+    Hospital, DoctorProfile, PatientProfile, PaymentMethod, Notification, OTP, 
+    DoctorHospitalConnection, DoctorSchedule, Appointment, Department,
+    MedicalReport
+)
 import traceback
 from django.utils import timezone
 from datetime import datetime
@@ -74,12 +80,22 @@ def dashboard_stats(request):
                                     emergency_today += 1
                                 
                                 # Find next patient for today
-                                slot_time = slot.get('time', '').split(' - ')[0]
-                                if slot_time > now_time and slot_time < earliest_next_time:
-                                    earliest_next_time = slot_time
+                                slot_time_range = slot.get('time', '')
+                                slot_time_start = slot_time_range.split(' - ')[0]
+                                if slot_time_start > now_time and slot_time_start < earliest_next_time:
+                                    # Fallback to slot data but try to get real Appt for ID
+                                    real_appt = Appointment.objects.filter(
+                                        doctor=doctor_profile,
+                                        date=today,
+                                        time_slot=slot_time_range,
+                                        status__in=['approved', 'pending'] # Show both
+                                    ).first()
+                                    
+                                    earliest_next_time = slot_time_start
                                     next_patient = {
+                                        'id': real_appt.patient.id if real_appt else None,
                                         'name': patient_name,
-                                        'time': slot.get('time'),
+                                        'time': slot_time_range,
                                         'condition': slot.get('appointment', {}).get('patientCondition', 'General Checkup'),
                                         'status': slot.get('status').upper()
                                     }
@@ -168,7 +184,6 @@ def register(request):
             
             else:
                 # Patient or other types
-                from .serializers import UserSerializer
                 user_data = {'user': UserSerializer(user).data}
             
             print("Registration successful, returning response")
@@ -243,7 +258,6 @@ def login(request):
         
         else:
              # Patient or other types
-             from .serializers import UserSerializer
              user_data = {'user': UserSerializer(user).data}
         
         print("Login successful, returning response")
@@ -430,7 +444,29 @@ def manage_schedules(request):
                 return Response({'error': 'Specify at least doctor, hospital, or date'}, status=status.HTTP_400_BAD_REQUEST)
 
             schedules = DoctorSchedule.objects.filter(**filters)
-            return Response(DoctorScheduleSerializer(schedules, many=True).data)
+            
+            # Enrich schedule data with booking info
+            schedule_data = []
+            for schedule in schedules:
+                data = DoctorScheduleSerializer(schedule).data
+                appointments = Appointment.objects.filter(
+                    doctor=schedule.doctor,
+                    hospital=schedule.hospital,
+                    date=schedule.date
+                ).values_list('time_slot', flat=True)
+                
+                # Iterate through sessions and slots to mark booked ones
+                if data.get('session_data'):
+                    for session in data['session_data']:
+                        for slot in session.get('slots', []):
+                            # We check if this slot's ID or Time matches any appointment
+                            if slot.get('id') in appointments or slot.get('time') in appointments:
+                                slot['status'] = 'booked'
+                                slot['appointment'] = {'patient_name': 'Booked'} 
+                
+                schedule_data.append(data)
+
+            return Response(schedule_data)
 
         elif request.method == 'POST':
             doctor_id = request.data.get('doctor_id')
@@ -599,6 +635,179 @@ class SendOTPView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def patient_hospitals(request):
+    """List hospitals that have active doctor connections"""
+    hospitals = Hospital.objects.all()
+    serializer = HospitalSerializer(hospitals, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def patient_doctors(request, hospital_id):
+    """List doctors connected to a specific hospital"""
+    hospital = resolve_profile(hospital_id, Hospital)
+    if not hospital:
+        return Response({'error': 'Hospital not found'}, status=404)
+    
+    connections = DoctorHospitalConnection.objects.filter(hospital=hospital, status='active')
+    doctors = [conn.doctor for conn in connections]
+    serializer = DoctorProfileSerializer(doctors, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def patient_schedule(request, doctor_id, hospital_id):
+    """Get finalized slots for a doctor at a hospital for a specific date"""
+    doctor = resolve_profile(doctor_id, DoctorProfile)
+    hospital = resolve_profile(hospital_id, Hospital)
+    date_str = request.query_params.get('date')
+    
+    if not (doctor and hospital and date_str):
+        return Response({'error': 'Missing parameters'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        schedule = DoctorSchedule.objects.get(doctor=doctor, hospital=hospital, date=date_str)
+        
+        # Get booked slots
+        booked_slots = Appointment.objects.filter(
+            doctor=doctor, 
+            hospital=hospital, 
+            date=date_str
+        ).values_list('time_slot', flat=True)
+        
+        finalized_sessions = []
+        for s in schedule.session_data:
+            if s.get('isFinalized'):
+                # Mark as booked if slot is in appointments
+                if s.get('id') in booked_slots:
+                    s['isBooked'] = True
+                else:
+                    s['isBooked'] = False
+                finalized_sessions.append(s)
+                
+        return Response({'sessions': finalized_sessions})
+    except DoctorSchedule.DoesNotExist:
+        return Response({'sessions': []})
+
+@api_view(['POST', 'GET'])
+@permission_classes([IsAuthenticated])
+def patient_appointments(request):
+    if request.method == 'GET':
+        try:
+            profile = request.user.patient_profile
+            appointments = Appointment.objects.filter(patient=profile)
+            serializer = AppointmentSerializer(appointments, many=True)
+            return Response(serializer.data)
+        except Exception:
+            return Response([])
+        
+    elif request.method == 'POST':
+        print(f"DEBUG: Received booking data: {request.data}")
+        data = request.data.copy()
+        try:
+            data['patient'] = request.user.patient_profile.id
+        except Exception as e:
+            print(f"DEBUG: Patient profile error: {str(e)}")
+            return Response({'error': 'Patient profile missing'}, status=400)
+            
+        # Check if slot is already booked
+        raw_doctor_id = data.get('doctor')
+        raw_hospital_id = data.get('hospital')
+        
+        doctor = resolve_profile(raw_doctor_id, DoctorProfile)
+        hospital = resolve_profile(raw_hospital_id, Hospital)
+        
+        if not doctor or not hospital:
+            return Response({'error': 'Invalid doctor or hospital ID'}, status=400)
+
+        # Update data with resolved IDs (integers/PKs) so serializer validates correctly
+        data['doctor'] = doctor.pk
+        data['hospital'] = hospital.pk
+        
+        date = data.get('date')
+        time_slot = data.get('time_slot')
+        
+        print(f"DEBUG: Checking slot: Doctor={doctor.pk}, Hospital={hospital.pk}, Date={date}, Slot={time_slot}")
+        
+        if Appointment.objects.filter(doctor=doctor, hospital=hospital, date=date, time_slot=time_slot).exists():
+             return Response({'error': 'This time slot is already booked'}, status=status.HTTP_409_CONFLICT)
+
+        serializer = AppointmentSerializer(data=data)
+        if serializer.is_valid():
+            appointment = serializer.save()
+            
+            # Create notification for hospital
+            Notification.objects.create(
+                user=hospital.user,
+                message=f"New appointment request from {request.user.get_full_name()} for {date} at {time_slot}",
+                notification_type='appointment'
+            )
+            
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def manage_appointment(request, appointment_id):
+    """Hospital or Doctor manages appointment status"""
+    try:
+        appointment = Appointment.objects.get(id=appointment_id)
+        user = request.user
+        is_allowed = False
+        if user.user_type == 'hospital' and appointment.hospital_id == user.id:
+            is_allowed = True
+        elif user.user_type == 'doctor' and appointment.doctor.user_id == user.id:
+            is_allowed = True
+            
+        if not is_allowed:
+            return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+            
+        status_val = request.data.get('status')
+        if status_val in ['approved', 'rejected', 'completed', 'cancelled']:
+            appointment.status = status_val
+            if status_val == 'approved':
+                if appointment.consultation_type == 'online':
+                    appointment.meeting_link = f"https://meet.jit.si/MediSEWA-{appointment.id}"
+            
+            appointment.save()
+
+            # Notify patient
+            Notification.objects.create(
+                user=appointment.patient.user,
+                message=f"Your appointment with {appointment.doctor.user.get_full_name()} on {appointment.date} has been {appointment.status}",
+                notification_type='appointment'
+            )
+
+            return Response(AppointmentSerializer(appointment).data)
+        return Response({'error': 'Invalid status'}, status=status.HTTP_400_BAD_REQUEST)
+        
+    except Appointment.DoesNotExist:
+        return Response({'error': 'Appointment not found'}, status=status.HTTP_404_NOT_FOUND)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def hospital_appointments(request):
+    """List appointments for the current hospital"""
+    try:
+        hospital = request.user.hospital_profile
+        appointments = Appointment.objects.filter(hospital=hospital)
+        serializer = AppointmentSerializer(appointments, many=True)
+        return Response(serializer.data)
+    except Exception:
+        return Response({'error': 'Hospital profile not found'}, status=404)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def doctor_appointments(request):
+    """List appointments for the current doctor"""
+    try:
+        doctor = request.user.doctor_profile
+        appointments = Appointment.objects.filter(doctor=doctor)
+        serializer = AppointmentSerializer(appointments, many=True)
+        return Response(serializer.data)
+    except Exception:
+        return Response({'error': 'Doctor profile not found'}, status=404)
+
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -640,3 +849,225 @@ class VerifyOTPView(APIView):
             return Response({"message": "OTP Verified Successfully"}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def manage_departments(request):
+    """List or create departments for the authenticated hospital"""
+    if request.user.user_type != 'hospital':
+        return Response({'error': 'Only hospitals can manage departments'}, status=status.HTTP_403_FORBIDDEN)
+    
+    hospital = request.user.hospital_profile
+    
+    if request.method == 'GET':
+        depts = Department.objects.filter(hospital=hospital)
+        serializer = DepartmentSerializer(depts, many=True)
+        return Response(serializer.data)
+        
+    elif request.method == 'POST':
+        serializer = DepartmentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(hospital=hospital)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PATCH', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def department_detail(request, dept_id):
+    """Update or delete a department for the authenticated hospital"""
+    if request.user.user_type != 'hospital':
+        return Response({'error': 'Only hospitals can manage departments'}, status=status.HTTP_403_FORBIDDEN)
+    
+    try:
+        dept = Department.objects.get(id=dept_id, hospital=request.user.hospital_profile)
+        
+        if request.method == 'PATCH':
+            serializer = DepartmentSerializer(dept, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+        elif request.method == 'DELETE':
+            dept.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+            
+    except Department.DoesNotExist:
+        return Response({'error': 'Department not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def upload_medical_report(request):
+    try:
+        user = request.user
+        
+        if user.user_type != 'doctor':
+             return Response({'error': 'Only doctors are authorized to upload reports'}, status=status.HTTP_403_FORBIDDEN)
+
+        data = request.data.copy()
+        
+        try:
+             doctor_profile = user.doctor_profile
+             data['doctor'] = doctor_profile.pk
+        except:
+             return Response({'error': 'Doctor profile not found'}, status=400)
+        
+        appointment_id = data.get('appointment')
+        if not appointment_id:
+             return Response({'error': 'Appointment ID is required'}, status=400)
+
+        try:
+            appointment = Appointment.objects.get(pk=appointment_id)
+            
+            if appointment.doctor != doctor_profile:
+                 return Response({'error': 'You are not the doctor for this appointment'}, status=403)
+            
+            data['patient'] = appointment.patient.pk
+            data['hospital'] = appointment.hospital.pk
+            data['appointment'] = appointment.pk
+            
+            # Additional context from appointment
+            if not data.get('title'):
+                data['title'] = f"Consultation Report - {appointment.date}"
+                
+        except Appointment.DoesNotExist:
+             return Response({'error': 'Appointment not found'}, status=404)
+        
+        serializer = MedicalReportSerializer(data=data)
+        if serializer.is_valid():
+            report = serializer.save()
+            
+            # 1. Update Appointment Status to Completed
+            appointment.status = 'completed'
+            appointment.save()
+
+            # 2. Send notification to patient (In-app)
+            try:
+                Notification.objects.create(
+                    user=appointment.patient.user,
+                    message=f"New medical report received from Dr. {user.last_name}. A copy has been sent to your email.",
+                    notification_type='report'
+                )
+            except Exception as e:
+                print(f"Notification error: {e}")
+
+            # 3. Send automated email to patient with PDF attached
+            try:
+                patient_email = appointment.patient.user.email
+                if patient_email:
+                    subject = f"Your Medical Consultation Report - {appointment.date}"
+                    body = f"Hello {appointment.patient.user.first_name},\n\nPlease find attached your medical consultation report from Dr. {user.last_name} at {appointment.hospital.hospital_name}.\n\nYou can also access this report anytime by logging into your MediSEWA dashboard.\n\nBest regards,\nMediSEWA Team"
+                    
+                    email = EmailMessage(
+                        subject,
+                        body,
+                        settings.EMAIL_HOST_USER,
+                        [patient_email],
+                    )
+                    
+                    # Attach the PDF
+                    if report.report_file:
+                        email.attach(report.report_file.name, report.report_file.read(), 'application/pdf')
+                    
+                    email.send()
+                    print(f"Email sent to patient: {patient_email}")
+
+                # 4. Notify Hospital Admin via Email
+                hospital_email = appointment.hospital.user.email
+                if hospital_email:
+                    admin_subject = f"New Report Generated: {report.title}"
+                    admin_body = f"A new consultation report has been generated for patient {appointment.patient.user.get_full_name()} by Dr. {user.get_full_name()}.\n\nReport ID: {report.id}\nDate: {timezone.now()}"
+                    
+                    send_mail(
+                        admin_subject,
+                        admin_body,
+                        settings.EMAIL_HOST_USER,
+                        [hospital_email],
+                        fail_silently=True,
+                    )
+            except Exception as e:
+                print(f"Email sending error: {e}")
+                
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        print("Upload Error:", traceback.format_exc())
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_patient_reports(request, patient_id):
+    try:
+        user = request.user
+        
+        # 1. Identify the target patient
+        try:
+            target_patient = PatientProfile.objects.get(pk=patient_id)
+        except (PatientProfile.DoesNotExist, ValueError):
+            try:
+                target_patient = PatientProfile.objects.get(user_id=patient_id)
+            except (PatientProfile.DoesNotExist, ValueError):
+                try:
+                    target_patient = PatientProfile.objects.get(patient_unique_id=patient_id)
+                except PatientProfile.DoesNotExist:
+                    return Response({'error': 'Patient profile not found'}, status=404)
+
+        # 2. Authorization check
+        if user.user_type == 'patient':
+            try:
+                if user.patient_profile != target_patient:
+                    return Response({'error': 'Unauthorized to view these reports'}, status=403)
+            except Exception as e:
+                return Response({'error': 'Patient profile not found'}, status=403)
+        
+        # 3. Return reports
+        reports = MedicalReport.objects.filter(patient=target_patient).order_by('-created_at')
+        serializer = MedicalReportSerializer(reports, many=True)
+        return Response(serializer.data)
+
+    except Exception as e:
+        print("Fetch Reports Error:", traceback.format_exc())
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_patient_detail(request, patient_id):
+    """Get full profile details for a patient"""
+    try:
+        # Try PK first (assuming it might be an integer)
+        patient = PatientProfile.objects.get(pk=patient_id)
+    except (PatientProfile.DoesNotExist, ValueError):
+        try:
+            # Try User ID
+            patient = PatientProfile.objects.get(user_id=patient_id)
+        except (PatientProfile.DoesNotExist, ValueError):
+            try:
+                # Try Unique ID
+                patient = PatientProfile.objects.get(patient_unique_id=patient_id)
+            except PatientProfile.DoesNotExist:
+                return Response({'error': 'Patient profile not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = PatientProfileSerializer(patient)
+    # Combine serializer data with user data for components that expect both
+    data = serializer.data
+    data['user'] = UserSerializer(patient.user).data
+    
+    return Response(data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_hospital_reports(request):
+    """List all reports generated in for this hospital"""
+    try:
+        user = request.user
+        if user.user_type != 'hospital':
+            return Response({'error': 'Only hospitals can access this endpoint'}, status=403)
+        
+        hospital = user.hospital_profile
+        reports = MedicalReport.objects.filter(hospital=hospital).order_by('-created_at')
+        serializer = MedicalReportSerializer(reports, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        print("Hospital Reports Error:", traceback.format_exc())
+        return Response({'error': str(e)}, status=500)

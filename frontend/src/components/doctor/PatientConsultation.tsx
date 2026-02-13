@@ -1,30 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Appointment, Doctor, Medication, Patient } from '../../types';
+import { appointmentsAPI } from '../../services/api';
 import medicinesData from '../../data/medicines.json';
 import {
     Plus,
-    Trash2,
+    Search,
     Send,
-    Calendar,
+    Phone,
+    Trash2,
     FileText,
     Activity,
-    AlertCircle,
-    Video,
-    Mic,
-    MicOff,
-    VideoOff,
-    PhoneOff,
-    Search,
-    Phone,
-    Mail,
-    MapPin,
     Sparkles,
     StopCircle,
-    Stethoscope
+    Stethoscope,
+    Video,
+    Mic,
+    PhoneOff,
+    Mail,
+    MapPin
 } from 'lucide-react';
 
 interface PatientConsultationProps {
@@ -42,24 +39,81 @@ export const PatientConsultation: React.FC<PatientConsultationProps> = ({
     onComplete,
     hospitalName = "MediSEWA Hospital"
 }) => {
-    // Determine patient data source
-    const patientData = initialPatient || {
-        id: 1,
-        user: {
-            id: 1,
-            first_name: appointment?.patient_name?.split(' ')[0] || 'John',
-            last_name: appointment?.patient_name?.split(' ')[1] || 'Doe',
-            email: 'john.doe@example.com',
-            mobile: '+977 984-1234567',
-            created_at: new Date().toISOString()
-        },
-        father_name: 'Robert Doe',
-        illness_description: appointment?.instructions || 'General consultation',
-        age: 28,
-        gender: 'Male',
-        blood_group: 'O+',
-        address: 'Kathmandu, Nepal'
+    // Local patient state: start with initialPatient if provided, otherwise build best-effort from appointment.
+    const buildLocalFromAppointment = (appt?: Appointment) => {
+        const details = (appt as any)?.patient_details;
+        if (details) {
+            const profile = details.patient_profile || {};
+            return {
+                id: details.id,
+                user: {
+                    id: details.id,
+                    first_name: details.first_name,
+                    last_name: details.last_name,
+                    email: details.email,
+                    mobile: details.mobile,
+                    created_at: details.created_at
+                },
+                father_name: '', // Not in backend explicitly yet
+                illness_description: (appt as any)?.symptoms || (appt as any)?.patientCondition || 'General consultation',
+                age: profile.age,
+                gender: profile.gender,
+                blood_group: profile.blood_group,
+                address: profile.address || '',
+                city: profile.city || '',
+                // Other fields left empty; will be replaced if API returns full patient
+            } as any;
+        }
+
+        // minimal fallback
+        return {
+            id: (appt as any)?.patient_id || (appt as any)?.patient || (appt as any)?.id || 'N/A',
+            user: {
+                id: (appt as any)?.patient_id || (appt as any)?.patient || (appt as any)?.id || 'N/A',
+                first_name: appt?.patient_name?.split(' ')[0] || 'Patient',
+                last_name: appt?.patient_name?.split(' ')[1] || '',
+                email: 'Loading...',
+                mobile: 'Loading...',
+                created_at: new Date().toISOString()
+            },
+            father_name: '',
+            illness_description: (appt as any)?.symptoms || (appt as any)?.patientCondition || 'General consultation',
+            age: 'N/A',
+            gender: 'N/A',
+            blood_group: 'N/A',
+            address: 'Loading...'
+        } as any;
     };
+
+    const [patientData, setPatientData] = useState<any>(initialPatient || buildLocalFromAppointment(appointment));
+
+    // Try to fetch authoritative patient data from backend using common appointment fields.
+    useEffect(() => {
+        let cancelled = false;
+        const tryFetchPatient = async () => {
+            if (initialPatient) return; // already have complete data
+
+            const appt = appointment as any;
+            // common possible id fields on appointment
+            const candidateId = appt?.patient_details?.id ?? appt?.patient_id ?? appt?.patient ?? (appt as any)?.id ?? null;
+            if (!candidateId) return;
+
+            const idStr = String(candidateId);
+            try {
+                // Use the standardized API helper
+                const { patientsAPI } = await import('../../services/api');
+                const data = await patientsAPI.getPatientDetail(idStr);
+                console.log('Fetched patient data:', data);
+                if (!cancelled) setPatientData(data);
+            } catch (e) {
+                console.warn('Could not fetch full patient record, using appointment-derived data', e);
+                // keep current local patientData (built from appointment)
+            }
+        };
+
+        tryFetchPatient();
+        return () => { cancelled = true; };
+    }, [appointment, initialPatient]);
 
     const [medicines, setMedicines] = useState<Medication[]>([
         {
@@ -92,7 +146,6 @@ export const PatientConsultation: React.FC<PatientConsultationProps> = ({
 
     // Video call states
     const [showVideo, setShowVideo] = useState(false);
-    const [isVideoActive, setIsVideoActive] = useState(false);
     const [micOn, setMicOn] = useState(true);
     const [cameraOn, setCameraOn] = useState(true);
 
@@ -199,12 +252,28 @@ export const PatientConsultation: React.FC<PatientConsultationProps> = ({
 
         currentY += 7;
         doc.setFont("helvetica", 'bold');
-        doc.text("Medical History:", 15, currentY);
+        doc.text("Health Condition:", 15, currentY);
         doc.setFont("helvetica", 'normal');
-        const historyText = doc.splitTextToSize((patientData as any).medical_history || 'No significant history', 145);
-        doc.text(historyText, 50, currentY);
+        const conditionText = doc.splitTextToSize((patientData as any).health_condition || 'Normal', 145);
+        doc.text(conditionText, 50, currentY);
 
-        currentY += Math.max(7, historyText.length * 5);
+        currentY += Math.max(7, conditionText.length * 5);
+
+        doc.setFont("helvetica", 'bold');
+        doc.text("Allergies:", 15, currentY);
+        doc.setFont("helvetica", 'normal');
+        const allergiesText = doc.splitTextToSize((patientData as any).allergies || 'None recorded', 145);
+        doc.text(allergiesText, 50, currentY);
+
+        currentY += Math.max(7, allergiesText.length * 5);
+
+        doc.setFont("helvetica", 'bold');
+        doc.text("Medications:", 15, currentY);
+        doc.setFont("helvetica", 'normal');
+        const medicationsText = doc.splitTextToSize((patientData as any).medications || 'None', 145);
+        doc.text(medicationsText, 50, currentY);
+
+        currentY += Math.max(7, medicationsText.length * 5);
 
         // Vitals
         autoTable(doc, {
@@ -288,31 +357,61 @@ export const PatientConsultation: React.FC<PatientConsultationProps> = ({
             }
         }
 
-        doc.save(`Prescription_${(patientData as any).user.first_name}.pdf`);
+        return doc;
     };
 
     const handleFinalize = async () => {
         setLoading(true);
 
-        // Generate PDF
+        // Generate PDF and Upload
         try {
-            generatePDF();
+            const doc = generatePDF();
 
-            setTimeout(() => {
-                alert('✅ Prescription finalized and downloaded!\n\nA copy has been sent to medical records.');
-                setLoading(false);
-                onComplete();
-            }, 1000);
+            // 1. Download locally
+            const fileName = `Prescription_${(patientData as any).user.first_name}.pdf`;
+            doc.save(fileName);
+
+            // 2. Upload to server
+            console.log("Finalizing appointment:", appointment);
+            if (appointment && appointment.id) {
+                const pdfBlob = doc.output('blob');
+                const formData = new FormData();
+                formData.append('report_file', pdfBlob, fileName);
+                formData.append('title', `Prescription - ${new Date().toLocaleDateString()}`);
+                formData.append('description', `Consultation report for ${(patientData as any).user.first_name} ${(patientData as any).user.last_name}`);
+                formData.append('appointment', String(appointment.id)); // Ensure string
+
+                try {
+                    await appointmentsAPI.uploadMedicalReport(formData);
+                    alert('✅ Prescription finalized! Saved to records and sent to patient via email.');
+
+                    // The backend now handles completion, but we keeping this for explicit confirmation
+                    try {
+                        await appointmentsAPI.updateAppointmentStatus(Number(appointment.id), 'completed');
+                    } catch (sError) {
+                        console.log("Status update already handled or failed silently", sError);
+                    }
+
+                } catch (uploadError) {
+                    console.error("Upload failed", uploadError);
+                    alert('⚠️ Prescription downloaded, but failed to save to server. Please try again or contact support.');
+                }
+            } else {
+                console.warn("No appointment ID found, skipping upload");
+                alert('✅ Prescription downloaded! (Not saved to records - No Appointment ID)');
+            }
+
+            onComplete();
         } catch (error) {
-            console.error("PDF Generation failed", error);
+            console.error("PDF Generation/Upload failed", error);
+            alert("Failed to generate or upload PDF");
+        } finally {
             setLoading(false);
-            alert("Failed to generate PDF");
         }
     };
 
     const toggleVideoCall = () => {
         setShowVideo(!showVideo);
-        setIsVideoActive(!showVideo);
     };
 
     const handleToggleRecording = () => {
@@ -361,7 +460,7 @@ export const PatientConsultation: React.FC<PatientConsultationProps> = ({
                     <div className="relative group">
                         <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden ring-4 ring-blue-50 transition-all group-hover:ring-blue-100 shadow-xl">
                             <img
-                                src={`https://avatar.iran.liara.run/public/15`}
+                                src={(patientData as any).profile_image || `https://ui-avatars.com/api/?name=${(patientData as any).user?.first_name || 'Patient'}+${(patientData as any).user?.last_name || ''}&background=random&size=200`}
                                 alt="Patient"
                                 className="w-full h-full object-cover"
                             />
@@ -374,9 +473,9 @@ export const PatientConsultation: React.FC<PatientConsultationProps> = ({
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div>
                                 <h1 className="text-3xl font-bold text-gray-900">
-                                    {(patientData as any).user.first_name} {(patientData as any).user.last_name}
+                                    {(patientData as any).user?.first_name || 'Patient'} {(patientData as any).user?.last_name || ''}
                                 </h1>
-                                <p className="text-gray-500 font-medium">Patient ID: #PT{(patientData as any).id}</p>
+                                <p className="text-gray-500 font-medium">Patient ID: #{(patientData as any).patient_unique_id || (patientData as any).id || 'N/A'}</p>
                             </div>
                             <div className="flex space-x-3">
                                 <Button
@@ -402,15 +501,17 @@ export const PatientConsultation: React.FC<PatientConsultationProps> = ({
                         {/* Social-style Stats */}
                         <div className="flex flex-wrap gap-8 items-center border-y border-gray-50 py-6">
                             <div className="text-center md:text-left">
-                                <span className="text-xl font-bold text-gray-900">{(patientData as any).age}</span>
+                                <span className="text-xl font-bold text-gray-900">{(patientData as any).age || 'N/A'}</span>
                                 <span className="ml-2 text-gray-500 font-medium">Age</span>
                             </div>
                             <div className="text-center md:text-left">
-                                <span className="text-xl font-bold text-gray-900">{(patientData as any).gender === 'Male' ? 'M' : 'F'}</span>
+                                <span className="text-xl font-bold text-gray-900">
+                                    {String((patientData as any).gender).charAt(0) || 'N/A'}
+                                </span>
                                 <span className="ml-2 text-gray-500 font-medium">Gender</span>
                             </div>
                             <div className="text-center md:text-left">
-                                <span className="text-xl font-bold text-gray-900">{(patientData as any).blood_group}</span>
+                                <span className="text-xl font-bold text-gray-900">{(patientData as any).blood_group || 'N/A'}</span>
                                 <span className="ml-2 text-gray-500 font-medium">Blood</span>
                             </div>
                         </div>
@@ -420,15 +521,15 @@ export const PatientConsultation: React.FC<PatientConsultationProps> = ({
                             <div className="space-y-3">
                                 <div className="flex items-center text-sm text-gray-600">
                                     <Phone size={16} className="mr-3 text-blue-400" />
-                                    <span className="font-medium">{(patientData as any).user.mobile}</span>
+                                    <span className="font-medium">{(patientData as any).user?.mobile || (patientData as any).phone_number || 'N/A'}</span>
                                 </div>
                                 <div className="flex items-center text-sm text-gray-600">
                                     <Mail size={16} className="mr-3 text-blue-400" />
-                                    <span className="font-medium">{(patientData as any).user.email}</span>
+                                    <span className="font-medium">{(patientData as any).user?.email || 'N/A'}</span>
                                 </div>
                                 <div className="flex items-center text-sm text-gray-600">
                                     <MapPin size={16} className="mr-3 text-blue-400" />
-                                    <span className="font-medium">{(patientData as any).address}</span>
+                                    <span className="font-medium">{(patientData as any).address || 'N/A'}</span>
                                 </div>
                             </div>
                             <div className="space-y-4">
@@ -439,11 +540,17 @@ export const PatientConsultation: React.FC<PatientConsultationProps> = ({
                                     </p>
                                 </div>
                                 <div>
-                                    <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Medical History</h4>
+                                    <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Medical Details</h4>
                                     <div className="flex flex-wrap gap-2">
-                                        <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded">Allergies: None</span>
-                                        <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded">Asthma: Mild</span>
-                                        <span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded">Surgeries: None</span>
+                                        <span className={`text-[10px] font-bold px-2 py-1 rounded ${(patientData as any).allergies ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'}`}>
+                                            Allergies: {(patientData as any).allergies || 'None'}
+                                        </span>
+                                        <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-1 rounded">
+                                            Condition: {(patientData as any).health_condition || 'Normal'}
+                                        </span>
+                                        <span className="text-[10px] font-bold bg-purple-50 text-purple-600 px-2 py-1 rounded">
+                                            Meds: {(patientData as any).medications || 'None'}
+                                        </span>
                                     </div>
                                 </div>
                             </div>

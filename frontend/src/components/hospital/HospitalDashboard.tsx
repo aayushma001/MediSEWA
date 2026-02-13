@@ -18,15 +18,44 @@ import {
   User as UserIcon
 } from 'lucide-react';
 
+import { adminAPI } from '../../services/api';
+
 interface HospitalDashboardProps {
   user: User;
   onLogout: () => void;
+  onUserUpdate: (user: User) => void;
 }
 
-export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout }) => {
+export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLogout, onUserUpdate }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const handleUpdateProfile = async (updatedData: any) => {
+    try {
+      const response = await adminAPI.updateProfile(updatedData);
+      // The response is the updated hospital profile.
+      // We need to merge it back into the user object.
+      const updatedUser = {
+        ...user,
+        hospital_profile: response
+      };
+      onUserUpdate(updatedUser);
+    } catch (error) {
+      console.error('Error refreshing/updating hospital profile:', error);
+      throw error;
+    }
+  };
+
+  const handleRefreshProfile = async () => {
+    try {
+      const response = await adminAPI.getProfile();
+      // The response is the full user object from get_profile view
+      onUserUpdate(response);
+    } catch (error) {
+      console.error('Error refreshing profile:', error);
+    }
+  };
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/hospital' },
@@ -116,7 +145,7 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLo
             <div className="flex items-center space-x-4 ml-4 border-l pl-4 header-border-theme">
               <div className="text-right hidden md:block">
                 <div className="text-lg font-bold header-text-theme">{user.hospital_profile?.hospital_name || 'Hospital Admin'}</div>
-                <div className="text-sm settings-text-secondary font-mono">ID: {user.hospital_profile?.hospital_id || 'N/A'}</div>
+                <div className="text-sm settings-text-secondary font-mono">ID: {user.hospital_profile?.hospital_unique_id || user.hospital_profile?.hospital_id || 'N/A'}</div>
               </div>
               <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden border-2 border-blue-50">
                 {localStorage.getItem('hospital-profile-picture') ? (
@@ -141,11 +170,10 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({ user, onLo
           </div>
         </header>
 
-        {/* Dashboard Content */}
-        <main className="flex-1 p-8 overflow-y-auto page-bg-themed">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8">
           {/* Outlet is where child routes (DashboardHome, Appointments, etc.) are rendered */}
-          <Outlet />
-        </main>
+          <Outlet context={{ onUpdateProfile: handleUpdateProfile, refreshProfile: handleRefreshProfile }} />
+        </div>
       </div>
     </div>
   );

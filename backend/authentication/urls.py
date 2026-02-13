@@ -19,4 +19,23 @@ urlpatterns = [
     path('send-otp/', views.SendOTPView.as_view(), name='send-otp'),
     path('verify-otp/', views.VerifyOTPView.as_view(), name='verify-otp'),
     path('change-password/', views.ChangePasswordView.as_view(), name='change-password'),
+    
+    # Patient Booking Endpoints
+    path('patient/hospitals/', views.patient_hospitals, name='patient_hospitals'),
+    path('patient/hospitals/<str:hospital_id>/doctors/', views.patient_doctors, name='patient_doctors'),
+    path('patient/schedule/<str:doctor_id>/<str:hospital_id>/', views.patient_schedule, name='patient_schedule'),
+    path('patient/appointments/', views.patient_appointments, name='patient_appointments'),
+    path('hospital/appointments/', views.hospital_appointments, name='hospital_appointments'),
+    path('doctor/appointments/', views.doctor_appointments, name='doctor_appointments'),
+    path('appointments/<int:appointment_id>/manage/', views.manage_appointment, name='manage_appointment'),
+    
+    # Department Management
+    path('departments/', views.manage_departments, name='manage_departments'),
+    path('departments/<int:dept_id>/', views.department_detail, name='department_detail'),
+    
+    # Medical Reports
+    path('reports/upload/', views.upload_medical_report, name='upload_medical_report'),
+    path('hospital/reports/', views.get_hospital_reports, name='hospital_reports'),
+    path('patient/<str:patient_id>/reports/', views.get_patient_reports, name='get_patient_reports'),
+    path('patients/<str:patient_id>/', views.get_patient_detail, name='get_patient_detail'),
 ]

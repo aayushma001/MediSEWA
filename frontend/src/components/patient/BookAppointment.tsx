@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-
+import { appointmentsAPI } from "../../services/api";
+import { locationData } from '../../utils/locationData';
 /* ─── INLINE FONT + GLOBAL STYLES ──────────────────────────────── */
 const GlobalStyle = () => (
   <style>{`
@@ -36,6 +37,7 @@ const GlobalStyle = () => (
     }
     .tag { display:inline-flex; align-items:center; font-size:11px; font-weight:600; 
            padding:2px 8px; border-radius:20px; letter-spacing:.3px; }
+    .location-dropdown { max-height: 300px; overflow-y: auto; }
   `}</style>
 );
 
@@ -48,114 +50,16 @@ interface Symptom {
 }
 
 const SYMPTOMS: Symptom[] = [
-  { id: "brain", label: "Head / Brain", icon: "🧠", specialties: ["Neurologist", "Psychiatrist", "ENT Specialist"] },
-  { id: "heart", label: "Heart / Chest", icon: "❤️", specialties: ["Cardiologist", "Pulmonologist"] },
-  { id: "stomach", label: "Stomach / Gut", icon: "🫁", specialties: ["Gastroenterologist", "General Physician"] },
-  { id: "skin", label: "Skin / Hair", icon: "🩺", specialties: ["Dermatologist"] },
-  { id: "bones", label: "Bones / Joints", icon: "🦴", specialties: ["Orthopedist", "Rheumatologist"] },
-  { id: "eyes", label: "Eyes", icon: "👁️", specialties: ["Ophthalmologist"] },
-  { id: "child", label: "Child Health", icon: "🍼", specialties: ["Pediatrician"] },
-  { id: "mental", label: "Mental Health", icon: "🧘", specialties: ["Psychiatrist", "Psychologist"] },
-  { id: "women", label: "Women's Health", icon: "🌸", specialties: ["Gynecologist", "Obstetrician"] },
+  { id: "brain", label: "Head / Brain", icon: "🧠", specialties: ["Neurologist", "Neurology", "Psychiatrist", "Psychiatry", "ENT"] },
+  { id: "heart", label: "Heart / Chest", icon: "❤️", specialties: ["Cardiologist", "Cardiology", "Pulmonologist", "Pulmonology"] },
+  { id: "stomach", label: "Stomach / Gut", icon: "🫁", specialties: ["Gastroenterologist", "Gastroenterology", "General Physician", "General Medicine"] },
+  { id: "skin", label: "Skin / Hair", icon: "🩺", specialties: ["Dermatologist", "Dermatology"] },
+  { id: "bones", label: "Bones / Joints", icon: "🦴", specialties: ["Orthopedist", "Orthopedics", "Rheumatologist", "Rheumatology"] },
+  { id: "eyes", label: "Eyes", icon: "👁️", specialties: ["Ophthalmologist", "Ophthalmology"] },
+  { id: "child", label: "Child Health", icon: "🍼", specialties: ["Pediatrician", "Pediatrics"] },
+  { id: "mental", label: "Mental Health", icon: "🧘", specialties: ["Psychiatrist", "Psychiatry", "Psychologist", "Psychology"] },
+  { id: "women", label: "Women's Health", icon: "🌸", specialties: ["Gynecologist", "Gynecology", "Obstetrician", "Obstetrics"] },
   { id: "general", label: "General", icon: "🏥", specialties: [] },
-];
-
-interface Hospital {
-  id: string;
-  name: string;
-  area: string;
-  city: string;
-  distance: string;
-  rating: number;
-  reviews: number;
-  beds: number;
-  image: string;
-  color: string;
-  badge: string;
-  badgeColor: string;
-  facilities: string[];
-  openTime: string;
-  doctorCount: number;
-  tagline: string;
-}
-
-const HOSPITALS: Hospital[] = [
-  {
-    id: "h1", name: "Bir Hospital", area: "Mahaboudha", city: "Kathmandu", distance: "1.2 km",
-    rating: 4.7, reviews: 1240, beds: 350, image: "🏥",
-    color: "from-sky-600 to-blue-700",
-    badge: "Government", badgeColor: "bg-blue-100 text-blue-700",
-    facilities: ["ICU", "Emergency", "OPD", "Surgery", "Lab", "Pharmacy"],
-    openTime: "24/7", doctorCount: 48, tagline: "Premier government hospital in the heart of the city"
-  },
-  {
-    id: "h2", name: "NORVIC International", area: "Thapathali", city: "Kathmandu", distance: "2.4 km",
-    rating: 4.9, reviews: 2180, beds: 210, image: "🏨",
-    color: "from-emerald-600 to-teal-700",
-    badge: "International", badgeColor: "bg-emerald-100 text-emerald-700",
-    facilities: ["ICU", "Robotic Surgery", "Cardiology", "Neurology", "Oncology"],
-    openTime: "24/7", doctorCount: 72, tagline: "World-class care with modern technology"
-  },
-  {
-    id: "h3", name: "Grande International", area: "Tokha", city: "Kathmandu", distance: "5.1 km",
-    rating: 4.8, reviews: 1890, beds: 500, image: "🏛️",
-    color: "from-violet-600 to-purple-700",
-    badge: "Multi-specialty", badgeColor: "bg-violet-100 text-violet-700",
-    facilities: ["Transplant", "Cardiology", "Cancer Care", "Orthopedics", "NICU"],
-    openTime: "24/7", doctorCount: 120, tagline: "Nepal's largest multi-specialty hospital"
-  },
-  {
-    id: "h4", name: "Patan Hospital", area: "Lagankhel", city: "Lalitpur", distance: "3.8 km",
-    rating: 4.6, reviews: 980, beds: 290, image: "⚕️",
-    color: "from-rose-500 to-pink-700",
-    badge: "Teaching", badgeColor: "bg-rose-100 text-rose-700",
-    facilities: ["Emergency", "Maternity", "Pediatrics", "Internal Medicine", "Surgery"],
-    openTime: "24/7", doctorCount: 55, tagline: "Teaching hospital with compassionate care"
-  },
-  {
-    id: "h5", name: "Medicare National", area: "Kalanki", city: "Kathmandu", distance: "4.2 km",
-    rating: 4.5, reviews: 760, beds: 180, image: "🏪",
-    color: "from-amber-500 to-orange-600",
-    badge: "Private", badgeColor: "bg-amber-100 text-amber-700",
-    facilities: ["Cardiology", "Orthopedics", "ENT", "Dermatology", "Urology"],
-    openTime: "8AM–9PM", doctorCount: 36, tagline: "Affordable quality healthcare for all"
-  },
-];
-
-interface Doctor {
-  id: string;
-  hospitalId: string;
-  name: string;
-  spec: string;
-  exp: number;
-  rating: number;
-  reviews: number;
-  fee: number;
-  img: string;
-  edu: string;
-  next: string;
-  avail: string[];
-}
-
-const DOCTORS: Doctor[] = [
-  { id: "d1", hospitalId: "h1", name: "Dr. Rajan Shrestha", spec: "Neurologist", exp: 14, rating: 4.9, reviews: 312, fee: 800, img: "https://avatar.iran.liara.run/public/11", edu: "MD, DM Neurology – TUTH", next: "Today, 3:00 PM", avail: ["Mon", "Wed", "Thu", "Fri"] },
-  { id: "d2", hospitalId: "h1", name: "Dr. Sushma Rai", spec: "Cardiologist", exp: 18, rating: 4.8, reviews: 445, fee: 900, img: "https://avatar.iran.liara.run/public/25", edu: "MD, DM Cardiology – BPKIHS", next: "Tomorrow, 10AM", avail: ["Mon", "Tue", "Wed", "Thu", "Fri"] },
-  { id: "d3", hospitalId: "h1", name: "Dr. Bikash Thapa", spec: "General Physician", exp: 8, rating: 4.6, reviews: 198, fee: 500, img: "https://avatar.iran.liara.run/public/12", edu: "MBBS – IOM", next: "Today, 5:00 PM", avail: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] },
-  { id: "d4", hospitalId: "h1", name: "Dr. Anita Gurung", spec: "Dermatologist", exp: 11, rating: 4.7, reviews: 267, fee: 700, img: "https://avatar.iran.liara.run/public/27", edu: "MD Dermatology – BPKIHS", next: "Wed, 11:00 AM", avail: ["Tue", "Wed", "Fri", "Sat"] },
-  { id: "d5", hospitalId: "h2", name: "Dr. Pradeep Maharjan", spec: "Cardiologist", exp: 22, rating: 5.0, reviews: 621, fee: 1200, img: "https://avatar.iran.liara.run/public/13", edu: "MD, FACC – USA", next: "Tomorrow, 9:00 AM", avail: ["Mon", "Tue", "Thu", "Fri"] },
-  { id: "d6", hospitalId: "h2", name: "Dr. Sabina Karmacharya", spec: "Gynecologist", exp: 16, rating: 4.9, reviews: 534, fee: 1000, img: "https://avatar.iran.liara.run/public/28", edu: "MD, MRCOG – UK", next: "Today, 2:00 PM", avail: ["Mon", "Tue", "Wed", "Thu", "Fri"] },
-  { id: "d7", hospitalId: "h2", name: "Dr. Dipak Joshi", spec: "Orthopedist", exp: 12, rating: 4.8, reviews: 289, fee: 950, img: "https://avatar.iran.liara.run/public/14", edu: "MS Orthopedics – AIIMS", next: "Thu, 4:00 PM", avail: ["Mon", "Wed", "Thu", "Sat"] },
-  { id: "d8", hospitalId: "h3", name: "Dr. Meera Acharya", spec: "Oncologist", exp: 20, rating: 4.9, reviews: 412, fee: 1500, img: "https://avatar.iran.liara.run/public/29", edu: "DM Oncology – SGPGI", next: "Tomorrow, 11AM", avail: ["Mon", "Tue", "Wed", "Thu"] },
-  { id: "d9", hospitalId: "h3", name: "Dr. Nabin Poudel", spec: "Neurologist", exp: 9, rating: 4.7, reviews: 176, fee: 800, img: "https://avatar.iran.liara.run/public/15", edu: "DM Neurology – IOM", next: "Today, 6:00 PM", avail: ["Tue", "Thu", "Fri", "Sat"] },
-  { id: "d10", hospitalId: "h4", name: "Dr. Smriti Basnet", spec: "Pediatrician", exp: 13, rating: 4.9, reviews: 503, fee: 600, img: "https://avatar.iran.liara.run/public/30", edu: "MD Pediatrics – KIST", next: "Tomorrow, 8:00 AM", avail: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] },
-  { id: "d11", hospitalId: "h4", name: "Dr. Subash Ghimire", spec: "Psychiatrist", exp: 10, rating: 4.8, reviews: 231, fee: 900, img: "https://avatar.iran.liara.run/public/16", edu: "MD Psychiatry – TUTH", next: "Wed, 2:00 PM", avail: ["Mon", "Wed", "Thu", "Fri"] },
-  { id: "d12", hospitalId: "h5", name: "Dr. Kabita Tamang", spec: "Dermatologist", exp: 7, rating: 4.6, reviews: 145, fee: 650, img: "https://avatar.iran.liara.run/public/31", edu: "MD Dermatology – BPKIHS", next: "Today, 4:30 PM", avail: ["Mon", "Tue", "Thu", "Fri", "Sat"] },
-];
-
-const LOCATIONS = [
-  "Thamel, Kathmandu", "Mahaboudha, Kathmandu", "Baluwatar, Kathmandu",
-  "Lalitpur (Patan)", "Bhaktapur", "Tokha, Kathmandu", "Kalanki, Kathmandu",
-  "New Baneshwor, Kathmandu", "Lagankhel, Lalitpur", "Gwarko, Lalitpur",
 ];
 
 const QR_CODE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="180" height="180">
@@ -244,6 +148,58 @@ const StepBar = ({ step }: StepBarProps) => {
   );
 };
 
+/* ─── LOCATION SEARCH HELPER ─────────────────────────────────────── */
+const searchLocations = (query: string) => {
+  if (!query || query.length < 2) return [];
+
+  const results: Array<{ display: string, province: string, district: string, city: string }> = [];
+  const lowerQuery = query.toLowerCase();
+
+  Object.entries(locationData).forEach(([province, districts]) => {
+    // Search in province name
+    if (province.toLowerCase().includes(lowerQuery)) {
+      Object.entries(districts).forEach(([district, cities]) => {
+        cities.forEach(city => {
+          results.push({
+            display: `${city}, ${district}, ${province}`,
+            province,
+            district,
+            city
+          });
+        });
+      });
+    } else {
+      // Search in districts and cities
+      Object.entries(districts).forEach(([district, cities]) => {
+        if (district.toLowerCase().includes(lowerQuery)) {
+          cities.forEach(city => {
+            results.push({
+              display: `${city}, ${district}, ${province}`,
+              province,
+              district,
+              city
+            });
+          });
+        } else {
+          // Search in cities
+          cities.forEach(city => {
+            if (city.toLowerCase().includes(lowerQuery)) {
+              results.push({
+                display: `${city}, ${district}, ${province}`,
+                province,
+                district,
+                city
+              });
+            }
+          });
+        }
+      });
+    }
+  });
+
+  return results.slice(0, 10); // Limit to 10 results
+};
+
 /* ─── MAIN COMPONENT ────────────────────────────────────────────── */
 interface ShellProps {
   children: React.ReactNode;
@@ -257,40 +213,140 @@ interface BookAppointmentProps {
 export default function BookAppointment({ patientId = "PAT-001" }: BookAppointmentProps) {
   const [step, setStep] = useState("location");
   const [locationQuery, setLocationQuery] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState<any>(null);
   const [selectedSymptom, setSelectedSymptom] = useState<Symptom | null>(null);
-  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
-  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+
+  const [hospitals, setHospitals] = useState<any[]>([]);
+  const [doctors, setDoctors] = useState<any[]>([]);
+  const [scheduleSlots, setScheduleSlots] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const [selectedHospital, setSelectedHospital] = useState<any | null>(null);
+  const [selectedDoctor, setSelectedDoctor] = useState<any | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
+  const [selectedSlotId, setSelectedSlotId] = useState("");
   const [consultType, setConsultType] = useState<string>("online");
   const [paymentImg, setPaymentImg] = useState<File | null>(null);
   const [paymentImgURL, setPaymentImgURL] = useState("");
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [locationSuggestions, setLocationSuggestions] = useState<string[]>([]);
+  const [locationSuggestions, setLocationSuggestions] = useState<any[]>([]);
   const [bookingRef] = useState(`BK-${Math.random().toString(36).substr(2, 8).toUpperCase()}`);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  /* location autocomplete */
+  /* Fetch Hospitals based on location */
   useEffect(() => {
-    if (locationQuery.length < 2) { setLocationSuggestions([]); return; }
-    setLocationSuggestions(LOCATIONS.filter(l =>
-      l.toLowerCase().includes(locationQuery.toLowerCase())).slice(0, 5));
+    const fetchHospitals = async () => {
+      if (!selectedLocation) return;
+
+      try {
+        setLoading(true);
+        const data = await appointmentsAPI.getHospitals();
+        setHospitals(data);
+      } catch (err) {
+        console.error("Failed to fetch hospitals:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (step === "hospitals") {
+      fetchHospitals();
+    }
+  }, [step, selectedLocation]);
+
+  /* Fetch Doctors when Hospital is selected */
+  useEffect(() => {
+    if (selectedHospital) {
+      const fetchDoctors = async () => {
+        try {
+          setLoading(true);
+          const hospitalId = selectedHospital.hospital_unique_id || selectedHospital.id;
+          const data = await appointmentsAPI.getHospitalDoctors(hospitalId);
+          setDoctors(data);
+        } catch (err) {
+          console.error("Failed to fetch doctors:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchDoctors();
+    }
+  }, [selectedHospital]);
+
+  /* Fetch Schedule when Doctor and Date are selected */
+  useEffect(() => {
+    if (selectedDoctor && selectedHospital && selectedDate) {
+      const fetchSchedule = async () => {
+        try {
+          const doctorId = selectedDoctor.doctor_unique_id || selectedDoctor.id;
+          const hospitalId = selectedHospital.hospital_unique_id || selectedHospital.id;
+          const data = await appointmentsAPI.getDoctorSchedule(doctorId, hospitalId, selectedDate);
+
+          // Flatten slots from sessions
+          const allSlots = (data.sessions || []).flatMap((session: any) =>
+            (session.slots || []).map((slot: any) => ({
+              ...slot,
+              sessionName: session.name
+            }))
+          );
+          setScheduleSlots(allSlots);
+        } catch (err) {
+          console.error("Failed to fetch schedule:", err);
+          setScheduleSlots([]);
+        }
+      };
+      fetchSchedule();
+    }
+  }, [selectedDoctor, selectedHospital, selectedDate]);
+
+  /* Location autocomplete */
+  useEffect(() => {
+    const results = searchLocations(locationQuery);
+    setLocationSuggestions(results);
   }, [locationQuery]);
 
-  /* filtered data */
-  const filteredHospitals = HOSPITALS; // all hospitals shown (location is for display)
+  /* Filtered hospitals based on location */
+  const filteredHospitals = hospitals.filter(h => {
+    if (!selectedLocation) return true;
 
-  const filteredDoctors = DOCTORS.filter(d => {
-    const inHospital = d.hospitalId === selectedHospital?.id;
-    if (!selectedSymptom || selectedSymptom.id === "general") return inHospital;
-    return inHospital && selectedSymptom.specialties.includes(d.spec);
+    const matchProvince = selectedLocation.province &&
+      h.province?.toLowerCase() === selectedLocation.province.toLowerCase();
+    const matchDistrict = selectedLocation.district &&
+      h.district?.toLowerCase() === selectedLocation.district.toLowerCase();
+    const matchCity = selectedLocation.city &&
+      h.city?.toLowerCase() === selectedLocation.city.toLowerCase();
+
+    return matchProvince || matchDistrict || matchCity;
   });
 
-  /* dates & slots */
+  /* Filtered doctors based on specialty */
+  const filteredDoctors = doctors.filter(d => {
+    if (!selectedSymptom || selectedSymptom.id === "general") return true;
+
+    const doctorSpec = (d.specialization || "").toLowerCase();
+
+    // Check if doctor's department/specialty matches any of the symptom's specialties
+    const hasMatchingDepartment = (d.departments || []).some((dept: any) => {
+      const deptName = (dept.name || "").toLowerCase();
+      return selectedSymptom.specialties.some(s =>
+        deptName.includes(s.toLowerCase()) || s.toLowerCase().includes(deptName)
+      );
+    });
+
+    // Also check direct specialization field
+    const hasMatchingSpec = selectedSymptom.specialties.some(s =>
+      doctorSpec.includes(s.toLowerCase()) || s.toLowerCase().includes(doctorSpec)
+    );
+
+    return hasMatchingDepartment || hasMatchingSpec;
+  });
+
+  /* Dates & slots */
   const dates = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(); d.setDate(d.getDate() + i);
+    const d = new Date();
+    d.setDate(d.getDate() + i);
     return {
       full: d.toISOString().split("T")[0],
       day: d.toLocaleDateString("en-US", { weekday: "short" }),
@@ -299,20 +355,14 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
     };
   });
 
-  const timeSlots = [];
-  for (let h = 9; h <= 18; h++) {
-    for (let m = 0; m < 60; m += 30) {
-      const period = h >= 12 ? "PM" : "AM";
-      const dh = h > 12 ? h - 12 : h;
-      timeSlots.push({
-        value: `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`,
-        display: `${dh}:${String(m).padStart(2, "0")} ${period}`,
-        avail: Math.random() > 0.35,
-      });
-    }
-  }
+  const timeSlots = scheduleSlots.map(slot => ({
+    value: slot.time,
+    display: slot.time,
+    avail: !slot.isBooked,
+    id: slot.id
+  }));
 
-  /* file upload */
+  /* File upload */
   const handleFile = useCallback((file: File) => {
     if (!file || !file.type.startsWith("image/")) return;
     setPaymentImg(file);
@@ -322,22 +372,64 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
   }, []);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault(); setDragOver(false);
+    e.preventDefault();
+    setDragOver(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFile(e.dataTransfer.files[0]);
     }
   }, [handleFile]);
 
-  const handleSubmitPayment = () => {
-    setUploading(true);
-    setTimeout(() => { setUploading(false); setStep("pending"); }, 1800);
+  const handleSubmitPayment = async () => {
+    if (!paymentImg) {
+      alert("Please upload payment screenshot");
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+
+      const doctorId = selectedDoctor.id || selectedDoctor.doctor_unique_id || selectedDoctor.user?.id;
+      const hospitalId = selectedHospital.id || selectedHospital.hospital_unique_id || selectedHospital.user?.id;
+
+      if (!doctorId || !hospitalId) {
+        alert("Error: Missing doctor or hospital ID. Please refresh and try again.");
+        setUploading(false);
+        return;
+      }
+
+      formData.append('doctor', doctorId);
+      formData.append('hospital', hospitalId);
+      formData.append('date', selectedDate);
+      formData.append('time_slot', selectedSlotId || selectedTime);
+      formData.append('consultation_type', consultType);
+      formData.append('symptoms', selectedSymptom?.label || "General Consultation");
+      formData.append('payment_screenshot', paymentImg);
+      formData.append('booking_reference', bookingRef);
+
+      await appointmentsAPI.bookAppointment(formData);
+      setStep("pending");
+    } catch (err) {
+      console.error("Failed to book appointment:", err);
+      alert("Failed to book appointment. Please try again.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const reset = () => {
-    setStep("location"); setLocationQuery(""); setSelectedLocation("");
-    setSelectedSymptom(null); setSelectedHospital(null); setSelectedDoctor(null);
-    setSelectedDate(""); setSelectedTime(""); setConsultType("online");
-    setPaymentImg(null); setPaymentImgURL("");
+    setStep("location");
+    setLocationQuery("");
+    setSelectedLocation(null);
+    setSelectedSymptom(null);
+    setSelectedHospital(null);
+    setSelectedDoctor(null);
+    setSelectedDate("");
+    setSelectedTime("");
+    setSelectedSlotId("");
+    setConsultType("online");
+    setPaymentImg(null);
+    setPaymentImgURL("");
   };
 
   /* ── SHARED SHELL ─────────────────────────────────────────────── */
@@ -352,7 +444,7 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
           </div>
           <div>
             <h1 className="heading-font text-xl font-bold text-slate-800 leading-tight">Book Appointment</h1>
-            <p className="text-slate-500 text-xs">{patientId} · Kathmandu</p>
+            <p className="text-slate-500 text-xs">{patientId} · Nepal</p>
           </div>
         </div>
         {step !== "pending" && <StepBar step={step} />}
@@ -370,35 +462,46 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
         {/* location search */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
           <h2 className="heading-font text-lg font-bold text-slate-800 mb-1">Your Location</h2>
-          <p className="text-slate-500 text-sm mb-4">We'll show hospitals near you</p>
+          <p className="text-slate-500 text-sm mb-4">Search by province, district, or city</p>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg">📍</span>
             <input
               type="text"
-              placeholder="Search area, street, or landmark…"
+              placeholder="Search: Kathmandu, Budhanilkantha, Bagmati Province..."
               value={locationQuery}
               onChange={e => setLocationQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-slate-200 focus:border-sky-400 focus:outline-none text-sm font-medium text-slate-700 bg-slate-50 focus:bg-white transition"
             />
             {locationSuggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-xl z-10 mt-1 overflow-hidden">
-                {locationSuggestions.map(s => (
-                  <button key={s} onClick={() => { setSelectedLocation(s); setLocationQuery(s); setLocationSuggestions([]); }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-sky-50 font-medium transition border-b border-slate-100 last:border-0">
-                    📍 {s}
+              <div className="absolute top-full left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-xl z-10 mt-1 overflow-hidden location-dropdown">
+                {locationSuggestions.map((loc, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setSelectedLocation(loc);
+                      setLocationQuery(loc.display);
+                      setLocationSuggestions([]);
+                    }}
+                    className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-sky-50 font-medium transition border-b border-slate-100 last:border-0">
+                    <div className="flex items-start gap-2">
+                      <span className="text-base">📍</span>
+                      <div>
+                        <div className="font-semibold text-slate-800">{loc.city}</div>
+                        <div className="text-xs text-slate-500">{loc.district}, {loc.province}</div>
+                      </div>
+                    </div>
                   </button>
                 ))}
               </div>
             )}
           </div>
-          <div className="flex flex-wrap gap-2 mt-3">
-            {["Thamel", "New Baneshwor", "Lalitpur", "Bhaktapur"].map(q => (
-              <button key={q} onClick={() => { setSelectedLocation(q); setLocationQuery(q); }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition ${selectedLocation === q ? "bg-sky-100 border-sky-400 text-sky-700" : "bg-slate-50 border-slate-200 text-slate-600 hover:border-sky-300"}`}>
-                {q}
-              </button>
-            ))}
-          </div>
+
+          {selectedLocation && (
+            <div className="mt-3 p-3 bg-sky-50 rounded-lg border border-sky-200">
+              <p className="text-sm font-semibold text-sky-900">Selected: {selectedLocation.city}</p>
+              <p className="text-xs text-sky-700">{selectedLocation.district}, {selectedLocation.province}</p>
+            </div>
+          )}
         </div>
 
         {/* symptom selector */}
@@ -423,8 +526,8 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
         </div>
 
         <button
-          disabled={!selectedLocation && !locationQuery}
-          onClick={() => { if (!selectedLocation) setSelectedLocation(locationQuery); setStep("hospitals"); }}
+          disabled={!selectedLocation}
+          onClick={() => setStep("hospitals")}
           className="w-full py-4 bg-gradient-to-r from-sky-500 to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-sky-200 hover:from-sky-600 hover:to-teal-600 transition disabled:opacity-40 disabled:cursor-not-allowed text-sm tracking-wide">
           Find Hospitals Near Me →
         </button>
@@ -445,57 +548,68 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="heading-font text-xl font-bold text-slate-800">Hospitals Near You</h2>
-            <p className="text-slate-500 text-sm">📍 {selectedLocation}
+            <p className="text-slate-500 text-sm">📍 {selectedLocation?.city}, {selectedLocation?.district}
               {selectedSymptom && <span className="ml-2 text-sky-600 font-medium">· {selectedSymptom.icon} {selectedSymptom.label}</span>}
             </p>
           </div>
           <span className="text-slate-400 text-xs font-medium">{filteredHospitals.length} found</span>
         </div>
         <div className="space-y-4">
-          {filteredHospitals.map(h => {
-            const docCount = DOCTORS.filter(d => {
-              if (!selectedSymptom || selectedSymptom.id === "general") return d.hospitalId === h.id;
-              return d.hospitalId === h.id && selectedSymptom.specialties.includes(d.spec);
-            }).length;
+          {loading ? (
+            <div className="flex justify-center p-12">
+              <div className="w-8 h-8 border-4 border-sky-600 border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : filteredHospitals.length === 0 ? (
+            <div className="bg-white rounded-2xl p-12 text-center border border-slate-100">
+              <div className="text-5xl mb-3">🏥</div>
+              <p className="text-slate-600 font-semibold mb-1">No hospitals found</p>
+              <p className="text-slate-400 text-sm">Try a different location</p>
+              <button onClick={() => setStep("location")}
+                className="mt-4 px-5 py-2 bg-sky-100 text-sky-700 font-semibold rounded-lg text-sm hover:bg-sky-200 transition">
+                Change Location
+              </button>
+            </div>
+          ) : filteredHospitals.map(h => {
             return (
               <div key={h.id}
                 onClick={() => { setSelectedHospital(h); setStep("doctors"); }}
                 className="card-hover bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                <div className={`h-2 bg-gradient-to-r ${h.color}`} />
+                <div className={`h-2 bg-gradient-to-r from-sky-600 to-blue-700`} />
                 <div className="p-5">
                   <div className="flex gap-4 items-start">
-                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${h.color} flex items-center justify-center text-2xl shadow-md flex-shrink-0`}>
-                      {h.image}
+                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br from-sky-600 to-blue-700 flex items-center justify-center text-2xl shadow-md flex-shrink-0`}>
+                      {h.logo ? <img src={h.logo} alt="" className="w-full h-full object-cover rounded-xl" /> : "🏥"}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="font-bold text-slate-800 text-base leading-tight">{h.name}</h3>
-                          <p className="text-slate-500 text-xs mt-0.5">{h.area}, {h.city}</p>
+                          <h3 className="font-bold text-slate-800 text-base leading-tight">{h.hospital_name}</h3>
+                          <p className="text-slate-500 text-xs mt-0.5">{h.city}, {h.district}</p>
                         </div>
-                        <Badge className={h.badgeColor}>{h.badge}</Badge>
+                        <Badge className="bg-blue-100 text-blue-700">{h.hospital_type || 'Hospital'}</Badge>
                       </div>
-                      <p className="text-slate-500 text-xs mt-1 italic">{h.tagline}</p>
-                      <div className="flex items-center flex-wrap gap-3 mt-2">
-                        <StarRating rating={h.rating} />
-                        <span className="text-slate-400 text-xs">({h.reviews})</span>
-                        <span className="text-sky-600 text-xs font-semibold">📏 {h.distance}</span>
-                        <span className="text-emerald-600 text-xs font-semibold">🕐 {h.openTime}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <div className="flex flex-wrap gap-1.5">
-                      {h.facilities.slice(0, 4).map(f => (
-                        <Badge key={f} className="bg-slate-100 text-slate-600">{f}</Badge>
-                      ))}
-                      {h.facilities.length > 4 && (
-                        <Badge className="bg-slate-100 text-slate-500">+{h.facilities.length - 4} more</Badge>
+                      {h.description && (
+                        <p className="text-slate-500 text-xs mt-1 italic line-clamp-2">{h.description}</p>
                       )}
-                    </div>
-                    <div className="text-right flex-shrink-0 ml-2">
-                      <p className="text-sky-700 font-bold text-sm">{docCount} doctor{docCount !== 1 ? "s" : ""}</p>
-                      <p className="text-slate-400 text-xs">available</p>
+                      <div className="flex items-center flex-wrap gap-3 mt-2">
+                        <StarRating rating={4.5} />
+                        <span className="text-slate-400 text-xs">(0 reviews)</span>
+                        {h.opening_hours && (
+                          <span className="text-emerald-600 text-xs font-semibold">🕐 {h.opening_hours}</span>
+                        )}
+                      </div>
+                      {h.departments && h.departments.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {h.departments.slice(0, 3).map((dept: any) => (
+                            <span key={dept.id} className="text-xs bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full">
+                              {dept.name}
+                            </span>
+                          ))}
+                          {h.departments.length > 3 && (
+                            <span className="text-xs text-slate-400">+{h.departments.length - 3} more</span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -518,12 +632,17 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
           ← Back to Hospitals
         </button>
         {/* hospital mini-card */}
-        <div className={`rounded-xl bg-gradient-to-r ${selectedHospital?.color} p-4 mb-5 text-white shadow-lg`}>
+        <div className={`rounded-xl bg-gradient-to-r from-sky-600 to-blue-700 p-4 mb-5 text-white shadow-lg`}>
           <div className="flex items-center gap-3">
-            <div className="text-3xl">{selectedHospital?.image}</div>
+            <div className="text-3xl">
+              {selectedHospital?.logo ?
+                <img src={selectedHospital.logo} alt="" className="w-12 h-12 object-cover rounded-xl" />
+                : "🏥"
+              }
+            </div>
             <div>
-              <h3 className="font-bold text-base">{selectedHospital?.name}</h3>
-              <p className="text-white/80 text-xs">{selectedHospital?.area} · {selectedHospital?.openTime}</p>
+              <h3 className="font-bold text-base">{selectedHospital?.hospital_name}</h3>
+              <p className="text-white/80 text-xs">{selectedHospital?.city}, {selectedHospital?.district}</p>
             </div>
           </div>
         </div>
@@ -535,49 +654,77 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
           <span className="text-slate-400 text-xs">{filteredDoctors.length} available</span>
         </div>
 
-        {filteredDoctors.length === 0 ? (
+        {loading ? (
+          <div className="flex justify-center p-12">
+            <div className="w-8 h-8 border-4 border-sky-600 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : filteredDoctors.length === 0 ? (
           <div className="bg-white rounded-2xl p-12 text-center border border-slate-100">
             <div className="text-5xl mb-3">🔍</div>
             <p className="text-slate-600 font-semibold mb-1">No specialists found</p>
-            <p className="text-slate-400 text-sm">Try a different symptom category</p>
-            <button onClick={() => { setSelectedSymptom(null); setStep("location"); }}
-              className="mt-4 px-5 py-2 bg-sky-100 text-sky-700 font-semibold rounded-lg text-sm hover:bg-sky-200 transition">
-              Change Symptom
-            </button>
+            <p className="text-slate-400 text-sm">Try a different symptom category or view all doctors</p>
+            <div className="flex gap-3 justify-center mt-4">
+              <button onClick={() => setSelectedSymptom(null)}
+                className="px-5 py-2 bg-sky-100 text-sky-700 font-semibold rounded-lg text-sm hover:bg-sky-200 transition">
+                View All Doctors
+              </button>
+              <button onClick={() => setStep("location")}
+                className="px-5 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg text-sm hover:bg-slate-200 transition">
+                Change Symptom
+              </button>
+            </div>
           </div>
         ) : (
           <div className="space-y-3">
-            {filteredDoctors.map(doc => (
-              <div key={doc.id}
-                onClick={() => { setSelectedDoctor(doc); setStep("slots"); }}
-                className="card-hover bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
-                <div className="flex gap-4">
-                  <img src={doc.img} alt={doc.name} className="w-16 h-16 rounded-xl object-cover border-4 border-sky-100 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h4 className="font-bold text-slate-800 text-sm leading-tight">{doc.name}</h4>
-                        <p className="text-sky-600 font-semibold text-xs mt-0.5">{doc.spec}</p>
-                        <p className="text-slate-400 text-xs mt-0.5">{doc.edu}</p>
+            {filteredDoctors.map(doc => {
+              const fullName = `Dr. ${doc.user.first_name} ${doc.user.last_name}`;
+              const fee = doc.consultation_fee || selectedHospital?.consultation_fee || 500;
+
+              return (
+                <div key={doc.id}
+                  onClick={() => { setSelectedDoctor(doc); setStep("slots"); }}
+                  className="card-hover bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+                  <div className="flex gap-4">
+                    <img
+                      src={doc.profile_picture || "https://avatar.iran.liara.run/public/11"}
+                      alt={fullName}
+                      className="w-16 h-16 rounded-xl object-cover border-4 border-sky-100 flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h4 className="font-bold text-slate-800 text-sm leading-tight">{fullName}</h4>
+                          <p className="text-sky-600 font-semibold text-xs mt-0.5">{doc.specialization}</p>
+                          <p className="text-slate-400 text-xs mt-0.5">{doc.qualification}</p>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="font-bold text-sky-600 text-sm">Rs. {fee}</p>
+                          <p className="text-slate-400 text-xs">per visit</p>
+                        </div>
                       </div>
-                      <div className="text-right flex-shrink-0">
-                        <p className="font-bold text-sky-600 text-sm">Rs.{doc.fee}</p>
-                        <p className="text-slate-400 text-xs">per visit</p>
+                      <div className="flex items-center flex-wrap gap-3 mt-2">
+                        <StarRating rating={4.8} />
+                        <span className="text-slate-400 text-xs">(0 reviews)</span>
+                        <span className="text-slate-500 text-xs">🏅 {doc.experience_years} yrs</span>
                       </div>
-                    </div>
-                    <div className="flex items-center flex-wrap gap-3 mt-2">
-                      <StarRating rating={doc.rating} />
-                      <span className="text-slate-400 text-xs">({doc.reviews} reviews)</span>
-                      <span className="text-slate-500 text-xs">🏅 {doc.exp} yrs</span>
-                    </div>
-                    <div className="mt-2 flex items-center justify-between">
-                      <span className="text-emerald-600 text-xs font-semibold">🟢 Next: {doc.next}</span>
-                      <span className="text-sky-600 text-xs font-semibold">Book →</span>
+                      {doc.departments && doc.departments.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {doc.departments.map((dept: any) => (
+                            <span key={dept.id} className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">
+                              {dept.name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <div className="mt-2 flex items-center justify-between">
+                        <span className="text-emerald-600 text-xs font-semibold">🟢 Available</span>
+                        <span className="text-sky-600 text-xs font-semibold">Book →</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -596,13 +743,17 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
         </button>
         {/* doctor header */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-5 flex items-center gap-4">
-          <img src={selectedDoctor?.img} alt={selectedDoctor?.name} className="w-14 h-14 rounded-xl border-4 border-sky-100" />
+          <img
+            src={selectedDoctor?.profile_picture || "https://avatar.iran.liara.run/public/11"}
+            alt={`Dr. ${selectedDoctor?.user?.first_name}`}
+            className="w-14 h-14 rounded-xl border-4 border-sky-100"
+          />
           <div className="flex-1">
-            <h3 className="font-bold text-slate-800">{selectedDoctor?.name}</h3>
-            <p className="text-sky-600 text-xs font-semibold">{selectedDoctor?.spec} · {selectedHospital?.name}</p>
+            <h3 className="font-bold text-slate-800">Dr. {selectedDoctor?.user?.first_name} {selectedDoctor?.user?.last_name}</h3>
+            <p className="text-sky-600 text-xs font-semibold">{selectedDoctor?.specialization} · {selectedHospital?.hospital_name}</p>
           </div>
           <div className="text-right">
-            <p className="font-bold text-sky-600 text-lg">Rs.{selectedDoctor?.fee}</p>
+            <p className="font-bold text-sky-600 text-lg">Rs. {selectedDoctor?.consultation_fee || 500}</p>
             <p className="text-slate-400 text-xs">fee</p>
           </div>
         </div>
@@ -611,7 +762,10 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
         <div className="mb-5">
           <p className="text-sm font-bold text-slate-700 mb-2">Consultation Type</p>
           <div className="grid grid-cols-2 gap-3">
-            {[["online", "🎥", "Video Call", "Remote consultation"], ["offline", "🏥", "In-Person", "Visit the hospital"]].map(([val, icon, title, sub]) => (
+            {[
+              ["online", "🎥", "Video Call", "Remote consultation"],
+              ["offline", "🏥", "In-Person", "Visit the hospital"]
+            ].map(([val, icon, title, sub]) => (
               <button key={val} onClick={() => setConsultType(val)}
                 className={`p-3.5 rounded-xl border-2 text-center transition ${consultType === val ? "border-sky-400 bg-sky-50" : "border-slate-200 hover:border-sky-200 bg-white"}`}>
                 <div className="text-2xl mb-1">{icon}</div>
@@ -641,16 +795,32 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
         {selectedDate && (
           <div className="mb-5">
             <p className="text-sm font-bold text-slate-700 mb-2">Select Time</p>
-            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-56 overflow-y-auto pr-1">
-              {timeSlots.map(s => (
-                <button key={s.value} onClick={() => s.avail && setSelectedTime(s.display)} disabled={!s.avail}
-                  className={`slot-btn py-2.5 rounded-lg text-xs font-semibold border-2 transition ${selectedTime === s.display ? "border-sky-500 bg-sky-50 text-sky-700 shadow-md shadow-sky-100" :
-                    s.avail ? "border-slate-200 hover:border-sky-300 text-slate-700 bg-white" :
-                      "border-slate-100 bg-slate-50 text-slate-300 cursor-not-allowed"}`}>
-                  {s.display}
-                </button>
-              ))}
-            </div>
+            {timeSlots.length === 0 ? (
+              <div className="bg-amber-50 rounded-xl p-4 text-center border border-amber-200">
+                <p className="text-amber-700 text-sm font-semibold">No available slots for this date</p>
+                <p className="text-amber-600 text-xs mt-1">Please select another date</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 max-h-56 overflow-y-auto pr-1">
+                {timeSlots.map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => {
+                      if (s.avail) {
+                        setSelectedTime(s.display);
+                        setSelectedSlotId(s.id);
+                      }
+                    }}
+                    disabled={!s.avail}
+                    className={`slot-btn py-2.5 rounded-lg text-xs font-semibold border-2 transition ${selectedTime === s.display ? "border-sky-500 bg-sky-50 text-sky-700 shadow-md shadow-sky-100" :
+                      s.avail ? "border-slate-200 hover:border-sky-300 text-slate-700 bg-white" :
+                        "border-slate-100 bg-slate-50 text-slate-300 cursor-not-allowed"
+                      }`}>
+                    {s.display}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -679,10 +849,14 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
           <h2 className="heading-font text-lg font-bold text-slate-800 mb-3">Booking Summary</h2>
           <div className="flex gap-3 items-center pb-3 border-b border-slate-100 mb-3">
-            <img src={selectedDoctor?.img} alt="" className="w-12 h-12 rounded-xl" />
+            <img
+              src={selectedDoctor?.profile_picture || "https://avatar.iran.liara.run/public/11"}
+              alt=""
+              className="w-12 h-12 rounded-xl"
+            />
             <div>
-              <p className="font-bold text-slate-800 text-sm">{selectedDoctor?.name}</p>
-              <p className="text-sky-600 text-xs font-medium">{selectedDoctor?.spec} · {selectedHospital?.name}</p>
+              <p className="font-bold text-slate-800 text-sm">Dr. {selectedDoctor?.user?.first_name} {selectedDoctor?.user?.last_name}</p>
+              <p className="text-sky-600 text-xs font-medium">{selectedDoctor?.specialization} · {selectedHospital?.hospital_name}</p>
             </div>
           </div>
           <div className="space-y-2 text-sm">
@@ -690,7 +864,7 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
               ["📅 Date", selectedDate],
               ["🕐 Time", selectedTime],
               [consultType === "online" ? "🎥 Type" : "🏥 Type", consultType === "online" ? "Video Consultation" : "In-Person Visit"],
-              ["📍 Location", `${selectedHospital?.name}, ${selectedHospital?.area}`],
+              ["📍 Location", `${selectedHospital?.hospital_name}, ${selectedHospital?.city}`],
             ].map(([k, v]) => (
               <div key={k} className="flex justify-between">
                 <span className="text-slate-500 font-medium">{k}</span>
@@ -699,7 +873,7 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
             ))}
             <div className="flex justify-between pt-2 border-t border-slate-100">
               <span className="text-slate-500 font-medium">💳 Fee</span>
-              <span className="text-sky-600 font-bold text-base">Rs. {selectedDoctor?.fee}</span>
+              <span className="text-sky-600 font-bold text-base">Rs. {selectedDoctor?.consultation_fee || 500}</span>
             </div>
           </div>
         </div>
@@ -707,12 +881,12 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
         {/* QR payment */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
           <h3 className="heading-font font-bold text-slate-800 mb-1">Scan & Pay</h3>
-          <p className="text-slate-500 text-xs mb-4">Scan the QR code below with your eSewa / Khalti / IME Pay wallet</p>
+          <p className="text-slate-500 text-xs mb-4">Scan the QR code with eSewa / Khalti / IME Pay</p>
           <div className="flex flex-col items-center gap-3 mb-5 p-4 bg-gradient-to-b from-sky-50 to-white rounded-xl border border-sky-100">
             <div className="bg-white p-3 rounded-xl shadow-md"
               dangerouslySetInnerHTML={{ __html: QR_CODE_SVG }} />
             <div className="text-center">
-              <p className="font-bold text-slate-800 text-base">Rs. {selectedDoctor?.fee}</p>
+              <p className="font-bold text-slate-800 text-base">Rs. {selectedDoctor?.consultation_fee || 500}</p>
               <p className="text-slate-500 text-xs">Ref: {bookingRef}</p>
             </div>
             <div className="flex gap-2 flex-wrap justify-center">
@@ -725,7 +899,7 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
           {/* upload area */}
           <h3 className="heading-font font-bold text-slate-800 mb-1">Upload Payment Screenshot</h3>
           <p className="text-slate-500 text-xs mb-3">
-            After payment, upload your screenshot or receipt photo — admin will verify and confirm your booking
+            Upload your payment screenshot — admin will verify and confirm
           </p>
           {!paymentImgURL ? (
             <div
@@ -758,9 +932,9 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
         <div className="bg-amber-50 rounded-xl p-4 border-l-4 border-amber-400">
           <p className="text-amber-800 text-xs font-semibold mb-1">⚠️ Important</p>
           <ul className="text-amber-700 text-xs space-y-0.5 list-disc list-inside">
-            <li>Your booking will be in <strong>Pending</strong> status until admin verifies payment</li>
-            <li>Confirmation will be sent to your registered mobile/email</li>
-            <li>Bring physical receipt on day of appointment</li>
+            <li>Admin will verify your payment screenshot</li>
+            <li>You'll receive confirmation via SMS/email once approved</li>
+            <li>Keep your payment receipt for the appointment</li>
           </ul>
         </div>
 
@@ -789,7 +963,7 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
           </div>
           <Badge className="bg-amber-100 text-amber-700 text-sm mb-3 mx-auto">PENDING CONFIRMATION</Badge>
           <h2 className="heading-font text-2xl font-bold text-slate-800 mb-1">Booking Submitted!</h2>
-          <p className="text-slate-500 text-sm">Your appointment request is awaiting admin verification of payment</p>
+          <p className="text-slate-500 text-sm">Your appointment request is awaiting admin verification</p>
           <div className="mt-4 bg-amber-50 rounded-xl p-3 text-center border border-amber-200">
             <p className="text-amber-700 text-xs font-semibold">Booking Reference</p>
             <p className="text-amber-900 font-bold text-lg tracking-widest">{bookingRef}</p>
@@ -800,11 +974,15 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-4">
           <h3 className="heading-font font-bold text-slate-800 mb-3">Appointment Details</h3>
           <div className="flex gap-3 items-center pb-3 border-b border-slate-100 mb-3">
-            <img src={selectedDoctor?.img} alt="" className="w-12 h-12 rounded-xl" />
+            <img
+              src={selectedDoctor?.profile_picture || "https://avatar.iran.liara.run/public/11"}
+              alt=""
+              className="w-12 h-12 rounded-xl"
+            />
             <div>
-              <p className="font-bold text-slate-800 text-sm">{selectedDoctor?.name}</p>
-              <p className="text-sky-600 text-xs font-medium">{selectedDoctor?.spec}</p>
-              <p className="text-slate-400 text-xs">{selectedHospital?.name}</p>
+              <p className="font-bold text-slate-800 text-sm">Dr. {selectedDoctor?.user?.first_name} {selectedDoctor?.user?.last_name}</p>
+              <p className="text-sky-600 text-xs font-medium">{selectedDoctor?.specialization}</p>
+              <p className="text-slate-400 text-xs">{selectedHospital?.hospital_name}</p>
             </div>
           </div>
           <div className="space-y-2 text-sm">
@@ -812,7 +990,7 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
               ["📅", "Date", selectedDate],
               ["🕐", "Time", selectedTime],
               [consultType === "online" ? "🎥" : "🏥", "Type", consultType === "online" ? "Video Consultation" : "In-Person"],
-              ["💳", "Amount Paid", `Rs. ${selectedDoctor?.fee}`],
+              ["💳", "Amount Paid", `Rs. ${selectedDoctor?.consultation_fee || 500}`],
             ].map(([icon, k, v]) => (
               <div key={k} className="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-0">
                 <span className="text-slate-500 text-sm">{icon} {k}</span>
@@ -827,8 +1005,8 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
           <h3 className="heading-font font-bold text-slate-800 mb-3">What happens next?</h3>
           <div className="space-y-4">
             {[
-              { done: true, icon: "📤", title: "Payment uploaded", sub: "Your screenshot was submitted" },
-              { done: false, icon: "🔍", title: "Admin verification", sub: "Admin checks your payment (usually within 2 hrs)" },
+              { done: true, icon: "📤", title: "Payment uploaded", sub: "Your screenshot was submitted to admin" },
+              { done: false, icon: "🔍", title: "Admin verification", sub: "Admin will verify your payment (usually within 2-24 hours)" },
               { done: false, icon: "✅", title: "Booking confirmed", sub: "You'll receive SMS/email confirmation" },
               { done: false, icon: "📅", title: "Your appointment", sub: `${selectedDate} at ${selectedTime}` },
             ].map((item, i) => (
@@ -859,7 +1037,9 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
             className="flex-1 py-3.5 bg-gradient-to-r from-sky-500 to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-sky-200 hover:from-sky-600 hover:to-teal-600 transition text-sm">
             Book Another Appointment
           </button>
-          <button className="flex-1 py-3.5 bg-white text-slate-700 font-bold rounded-xl border-2 border-slate-200 hover:border-sky-300 transition text-sm">
+          <button
+            onClick={() => window.location.href = '/appointments'}
+            className="flex-1 py-3.5 bg-white text-slate-700 font-bold rounded-xl border-2 border-slate-200 hover:border-sky-300 transition text-sm">
             My Appointments
           </button>
         </div>

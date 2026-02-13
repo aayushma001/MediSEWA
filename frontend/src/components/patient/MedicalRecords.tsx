@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
-import { appointmentsAPI } from '../../services/api';
+import { appointmentsAPI, MEDIA_URL } from '../../services/api';
 import { MedicalRecord } from '../../types';
 import { FileText, Calendar, User } from 'lucide-react';
 
@@ -66,7 +66,7 @@ export const MedicalRecords: React.FC<MedicalRecordsProps> = ({ patientId }) => 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2 text-sm text-gray-500">
                     <Calendar className="h-4 w-4" />
-                    <span>{new Date(rec.record_date).toLocaleDateString()}</span>
+                    <span>{new Date(rec.created_at).toLocaleDateString()}</span>
                   </div>
                   {rec.doctor_name && (
                     <div className="flex items-center space-x-2 text-sm text-gray-500">
@@ -76,26 +76,24 @@ export const MedicalRecords: React.FC<MedicalRecordsProps> = ({ patientId }) => 
                   )}
                 </div>
                 <div className="mt-4">
-                  <p className="text-sm text-gray-500">Diagnosis</p>
-                  <p className="text-gray-900">{rec.diagnosis}</p>
+                  <p className="text-lg font-medium text-gray-900">{rec.title}</p>
                 </div>
-                <div className="mt-3">
-                  <p className="text-sm text-gray-500">Symptoms</p>
-                  <p className="text-gray-900">{rec.symptoms}</p>
-                </div>
-                <div className="mt-3">
-                  <p className="text-sm text-gray-500">Prescription</p>
-                  <p className="text-gray-900 whitespace-pre-wrap">{rec.prescription}</p>
-                </div>
-                {rec.attachment && (
+                {rec.description && (
+                  <div className="mt-2">
+                    <p className="text-sm text-gray-500">Description</p>
+                    <p className="text-gray-900">{rec.description}</p>
+                  </div>
+                )}
+                {rec.report_file && (
                   <div className="mt-4">
                     <a
-                      href={rec.attachment}
+                      href={rec.report_file.startsWith('http') ? rec.report_file : `${MEDIA_URL}${rec.report_file}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-blue-600 hover:underline"
+                      className="text-blue-600 hover:underline flex items-center"
                     >
-                      View Attachment
+                      <FileText className="h-4 w-4 mr-2" />
+                      View Report PDF
                     </a>
                   </div>
                 )}

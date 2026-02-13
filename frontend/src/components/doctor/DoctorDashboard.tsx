@@ -6,8 +6,7 @@ import { PatientsView } from './PatientsView';
 import { DoctorProfile } from './DoctorProfile';
 import { PatientConsultation } from './PatientConsultation';
 import { DoctorChatbot } from './DoctorChatbot';
-import { HospitalSchedule } from './HospitalSchedule';
-import { adminAPI } from '../../services/api';
+import { adminAPI, appointmentsAPI } from '../../services/api';
 
 import {
   Users,
@@ -58,6 +57,25 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
   const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null);
   const [showHospitalDropdown, setShowHospitalDropdown] = useState(false);
   const [showChatbot, setShowChatbot] = useState(false);
+  const [appointments, setAppointments] = useState<any[]>([]);
+  // Use loading to show spinner in UI if needed, for now we just suppress the lint
+  const [loading, setLoading] = useState(true);
+  console.log('Appointments loading:', loading);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        setLoading(true);
+        const data = await appointmentsAPI.getDoctorAppointments();
+        setAppointments(data);
+      } catch (err) {
+        console.error("Doctor appointments fetch failed:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAppointments();
+  }, []);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [activeConsultation, setActiveConsultation] = useState<any>(null);
   const [showAddHospitalModal, setShowAddHospitalModal] = useState(false);
@@ -216,37 +234,37 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
           <DashboardOverview
             hospital={selectedHospital}
             pendingConnections={pendingConnections}
-            stats={stats}
+            stats={{
+              appointments_today: appointments.filter(a => a.date === new Date().toISOString().split('T')[0]).length,
+              total_patients: new Set(appointments.map(a => a.patient)).size,
+              emergency_cases: appointments.filter(a => a.status === 'emergency').length,
+              next_patient: (() => {
+                const next = appointments
+                  .filter(a => a.status === 'approved')
+                  .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+                return next ? {
+                  id: next.id, // Appointment ID
+                  patient_id: next.patient,
+                  name: next.patient_name,
+                  time: next.time_slot,
+                  condition: next.symptoms,
+                  status: next.status
+                } : null;
+              })()
+            }}
             onConfirmConnection={handleConfirmConnection}
             onStartConsultation={(apt: any) => setActiveConsultation(apt)}
           />
         );
       case 'appointments':
-        if (!selectedHospital) {
-          return (
-            <Card className="p-12 text-center border-2 border-dashed border-gray-300">
-              <Building2 size={48} className="mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">No Hospital Selected</h3>
-              <p className="text-sm text-gray-500 mb-4">
-                Please select a hospital from the sidebar to manage specific appointments
-              </p>
-              <button
-                onClick={() => setShowAddHospitalModal(true)}
-                className="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <Plus size={16} className="inline mr-2" />
-                Add Hospital
-              </button>
-            </Card>
-          );
-        }
         return (
-          <HospitalSchedule
-            hospital={selectedHospital}
-            hospitalId={(selectedHospital as any).backendId || selectedHospital.id}
-            doctorId={doctor.id}
-            isEditable={false}
-            onStartConsultation={(apt: any) => setActiveConsultation(apt)}
+          <DoctorAppointmentsView
+            appointments={appointments}
+            onStartConsultation={(apt) => setActiveConsultation(apt)}
+            onRefresh={async () => {
+              const data = await appointmentsAPI.getDoctorAppointments();
+              setAppointments(data);
+            }}
           />
         );
       case 'patients':
@@ -755,6 +773,8 @@ const DashboardOverview: React.FC<{
               <div className="flex flex-col space-y-2">
                 <Button
                   onClick={() => onStartConsultation({
+                    id: stats.next_patient.id,
+                    patient_id: stats.next_patient.patient_id,
                     patient_name: stats.next_patient.name,
                     patientCondition: stats.next_patient.condition
                   })}
@@ -805,6 +825,93 @@ const ReviewsView = () => (
     </div>
   </div>
 );
+
+const DoctorAppointmentsView: React.FC<{
+  appointments: any[];
+  onStartConsultation: (apt: any) => void;
+  onRefresh: () => void;
+}> = ({ appointments, onStartConsultation, onRefresh }) => {
+  const [filter, setFilter] = useState('approved');
+  const filtered = appointments.filter(a => filter === 'all' || a.status === filter);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-900">My Appointments</h2>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onRefresh}
+            className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors"
+            title="Refresh Appointments"
+          >
+            <Clock size={20} />
+          </button>
+          <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-100">
+            {['approved', 'pending', 'completed', 'all'].map(t => (
+              <button
+                key={t}
+                onClick={() => setFilter(t)}
+                className={`px-4 py-2 text-sm font-medium rounded-md capitalize transition-all ${filter === t ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:text-blue-600'
+                  }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4">
+        {filtered.length === 0 ? (
+          <Card className="p-12 text-center">
+            <Calendar size={48} className="mx-auto text-gray-300 mb-4" />
+            <p className="text-gray-500">No {filter} appointments found.</p>
+          </Card>
+        ) : filtered.map(apt => (
+          <Card key={apt.id} className="p-4 border-l-4 border-l-blue-500">
+            <div className="flex flex-col md:flex-row justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${apt.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                    }`}>
+                    {apt.status}
+                  </span>
+                  <span className="text-xs text-gray-400 capitalize">{apt.consultation_type} Consultation</span>
+                </div>
+                <h4 className="font-bold text-lg text-gray-900">{apt.patient_name}</h4>
+                <p className="text-sm text-gray-600 mb-3">{apt.hospital_name}</p>
+                <div className="flex gap-4 text-xs text-gray-500">
+                  <div className="flex items-center gap-1"><Calendar size={14} /> {apt.date}</div>
+                  <div className="flex items-center gap-1"><Clock size={14} /> {apt.time_slot}</div>
+                </div>
+              </div>
+              <div className="flex flex-col justify-center gap-2 min-w-[150px]">
+                {apt.status === 'approved' && (
+                  <Button
+                    onClick={() => onStartConsultation(apt)}
+                    className="bg-blue-600 hover:bg-blue-700 w-full"
+                  >
+                    <Video size={16} className="mr-2" /> Start Now
+                  </Button>
+                )}
+                {apt.meeting_link && (
+                  <a
+                    href={apt.meeting_link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs text-blue-600 text-center hover:underline"
+                  >
+                    View Meeting Link
+                  </a>
+                )}
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const OverallStatsView: React.FC<{ hospitals: Hospital[] }> = ({ hospitals }) => (
   <div className="space-y-4">
