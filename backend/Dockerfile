@@ -1,35 +1,31 @@
-# Use an official Python runtime as a parent image
 FROM python:3.10-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-# Set work directory
 WORKDIR /app
 
-# Install system dependencies
+# System deps (psycopg2 needs libpq)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     python3-dev \
     libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/*
 
-# Install python dependencies from requirements
-COPY requirements.txt /app/
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# Install Python deps first (better caching)
+COPY backend/requirements.txt /app/requirements.txt
+RUN pip install --upgrade pip && pip install -r /app/requirements.txt
 
-# Copy project
-COPY . /app/
+# Copy Django project
+COPY backend/ /app/
 
-# Collect static files
-# RUN python manage.py collectstatic --noinput
-# Note: In some setups you might want to run collectstatic during build, 
-# or run it as part of the startup command. 
-# For now, we'll leave it as a comment or handle it in the entrypoint if needed.
+# Optional: build-time env to let collectstatic run without crashing
+# Adjust module if needed
+ENV DJANGO_SETTINGS_MODULE=healthcare_platform.settings \
+    DEBUG=False
 
-# Expose port 8000
-EXPOSE 8000
+# Collect static files (requires correct settings)
+RUN python manage.py collectstatic --noinput
 
-# Run gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "healthcare_platform.wsgi:application"]
+# Run gunicorn on Cloud Run's injected PORT
+CMD ["sh", "-c", "gunicorn healthcare_platform.wsgi:application --bind 0.0.0.0:${PORT} --workers 1 --threads 8 --timeout 0"]
