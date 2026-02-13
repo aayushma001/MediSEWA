@@ -10,7 +10,7 @@ echo "Deploying $SERVICE_NAME to project $PROJECT_ID in region $REGION..."
 # Submit build to Cloud Build
 # We build from the root directory so Docker context includes everything, 
 # but the Dockerfile is in backend/Dockerfile
-gcloud builds submit .. --config cloudbuild.yaml
+gcloud builds submit .. --config ../cloudbuild.yaml
 
 # Deploy to Cloud Run
 gcloud run deploy $SERVICE_NAME \
