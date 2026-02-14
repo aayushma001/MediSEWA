@@ -24,7 +24,7 @@ call gcloud run deploy medisewa-backend ^
   --platform managed ^
   --region us-central1 ^
   --allow-unauthenticated ^
-  --set-env-vars "DEBUG=False" ^
+  --update-env-vars "DEBUG=False" ^
   --project %PROJECT_ID%
 
 echo.

@@ -18,4 +18,4 @@ gcloud run deploy $SERVICE_NAME \
   --platform managed \
   --region $REGION \
   --allow-unauthenticated \
-  --set-env-vars "DEBUG=False,SECRET_KEY=change-this-in-production-console"
+  --update-env-vars "DEBUG=False,SECRET_KEY=change-this-in-production-console"
