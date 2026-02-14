@@ -186,4 +186,9 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Use a specific fallback if empty to avoid "Invalid address" and show a clear error in logs
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or "missing-email-config@medisewa.run"
+
+if not EMAIL_HOST_USER:
+    print("WARNING: EMAIL_HOST_USER is not set. Emails will fail to send.")
