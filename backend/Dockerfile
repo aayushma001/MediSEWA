@@ -29,5 +29,9 @@ ENV DJANGO_SETTINGS_MODULE=healthcare_platform.settings \
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
+# Apply migrations
+RUN python manage.py migrate
+
+
 # Start Django with Gunicorn on Cloud Run's PORT
 CMD ["sh", "-c", "gunicorn healthcare_platform.wsgi:application --bind 0.0.0.0:${PORT} --workers 1 --threads 8 --timeout 0"]
