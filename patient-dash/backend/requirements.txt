@@ -1,0 +1,10 @@
+django
+djangorestframework
+django-cors-headers
+requests
+twilio
+Pillow
+boto3
+django-storages
+cloudinary
+cryptography
