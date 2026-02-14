@@ -32,6 +32,9 @@ RUN python manage.py collectstatic --noinput
 # Apply migrations
 RUN python manage.py migrate
 
+RUN python create_admin.py
+
+
 
 # Start Django with Gunicorn on Cloud Run's PORT
 CMD ["sh", "-c", "gunicorn healthcare_platform.wsgi:application --bind 0.0.0.0:${PORT} --workers 1 --threads 8 --timeout 0"]
