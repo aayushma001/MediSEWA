@@ -186,8 +186,9 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 import os
 # Try to get from decouple config, fallback to os.environ
-EMAIL_HOST_USER = config("EMAIL_HOST_USER", default=os.getenv("EMAIL_HOST_USER", ""))
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default=os.getenv("EMAIL_HOST_PASSWORD", ""))
+# Directly using os.environ.get is often more reliable in Cloud Run
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", config("EMAIL_HOST_USER", default=""))
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", config("EMAIL_HOST_PASSWORD", default=""))
 
 # Use a specific fallback if empty to avoid "Invalid address"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or "missing-email-config@medisewa.run"

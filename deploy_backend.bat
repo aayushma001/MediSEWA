@@ -19,8 +19,8 @@ echo.
 echo Build Successful! Deploying to Cloud Run...
 echo.
 
-call gcloud run deploy medisewa-backend ^
-  --image gcr.io/%PROJECT_ID%/medisewa-backend ^
+call gcloud run deploy medisewa ^
+  --image gcr.io/%PROJECT_ID%/medisewa ^
   --platform managed ^
   --region us-central1 ^
   --allow-unauthenticated ^

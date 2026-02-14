@@ -3,7 +3,7 @@
 
 PROJECT_ID=${1:-your-project-id}
 REGION=${2:-us-central1}
-SERVICE_NAME="medisewa-backend"
+SERVICE_NAME="medisewa"
 
 echo "Deploying $SERVICE_NAME to project $PROJECT_ID in region $REGION..."
 
