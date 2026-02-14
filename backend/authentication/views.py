@@ -22,6 +22,17 @@ from .models import (
 import traceback
 from django.utils import timezone
 from datetime import datetime
+def clean_invisible(s: str) -> str:
+    if s is None:
+        return ""
+    return (
+        str(s)
+        .strip()
+        .replace("\u200c", "")  # ZWNJ
+        .replace("\u200b", "")  # zero-width space
+        .replace("\ufeff", "")  # BOM
+    )
+
 
 def resolve_profile(entity_id, profile_model):
     """Helper to resolve profile from User ID, Profile ID, or Unique ID"""
@@ -624,6 +635,23 @@ def notifications(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# ... keep all your existing imports and code above unchanged ...
+
+def clean_invisible(s: str) -> str:
+    """
+    Minimal sanitization to remove invisible unicode characters that can break
+    email headers/encoding (e.g. ZWNJ \u200c) without forcing ASCII.
+    """
+    if s is None:
+        return ""
+    return (
+        str(s)
+        .strip()
+        .replace("\u200c", "")  # ZWNJ
+        .replace("\u200b", "")  # zero-width space
+        .replace("\ufeff", "")  # BOM
+    )
+
 class SendOTPView(APIView):
     permission_classes = [AllowAny]
 
@@ -631,17 +659,28 @@ class SendOTPView(APIView):
         phone_or_email = request.data.get('phone_or_email')
         if not phone_or_email:
             return Response({"error": "Phone or Email is required"}, status=status.HTTP_400_BAD_REQUEST)
-            
+
+        phone_or_email = clean_invisible(phone_or_email)
+
         otp_code = OTP.generate_otp()
         OTP.objects.create(phone_or_email=phone_or_email, otp_code=otp_code)
-        
-        subject = 'Verify your email for MediSEWA'
-        message = f"Your verification code is: {otp_code}"
+
+        subject = clean_invisible('Verify your email for MediSEWA')
+        message = clean_invisible(f"Your verification code is: {otp_code}")
+
         try:
-            send_mail(subject, message, settings.EMAIL_HOST_USER, [phone_or_email])
-            return Response({"message": "OTP sent successfully"})
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [phone_or_email],
+                fail_silently=False
+            )
+            return Response({"message": "OTP sent successfully"}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -842,21 +881,23 @@ class VerifyOTPView(APIView):
         if not phone_or_email or not otp_code:
             return Response({"error": "Phone/Email and OTP code are required"}, status=status.HTTP_400_BAD_REQUEST)
 
+        phone_or_email = clean_invisible(phone_or_email)
+        otp_code = clean_invisible(otp_code)
+
         try:
-            # Check for latest OTP
             otp = OTP.objects.filter(phone_or_email=phone_or_email).order_by('-created_at').first()
-            
+
             if not otp:
                 return Response({"error": "No OTP found for this email"}, status=status.HTTP_400_BAD_REQUEST)
-                
+
             if otp.otp_code != otp_code:
                 return Response({"error": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST)
-                
-            # Ideally verify expiry here (e.g. 5 mins)
-            
+
             return Response({"message": "OTP Verified Successfully"}, status=status.HTTP_200_OK)
+
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])

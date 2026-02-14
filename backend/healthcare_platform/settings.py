@@ -180,15 +180,15 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # -----------------------------------------------------------------------------
 # Email (optional)
 # -----------------------------------------------------------------------------
+DEFAULT_CHARSET = "utf-8"
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 import os
-# Try to get from decouple config, fallback to os.environ
-# Directly using os.environ.get is often more reliable in Cloud Run
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", config("EMAIL_HOST_USER", default=""))
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", config("EMAIL_HOST_PASSWORD", default=""))
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+
 
 # Use a specific fallback if empty to avoid "Invalid address"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or "missing-email-config@medisewa.run"

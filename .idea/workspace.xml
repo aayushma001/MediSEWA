@@ -474,6 +474,7 @@
       <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/tsconfig.node.json" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../Medico--main/frontend/vite.config.ts" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../desktop.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -579,7 +580,7 @@
       <workItem from="1770869048042" duration="3648000" />
       <workItem from="1771005170957" duration="9861000" />
       <workItem from="1771022351270" duration="2719000" />
-      <workItem from="1771041816134" duration="16973000" />
+      <workItem from="1771041816134" duration="18182000" />
     </task>
     <servers />
   </component>
