@@ -8,12 +8,19 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-username = os.environ.get("DJANGO_ADMIN_USER", "MediSewa")
-password = os.environ.get("DJANGO_ADMIN_PASS", "MEDISEWA@123")
+# Force env variables (no defaults)
+username = os.environ["DJANGO_ADMIN_USER"]
+password = os.environ["DJANGO_ADMIN_PASS"]
 email = os.environ.get("DJANGO_ADMIN_EMAIL", "katuwalaayushma508@gmail.com")
 
-if not User.objects.filter(username=username).exists():
-    User.objects.create_superuser(username=username, email=email, password=password)
-    print("✅ Superuser created")
-else:
-    print("ℹ️ Superuser already exists")
+user, created = User.objects.get_or_create(username=username, defaults={"email": email})
+
+# Ensure proper admin flags
+user.email = email
+user.is_staff = True
+user.is_superuser = True
+user.is_active = True
+user.set_password(password)
+user.save()
+
+print(f"✅ Admin ensured (created={created})")

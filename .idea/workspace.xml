@@ -243,7 +243,6 @@
       <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/staticfiles/admin/js/vendor/xregexp/xregexp.min.js" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../ClimateTemperatureAnomaly/update_onedrive_files.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../LearnJavascript" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/create_admin.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../Medico--main/.idea/Medico--main.iml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../Medico--main/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/../Medico--main/.idea/misc.xml" afterDir="false" />
@@ -477,6 +476,7 @@
       <change afterPath="$PROJECT_DIR$/../desktop.ini" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/backend/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/create_admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/create_admin.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -582,7 +582,7 @@
       <workItem from="1770869048042" duration="3648000" />
       <workItem from="1771005170957" duration="9861000" />
       <workItem from="1771022351270" duration="2719000" />
-      <workItem from="1771041816134" duration="9307000" />
+      <workItem from="1771041816134" duration="9829000" />
     </task>
     <servers />
   </component>
