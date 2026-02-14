@@ -184,11 +184,13 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
+import os
+# Try to get from decouple config, fallback to os.environ
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default=os.getenv("EMAIL_HOST_USER", ""))
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default=os.getenv("EMAIL_HOST_PASSWORD", ""))
 
-# Use a specific fallback if empty to avoid "Invalid address" and show a clear error in logs
+# Use a specific fallback if empty to avoid "Invalid address"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or "missing-email-config@medisewa.run"
 
 if not EMAIL_HOST_USER:
-    print("WARNING: EMAIL_HOST_USER is not set. Emails will fail to send.")
+    print("CRITICAL WARNING: EMAIL_HOST_USER is not found in environment!")
