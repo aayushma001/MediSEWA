@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Doctor } from '../../types';
@@ -51,6 +52,8 @@ interface DoctorDashboardProps {
 }
 
 export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initialDoctor, onLogout, initialTab = 'dashboard' }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [doctor, setDoctor] = useState(initialDoctor);
   const [activeTab, setActiveTab] = useState<string>(initialTab);
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
@@ -58,6 +61,30 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
   const [showHospitalDropdown, setShowHospitalDropdown] = useState(false);
   const [showChatbot, setShowChatbot] = useState(false);
   const [appointments, setAppointments] = useState<any[]>([]);
+
+  // Sync activeTab with URL
+  useEffect(() => {
+    const segments = location.pathname.split('/');
+    const lastSegment = segments[segments.length - 1];
+
+    if (lastSegment === 'doctor' || !lastSegment) {
+      setActiveTab('dashboard');
+    } else {
+      // Check if it's a valid nav item
+      const validTabs = ['dashboard', 'appointments', 'patients', 'reviews', 'overall', 'profile'];
+      if (validTabs.includes(lastSegment)) {
+        setActiveTab(lastSegment);
+      }
+    }
+  }, [location.pathname]);
+
+  const handleNav = (id: string) => {
+    if (id === 'dashboard') {
+      navigate('/doctor');
+    } else {
+      navigate(`/doctor/${id}`);
+    }
+  };
   // Use loading to show spinner in UI if needed, for now we just suppress the lint
   const [loading, setLoading] = useState(true);
   console.log('Appointments loading:', loading);
@@ -511,7 +538,7 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
+                  onClick={() => handleNav(item.id)}
                   className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all text-sm font-medium ${isActive ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-700 hover:bg-gray-50'}`}
                 >
                   <div className="flex items-center space-x-2">
@@ -575,7 +602,7 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
                     <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
                       <button
                         onClick={() => {
-                          setActiveTab('profile');
+                          handleNav('profile');
                           setShowProfileMenu(false);
                         }}
                         className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center space-x-2 text-sm"

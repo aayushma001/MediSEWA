@@ -135,6 +135,29 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({ user, onLogout, onUserUpda
           <Route path="profile" element={<Profile user={user} />} />
         </Route>
       )}
+
+      {/* Doctor Dashboard Routes */}
+      <Route
+        path="/doctor/*"
+        element={
+          user.user_type === 'doctor' ? (
+            <DoctorDashboard
+              doctor={{
+                id: user.id,
+                user: user,
+                specialization: user.doctor_profile?.specialization || 'General Physician',
+                medicalDegree: user.doctor_profile?.qualification,
+                experience: user.doctor_profile?.experience_years?.toString(),
+                bio: user.doctor_profile?.about,
+                doctor_unique_id: user.doctor_profile?.doctor_unique_id
+              }}
+              onLogout={onLogout}
+            />
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
       <Route
         path="/settings"
         element={
