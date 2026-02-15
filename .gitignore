@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+.Python
+
+# Virtual environments
+venv/
+.venv/
+backend/venv/
+backend/.venv/
+
+# Environment / secrets
+.env
+.env.local
+.env.* 
+secrets.json
+credentials.json
+
+# Django / project files
+db.sqlite3
+media/
+staticfiles/
+static/
+collectstatic/
+
+# Node / frontend
+node_modules/
+frontend/node_modules/
+dist/
+build/
+
+# Logs and reports
+*.log
+coverage.xml
+htmlcov/
+.coverage
+
+# IDEs / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Docker
+docker-compose.override.yml
+*.tar
+
+# Byte-compiled / build artifacts
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Chatbot cache
+backend/chatbot/__pycache__/
+
+# Misc
+*.pyc
+*.pyo
