@@ -14,7 +14,10 @@ interface Appointment {
   meeting_link?: string;
 }
 
-export const MyAppointments: React.FC<{ patientId: string }> = ({ patientId }) => {
+export const MyAppointments: React.FC<{
+  patientId: string;
+  onJoinMeeting?: (id: string, doctorName: string) => void;
+}> = ({ patientId, onJoinMeeting }) => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -93,14 +96,12 @@ export const MyAppointments: React.FC<{ patientId: string }> = ({ patientId }) =
               {apt.status === 'approved' && apt.meeting_link && (
                 <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
                   <p className="text-xs text-blue-700 font-semibold mb-2">Meeting Link Ready</p>
-                  <a
-                    href={apt.meeting_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => onJoinMeeting?.(apt.id.toString(), apt.doctor_name)}
                     className="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 transition w-full justify-center"
                   >
-                    🚀 Start Meeting
-                  </a>
+                    🚀 Join Consultation
+                  </button>
                 </div>
               )}
 

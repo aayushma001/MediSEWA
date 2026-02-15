@@ -91,6 +91,7 @@ class Hospital(models.Model):
     description = models.TextField(blank=True)
     beds = models.IntegerField(default=0)
     opening_hours = models.CharField(max_length=100, default='24/7')
+    qr_code = models.ImageField(upload_to='hospital_qrs/', null=True, blank=True)
     
     def __str__(self):
         return self.hospital_name
@@ -158,6 +159,7 @@ class DoctorProfile(models.Model):
     doctor_unique_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
     is_verified = models.BooleanField(default=False)
     consent_accepted = models.BooleanField(default=False)
+    signature_image = models.ImageField(upload_to='doctor_signatures/', null=True, blank=True)
     
     def __str__(self):
         return f"Dr. {self.user.first_name} {self.user.last_name}"
@@ -196,7 +198,12 @@ class DoctorHospitalConnection(models.Model):
 class DoctorSchedule(models.Model):
     doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE, related_name='doctor_schedules')
     hospital = models.ForeignKey(Hospital, on_delete=models.CASCADE, related_name='hospital_doctor_schedules')
-    date = models.DateField()
+    date = models.DateField(null=True, blank=True) # Optional if recurring
+    is_recurring = models.BooleanField(default=False)
+    day_of_week = models.IntegerField(null=True, blank=True, choices=[
+        (0, 'Monday'), (1, 'Tuesday'), (2, 'Wednesday'), 
+        (3, 'Thursday'), (4, 'Friday'), (5, 'Saturday'), (6, 'Sunday')
+    ])
     session_data = models.JSONField(default=list)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -231,6 +238,7 @@ class Appointment(models.Model):
     symptoms = models.TextField(blank=True)
     meeting_link = models.URLField(max_length=500, blank=True, null=True)
     booking_reference = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    is_emergency = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -241,11 +249,18 @@ class Appointment(models.Model):
         return f"Appointment: {self.patient} with {self.doctor} on {self.date}"
 
 class MedicalReport(models.Model):
+    REPORT_TYPE_CHOICES = (
+        ('consultation', 'Consultation Report'),
+        ('lab_report', 'Lab/Test Report'),
+    )
+    
     patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE, related_name='medical_reports')
     doctor = models.ForeignKey(DoctorProfile, on_delete=models.SET_NULL, null=True, blank=True, related_name='generated_reports')
     hospital = models.ForeignKey(Hospital, on_delete=models.SET_NULL, null=True, blank=True, related_name='hospital_reports')
     appointment = models.ForeignKey(Appointment, on_delete=models.SET_NULL, null=True, blank=True, related_name='reports')
+    uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='uploaded_reports')
     
+    report_type = models.CharField(max_length=20, choices=REPORT_TYPE_CHOICES, default='consultation')
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     report_file = models.FileField(upload_to='medical_reports/')
@@ -253,5 +268,22 @@ class MedicalReport(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
+    class Meta:
+        ordering = ['-created_at']
+    
     def __str__(self):
-        return f"Report: {self.title} for {self.patient}"
+        return f"{self.title} - {self.get_report_type_display()}"
+    
+class Review(models.Model):
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE, related_name='reviews')
+    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE, related_name='reviews')
+    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ('doctor', 'patient') # One review per doctor-patient pair
+
+    def __str__(self):
+        return f"Review by {self.patient} for {self.doctor} - {self.rating} stars"

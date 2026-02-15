@@ -14,6 +14,7 @@ export interface DoctorProfile {
   date_of_birth?: string;
   doctor_unique_id?: string;
   consultation_fee?: number;
+  signature_image?: string;
 }
 
 export interface Department {
@@ -45,6 +46,7 @@ export interface HospitalProfile {
   description?: string;
   beds?: number;
   opening_hours?: string;
+  qr_code?: string;
   departments?: Department[];
 }
 
@@ -116,6 +118,14 @@ export interface Doctor {
   id: string;
   user: User;
   specialization: string;
+  qualification?: string;
+  experience_years?: number;
+  profile_picture?: string | null;
+  hospital_id?: string;
+  hospital_name?: string;
+  departments?: { id: string; name: string }[];
+  latitude?: number;
+  longitude?: number;
   medicalDegree?: string;
   experience?: string;
   bio?: string;
@@ -137,7 +147,26 @@ export interface Doctor {
   gender?: string;
   age?: number;
   doctor_unique_id?: string;
+  signature_image?: string;
+  hospital_logo?: string;
   specializations?: string[];
+}
+
+export interface Hospital {
+  id: string;
+  hospital_name: string;
+  hospital_type?: string;
+  address?: string;
+  city?: string;
+  district?: string;
+  province?: string;
+  latitude?: number;
+  longitude?: number;
+  logo?: string | null;
+  opening_hours?: string;
+  departments?: { id: string; name: string }[];
+  hospital_unique_id?: string;
+  user?: User; // For consistency
 }
 
 export interface Patient {

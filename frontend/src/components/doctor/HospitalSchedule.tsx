@@ -42,6 +42,24 @@ export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, ho
     const activeDoctorId = propDoctorId || (user?.user_type === 'doctor' ? user.doctor_profile?.id : null);
     const activeHospitalId = propHospitalId || hospital.id;
 
+    // Calculate end date (10 days from selectedDate)
+    const getEndDate = (startDateStr: string) => {
+        const start = new Date(startDateStr);
+        const end = new Date(start);
+        end.setDate(start.getDate() + 10);
+        return end.toISOString().split('T')[0];
+    };
+
+    const endDate = getEndDate(selectedDate);
+
+    const formatDate = (dateStr: string) => {
+        return new Date(dateStr).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
+    };
+
     useEffect(() => {
         fetchSchedule();
     }, [activeDoctorId, activeHospitalId, selectedDate]);
@@ -163,13 +181,29 @@ export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, ho
 
         setIsLoading(true);
         try {
-            await adminAPI.saveSchedule(
-                activeDoctorId,
-                activeHospitalId,
-                selectedDate,
-                updatedSessions
-            );
-            console.log('Schedule saved successfully');
+            // Generate all 10 dates
+            const datesToSave: string[] = [];
+            const start = new Date(selectedDate);
+            for (let i = 0; i < 11; i++) { // From start to end (10 days difference = 11 days total including start/end if inclusive, or 10 days as per request)
+                // The user said "if it is feb2,2026 then it will be upto 12 feb 2026" which is 11 days inclusive.
+                // "it should be for 10 days"
+                const current = new Date(start);
+                current.setDate(start.getDate() + i);
+                datesToSave.push(current.toISOString().split('T')[0]);
+            }
+
+            // Save for each date sequentially to avoid SQLite database locks
+            for (const date of datesToSave) {
+                await adminAPI.saveSchedule(
+                    activeDoctorId,
+                    activeHospitalId,
+                    date,
+                    updatedSessions
+                );
+            }
+
+            console.log('Schedule saved successfully for the 10-day period');
+            alert(`Schedule successfully saved for period: ${formatDate(selectedDate)} - ${formatDate(endDate)}`);
         } catch (error: any) {
             console.error('Failed to save schedule:', error);
             const errorMsg = error.response?.data?.error || error.message || 'Unknown error';
@@ -317,14 +351,23 @@ export const HospitalSchedule: React.FC<HospitalScheduleProps> = ({ hospital, ho
                 <div>
                     <h2 className="text-2xl font-bold text-gray-900">{hospital.name || 'Hospital Name'}</h2>
                     <p className="text-gray-500 text-sm mt-1">{hospital.address}</p>
-                    <div className="mt-4 flex items-center gap-2">
-                        <label className="text-sm font-medium text-gray-600">Schedule Date:</label>
-                        <input
-                            type="date"
-                            value={selectedDate}
-                            onChange={(e) => setSelectedDate(e.target.value)}
-                            className="text-sm border border-gray-200 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 outline-none"
-                        />
+                    <div className="mt-4 flex flex-col gap-1">
+                        <label className="text-sm font-medium text-gray-600">Schedule Period (10 Days):</label>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="date"
+                                value={selectedDate}
+                                onChange={(e) => setSelectedDate(e.target.value)}
+                                className="text-sm border border-gray-200 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500 outline-none"
+                            />
+                            <span className="text-gray-400 font-bold">to</span>
+                            <div className="text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg border border-blue-100">
+                                {formatDate(endDate)}
+                            </div>
+                        </div>
+                        <p className="text-[10px] text-gray-400 italic mt-1">
+                            Creating a schedule will automatically apply it from {formatDate(selectedDate)} through {formatDate(endDate)}.
+                        </p>
                     </div>
                 </div>
                 <div className="flex space-x-2">

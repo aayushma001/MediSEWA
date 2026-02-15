@@ -21,3 +21,14 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+
+  chatbot:
+    build:
+      context: ./backend/chatbot
+    container_name: medisewa_chatbot
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    volumes:
+      - ./backend/chatbot:/app

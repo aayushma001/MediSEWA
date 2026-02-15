@@ -30,12 +30,14 @@ import {
   Droplets
 } from 'lucide-react';
 import { authAPI } from '../../services/api';
+import { PatientChatbot } from '../patient/PatientChatbot';
 
 interface HomepageProps {
   onOpenAuthModal: (mode: 'login' | 'register') => void;
 }
 
 export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
+  const [showChatbot, setShowChatbot] = useState(false);
   const [doctors, setDoctors] = useState<any[]>([]);
   const [selectedSpeciality, setSelectedSpeciality] = useState('');
   const [query, setQuery] = useState('');
@@ -248,8 +250,24 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
 
       {/* Hero Section */}
       <div className="homepage-hero relative min-h-[600px] flex items-center pb-32 pt-24">
-        {/* Floating UI Elements - Fixed position */}
-        <div className="fixed bottom-8 right-8 bg-white rounded-full shadow-2xl px-6 py-4 animate-float-delayed flex items-center gap-3 whitespace-nowrap z-50 border border-blue-100">
+        {/* Floating Chatbot Button - Fixed position */}
+        <button
+          onClick={() => setShowChatbot(!showChatbot)}
+          className="fixed bottom-28 right-8 w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all z-[9990] animate-float-delayed border-4 border-white"
+        >
+          <MessageSquare className="h-7 w-7 text-white" />
+        </button>
+
+        {/* Chatbot Component */}
+        {showChatbot && (
+          <PatientChatbot
+            patientId="guest"
+            onClose={() => setShowChatbot(false)}
+          />
+        )}
+
+        {/* Call Doctor Badge - Below chatbot button */}
+        <div className="fixed bottom-8 right-8 bg-white rounded-full shadow-2xl px-6 py-4 animate-float-delayed flex items-center gap-3 whitespace-nowrap z-40 border border-emerald-100">
           <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
             <Phone className="h-5 w-5 text-green-600" />
           </div>

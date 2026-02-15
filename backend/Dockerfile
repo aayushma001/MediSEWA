@@ -9,7 +9,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     python3-dev \
     libpq-dev \
-  && rm -rf /var/lib/apt/lists/*
+    libxml2-dev \
+    libxslt-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set Locale for UTF-8 support (fixes 'ascii' codec errors)
 ENV LANG=C.UTF-8 \
@@ -32,4 +34,5 @@ RUN python manage.py collectstatic --noinput
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
-CMD ["/app/entrypoint.sh"]
+# Use Daphne for ASGI (Channels support)
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "healthcare_platform.asgi:application"]

@@ -34,16 +34,19 @@ interface QuickAction {
 }
 
 interface PatientChatbotProps {
-    patient: Patient;
+    patient?: Patient;
+    patientId?: string;
     onClose: () => void;
 }
 
-export const PatientChatbot: React.FC<PatientChatbotProps> = ({ patient, onClose }) => {
+export const PatientChatbot: React.FC<PatientChatbotProps> = ({ patient, patientId, onClose }) => {
+    const firstName = patient?.user?.first_name || 'Guest';
+
     const [messages, setMessages] = useState<Message[]>([
         {
             id: '1',
             type: 'bot',
-            content: `Hello ${patient.user.first_name}! 👋 I'm your AI Health Assistant. I can help you with appointments, medical questions, prescriptions, and more. How can I assist you today?`,
+            content: `Hello ${firstName}! 👋 I'm your AI Health Assistant by MediSewa. I can help you with appointments, medical questions, prescriptions, and more. How can I assist you today?`,
             timestamp: new Date(),
             suggestions: [
                 'Book an appointment',
@@ -173,7 +176,7 @@ export const PatientChatbot: React.FC<PatientChatbotProps> = ({ patient, onClose
         return (
             <button
                 onClick={() => setIsMinimized(false)}
-                className="fixed bottom-6 right-6 bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-3 rounded-full shadow-2xl hover:shadow-purple-500/50 transition-all hover:scale-105 flex items-center space-x-2 z-40"
+                className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-full shadow-2xl hover:shadow-blue-500/50 transition-all hover:scale-105 flex items-center space-x-2 z-[9999]"
             >
                 <Bot size={20} />
                 <span className="font-semibold">AI Assistant</span>
@@ -185,34 +188,33 @@ export const PatientChatbot: React.FC<PatientChatbotProps> = ({ patient, onClose
     }
 
     return (
-        <div className="fixed bottom-6 right-6 w-[420px] h-[650px] bg-white rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden border border-gray-200">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-4 flex items-center justify-between">
+        <div className="fixed bottom-6 right-6 w-[420px] h-[580px] bg-white rounded-2xl shadow-2xl flex flex-col z-[9999] overflow-hidden border border-gray-200">            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                     <div className="relative">
                         <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                            <Bot className="text-purple-600" size={24} />
+                            <Bot className="text-blue-600" size={24} />
                         </div>
                         <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 border-2 border-white rounded-full"></div>
                     </div>
                     <div>
                         <h3 className="text-white font-bold text-base flex items-center">
-                            AI Health Assistant
+                            MediSewa Health Assistant
                             <Sparkles size={14} className="ml-1.5 text-yellow-300" />
                         </h3>
-                        <p className="text-purple-100 text-xs">Always here to help</p>
+                        <p className="text-blue-100 text-xs">Always here to help</p>
                     </div>
                 </div>
                 <div className="flex items-center space-x-2">
                     <button
                         onClick={() => setIsMinimized(true)}
-                        className="p-1.5 hover:bg-purple-500 rounded-lg transition-colors"
+                        className="p-1.5 hover:bg-blue-500 rounded-lg transition-colors"
                     >
                         <ChevronDown className="text-white" size={18} />
                     </button>
                     <button
                         onClick={onClose}
-                        className="p-1.5 hover:bg-purple-500 rounded-lg transition-colors"
+                        className="p-1.5 hover:bg-blue-500 rounded-lg transition-colors"
                     >
                         <X className="text-white" size={18} />
                     </button>
@@ -227,7 +229,7 @@ export const PatientChatbot: React.FC<PatientChatbotProps> = ({ patient, onClose
                             <div className={`flex items-start space-x-2 max-w-[85%] ${message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
                                 <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${message.type === 'user'
                                     ? 'bg-blue-600'
-                                    : 'bg-gradient-to-br from-purple-500 to-purple-600'
+                                    : 'bg-gradient-to-br from-blue-500 to-blue-600'
                                     }`}>
                                     {message.type === 'user' ? (
                                         <User className="text-white" size={16} />
@@ -258,7 +260,7 @@ export const PatientChatbot: React.FC<PatientChatbotProps> = ({ patient, onClose
                                         <button
                                             key={idx}
                                             onClick={() => handleQuickAction(action.action)}
-                                            className="flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 text-purple-700 rounded-lg text-xs font-semibold transition-all border border-purple-200 hover:border-purple-300 hover:shadow-sm"
+                                            className="flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 text-blue-700 rounded-lg text-xs font-semibold transition-all border border-blue-200 hover:border-blue-300 hover:shadow-sm"
                                         >
                                             <Icon size={14} />
                                             <span>{action.label}</span>
@@ -275,7 +277,7 @@ export const PatientChatbot: React.FC<PatientChatbotProps> = ({ patient, onClose
                                     <button
                                         key={idx}
                                         onClick={() => handleSuggestionClick(suggestion)}
-                                        className="px-3 py-1.5 bg-white hover:bg-gray-50 text-gray-700 rounded-full text-xs font-medium transition-all border border-gray-200 hover:border-purple-300 hover:text-purple-700"
+                                        className="px-3 py-1.5 bg-white hover:bg-gray-50 text-gray-700 rounded-full text-xs font-medium transition-all border border-gray-200 hover:border-blue-300 hover:text-blue-700"
                                     >
                                         {suggestion}
                                     </button>
@@ -287,14 +289,14 @@ export const PatientChatbot: React.FC<PatientChatbotProps> = ({ patient, onClose
 
                 {isTyping && (
                     <div className="flex items-start space-x-2">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0">
                             <Bot className="text-white" size={16} />
                         </div>
                         <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-sm shadow-sm border border-gray-100">
                             <div className="flex space-x-2">
-                                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
-                                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
                             </div>
                         </div>
                     </div>
@@ -317,7 +319,7 @@ export const PatientChatbot: React.FC<PatientChatbotProps> = ({ patient, onClose
                             onChange={(e) => setInputValue(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                             placeholder="Type your message..."
-                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                     </div>
                     <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
@@ -326,7 +328,7 @@ export const PatientChatbot: React.FC<PatientChatbotProps> = ({ patient, onClose
                     <button
                         onClick={handleSend}
                         disabled={!inputValue.trim()}
-                        className="p-2.5 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 disabled:from-gray-300 disabled:to-gray-300 rounded-xl transition-all disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
+                        className="p-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-300 disabled:to-gray-300 rounded-xl transition-all disabled:cursor-not-allowed transform hover:scale-105 active:scale-95"
                     >
                         <Send className="text-white" size={18} />
                     </button>

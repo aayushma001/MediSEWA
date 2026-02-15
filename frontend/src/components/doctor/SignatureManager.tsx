@@ -16,13 +16,15 @@ export const SignatureManager: React.FC<SignatureManagerProps> = ({ onSave, init
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            // Create local preview
             const reader = new FileReader();
             reader.onloadend = () => {
-                const base64String = reader.result as string;
-                setPreview(base64String);
-                onSave(base64String);
+                setPreview(reader.result as string);
             };
             reader.readAsDataURL(file);
+
+            // Pass the actual file for backend processing
+            onSave(file as any);
         }
     };
 

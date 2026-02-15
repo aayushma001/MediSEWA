@@ -1,26 +1,58 @@
 steps:
-  # Build the container image
+  # Build backend
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/medisewa', 'backend/']
-  
-  # Push the container image to Container Registry
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/${_BACKEND_IMAGE}', 'backend/']
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/medisewa']
-  
-  # Deploy container image to Cloud Run
+    args: ['push', 'gcr.io/$PROJECT_ID/${_BACKEND_IMAGE}']
+    
+  # Build chatbot
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/${_CHATBOT_IMAGE}', 'backend/chatbot/']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/${_CHATBOT_IMAGE}']
+    
+  # Deploy backend to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
       - 'run'
       - 'deploy'
-      - 'medisewa'
+      - '${_BACKEND_SERVICE}'
       - '--image'
-      - 'gcr.io/$PROJECT_ID/medisewa'
+      - 'gcr.io/$PROJECT_ID/${_BACKEND_IMAGE}'
       - '--region'
-      - 'us-central1'
+      - '${_REGION}'
       - '--platform'
       - 'managed'
       - '--allow-unauthenticated'
+      
+  # Deploy chatbot to Cloud Run WITH API KEY
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_CHATBOT_SERVICE}'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/${_CHATBOT_IMAGE}'
+      - '--region'
+      - '${_REGION}'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'GOOGLE_API_KEY=${_GOOGLE_API_KEY}'  # ADD THIS!
 
 images:
-  - 'gcr.io/$PROJECT_ID/medisewa'
+  - 'gcr.io/$PROJECT_ID/${_BACKEND_IMAGE}'
+  - 'gcr.io/$PROJECT_ID/${_CHATBOT_IMAGE}'
+
+substitutions:
+  _REGION: 'us-central1'
+  _BACKEND_SERVICE: 'medisewa-backend'
+  _CHATBOT_SERVICE: 'medisewa-chatbot'
+  _BACKEND_IMAGE: 'medisewa-backend'
+  _CHATBOT_IMAGE: 'medisewa-chatbot'
+  _GOOGLE_API_KEY: 'AIzaSyBom-5HsDAUqFTmkobNIw9j3_lDaP3-siU'  # ADD YOUR KEY HERE (or use Secret Manager below)
+
+timeout: '1200s'

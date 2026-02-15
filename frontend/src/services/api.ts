@@ -5,6 +5,15 @@ if (API_BASE_URL.endsWith('/')) {
 }
 
 export const MEDIA_URL = API_BASE_URL.replace('/api', '');
+export const getMediaUrl = (path: string | null | undefined) => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  // If the path already includes /media/ (standard Django/DRF behavior)
+  if (path.startsWith('/media/')) return `${MEDIA_URL}${path}`;
+  // If the path is relative and needs /media/ prefix
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return `${MEDIA_URL}/media${cleanPath}`;
+};
 const FALLBACK_BASES = ['http://localhost:8000/api'];
 
 // Token management
@@ -198,7 +207,7 @@ export const adminAPI = {
   updateProfile: async (data: any) => {
     return apiRequest('/auth/profile/update/', {
       method: 'PATCH',
-      body: JSON.stringify(data),
+      body: data instanceof FormData ? data : JSON.stringify(data),
     });
   },
 
@@ -292,6 +301,18 @@ export const adminAPI = {
       method: 'DELETE',
     });
   },
+
+  // Reviews
+  getReviews: async (doctorId?: string) => {
+    const url = doctorId ? `/auth/reviews/${doctorId}/` : '/auth/reviews/';
+    return apiRequest(url);
+  },
+  createReview: async (data: { doctor: string; rating: number; comment: string }) => {
+    return apiRequest('/auth/reviews/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
 };
 
 // Appointments API
@@ -350,8 +371,11 @@ export const appointmentsAPI = {
     return apiRequest(`/auth/patient/hospitals/${hospitalId}/doctors/`);
   },
 
-  getDoctorSchedule: async (doctorId: string, hospitalId: string, date: string) => {
-    return apiRequest(`/auth/patient/schedule/${doctorId}/${hospitalId}/?date=${date}`);
+  getDoctorSchedule: async (doctorId: string, hospitalId: string, date?: string) => {
+    const url = date
+      ? `/auth/patient/schedule/${doctorId}/${hospitalId}/?date=${date}`
+      : `/auth/patient/schedule/${doctorId}/${hospitalId}/`;
+    return apiRequest(url);
   },
 
   bookAppointment: async (data: any) => {
@@ -373,6 +397,13 @@ export const appointmentsAPI = {
     return apiRequest('/auth/hospital/reports/');
   },
 
+  uploadHospitalReport: async (formData: FormData) => {
+    return apiRequest('/auth/hospital/reports/upload/', {
+      method: 'POST',
+      body: formData,
+    });
+  },
+
   getDoctorAppointments: async () => {
     return apiRequest('/auth/doctor/appointments/');
   },
@@ -384,21 +415,21 @@ export const appointmentsAPI = {
     });
   },
 
-  recommendDoctors: async (data: { symptoms: string; latitude?: number; longitude?: number }) => {
-    return apiRequest('/appointments/recommend-doctors/', {
+  recommendDoctors: async (data: { symptoms: string; latitude?: number; longitude?: number; location?: string }) => {
+    return apiRequest('/auth/recommend-doctors/', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   },
 
-  nearbyHospitals: async (params: { latitude?: number; longitude?: number }) => {
+  nearbyHospitals: async (params: { latitude?: number; longitude?: number; location?: string }) => {
     const query = new URLSearchParams(
       Object.entries(params).reduce((acc, [k, v]) => {
-        if (v !== undefined && v !== null) acc[k] = String(v);
+        if (v !== undefined && v !== null && v !== '') acc[k] = String(v);
         return acc;
       }, {} as Record<string, string>)
     ).toString();
-    return apiRequest(`/appointments/nearby-hospitals/${query ? `?${query}` : ''}`);
+    return apiRequest(`/auth/nearby-hospitals/${query ? `?${query}` : ''}`);
   },
 
   getPatientMedicalRecords: async (patientId: string) => {
@@ -435,6 +466,10 @@ export const patientsAPI = {
       method: 'DELETE',
     });
   },
+
+  getHospitalPatients: async () => {
+    return apiRequest('/auth/hospital/patients/');
+  },
 };
 
 // Doctors API
@@ -447,8 +482,8 @@ export const doctorsAPI = {
     return apiRequest(`/doctors/${doctorId}/`);
   },
 
-  getDoctorPatients: async (doctorId: string) => {
-    return apiRequest(`/doctors/${doctorId}/patients/`);
+  getDoctorPatients: async () => {
+    return apiRequest('/auth/doctor/patients/');
   },
 
   getSchedules: async (doctorId?: string) => {

@@ -27,6 +27,7 @@ import { MedicalRecords } from './MedicalRecords';
 import { EmergencySearch } from './EmergencySearch';
 import { TherapyWellness } from './TherapyWellness';
 import { PatientProfileSettings } from './PatientProfileSettings';
+import { PatientMeeting } from './PatientMeeting';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 interface PatientDashboardProps {
@@ -37,6 +38,7 @@ interface PatientDashboardProps {
 export const PatientDashboard: React.FC<PatientDashboardProps> = ({ patient, onLogout }) => {
   const [activeTab, setActiveTab] = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeMeeting, setActiveMeeting] = useState<{ id: string, doctorName: string } | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -97,7 +99,10 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({ patient, onL
       case 'book-appointment':
         return <BookAppointment patientId={patientId} />;
       case 'appointments':
-        return <MyAppointments patientId={patient.id.toString()} />;
+        return <MyAppointments
+          patientId={patient.id.toString()}
+          onJoinMeeting={(id, name) => setActiveMeeting({ id, doctorName: name })}
+        />;
       case 'records':
         return <MedicalRecords patientId={patient.id.toString()} />;
       case 'emergency':
@@ -193,11 +198,18 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({ patient, onL
             <Bell className="h-6 w-6 text-gray-600" />
           </button>
         </header>
-
         <div className="flex-1 overflow-y-auto">
           {renderContent()}
         </div>
       </main>
+
+      {activeMeeting && (
+        <PatientMeeting
+          appointmentId={activeMeeting.id}
+          doctorName={activeMeeting.doctorName}
+          onClose={() => setActiveMeeting(null)}
+        />
+      )}
     </div>
   );
 };

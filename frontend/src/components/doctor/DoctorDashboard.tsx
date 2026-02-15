@@ -27,7 +27,6 @@ import {
   AlertCircle,
   Video,
   Award,
-  Heart,
   Globe,
   BarChart3,
   MessageSquare,
@@ -43,6 +42,7 @@ export interface Hospital {
   color: string;
   isOnline?: boolean;
   hospitalCode?: string;
+  backendId?: string | number;
 }
 
 interface DoctorDashboardProps {
@@ -79,6 +79,7 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
   }, [location.pathname]);
 
   const handleNav = (id: string) => {
+    setActiveConsultation(null);
     if (id === 'dashboard') {
       navigate('/doctor');
     } else {
@@ -235,7 +236,7 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'appointments', label: 'Appointments', icon: Calendar, badge: stats?.appointments_today || 0 },
     { id: 'patients', label: 'Patients', icon: Users, badge: stats?.total_patients || 0 },
-    { id: 'reviews', label: 'Reviews', icon: Star, badge: 12 },
+    { id: 'reviews', label: 'Reviews', icon: Star, badge: stats?.total_reviews || 0 },
     { id: 'overall', label: 'Overall Stats', icon: BarChart3 },
     { id: 'profile', label: 'Profile', icon: User },
   ];
@@ -255,30 +256,44 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
       );
     }
 
+    const filteredAppointments = appointments.filter(apt => {
+      if (!selectedHospital) return true;
+      if (selectedHospital.isOnline) return apt.consultation_type === 'online';
+
+      // Use backendId if available, otherwise check id
+      const targetHospitalId = selectedHospital.backendId || selectedHospital.id;
+      return String(apt.hospital) === String(targetHospitalId);
+    });
+
     switch (activeTab) {
       case 'dashboard':
         return (
           <DashboardOverview
             hospital={selectedHospital}
             pendingConnections={pendingConnections}
-            stats={{
-              appointments_today: appointments.filter(a => a.date === new Date().toISOString().split('T')[0]).length,
-              total_patients: new Set(appointments.map(a => a.patient)).size,
-              emergency_cases: appointments.filter(a => a.status === 'emergency').length,
+            stats={stats ? {
+              ...stats,
+              // Filter today's counts if a hospital/mode is selected
+              appointments_today: filteredAppointments.filter(a => a.date === new Date().toISOString().split('T')[0]).length,
+              emergency_cases: filteredAppointments.filter(a => a.is_emergency && a.date === new Date().toISOString().split('T')[0]).length,
               next_patient: (() => {
-                const next = appointments
-                  .filter(a => a.status === 'approved')
-                  .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
+                const todayStr = new Date().toISOString().split('T')[0];
+                const nowTime = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+                const next = filteredAppointments
+                  .filter(a => (a.status === 'approved' || a.status === 'APPROVED') && a.date === todayStr)
+                  .filter(a => a.time_slot.split(' - ')[0] > nowTime)
+                  .sort((a, b) => a.time_slot.localeCompare(b.time_slot))[0];
+
                 return next ? {
-                  id: next.id, // Appointment ID
-                  patient_id: next.patient,
+                  id: next.id,
+                  appointment_id: next.id,
                   name: next.patient_name,
                   time: next.time_slot,
                   condition: next.symptoms,
                   status: next.status
                 } : null;
               })()
-            }}
+            } : null}
             onConfirmConnection={handleConfirmConnection}
             onStartConsultation={(apt: any) => setActiveConsultation(apt)}
           />
@@ -286,7 +301,7 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
       case 'appointments':
         return (
           <DoctorAppointmentsView
-            appointments={appointments}
+            appointments={filteredAppointments}
             onStartConsultation={(apt) => setActiveConsultation(apt)}
             onRefresh={async () => {
               const data = await appointmentsAPI.getDoctorAppointments();
@@ -297,11 +312,11 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
       case 'patients':
         return <PatientsView doctorId={doctor.id} />;
       case 'overall':
-        return <OverallStatsView hospitals={hospitals} />;
+        return <OverallStatsView hospitals={hospitals} stats={stats} />;
       case 'profile':
         return <DoctorProfile doctor={doctor} onUpdate={(updates) => setDoctor(prev => ({ ...prev, ...updates } as Doctor))} />;
       case 'reviews':
-        return <ReviewsView />;
+        return <ReviewsView doctorId={doctor.doctor_unique_id || doctor.id} />;
       default:
         return (
           <DashboardOverview
@@ -457,6 +472,7 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
                       <button
                         key={hospital.id}
                         onClick={() => {
+                          setActiveConsultation(null);
                           setSelectedHospital(hospital);
                           setShowHospitalDropdown(false);
                         }}
@@ -471,6 +487,7 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
                     ))}
                     <button
                       onClick={() => {
+                        setActiveConsultation(null);
                         setSelectedHospital(onlinePractice);
                         setShowHospitalDropdown(false);
                       }}
@@ -511,7 +528,10 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
         <div className="px-4 py-4 border-t border-gray-100">
           <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-2">Virtual Practice</h3>
           <button
-            onClick={() => setSelectedHospital(onlinePractice)}
+            onClick={() => {
+              setActiveConsultation(null);
+              setSelectedHospital(onlinePractice);
+            }}
             className={`w-full flex items-center justify-between p-3 rounded-xl transition-all group ${selectedHospital?.id === 'online' ? 'bg-cyan-50 text-cyan-700' : 'hover:bg-gray-50 text-gray-600'}`}
           >
             <div className="flex items-center space-x-3">
@@ -524,7 +544,9 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
               </div>
             </div>
             <div className="flex flex-col items-end">
-              <span className="text-sm font-bold text-gray-900">{onlinePractice.patients}</span>
+              <span className="text-sm font-bold text-gray-900">
+                {appointments.filter(a => a.consultation_type === 'online').length}
+              </span>
               <span className="text-[10px] text-gray-500">active</span>
             </div>
           </button>
@@ -660,10 +682,10 @@ const DashboardOverview: React.FC<{
   onStartConsultation: (apt: any) => void
 }> = ({ hospital, pendingConnections, stats, onConfirmConnection, onStartConsultation }) => {
   const stats_items = [
-    { label: 'Appointments', value: stats?.appointments_today || 0, subtext: 'Total for today', icon: Calendar, color: 'blue', badge: 'Today' },
-    { label: 'Total Patients', value: stats?.total_patients || 0, subtext: 'Unique patients', icon: Users, color: 'emerald', trend: <TrendingUp size={18} /> },
-    { label: 'Emergency Cases', value: stats?.emergency_cases || 0, subtext: 'Require attention', icon: AlertCircle, color: 'red', pulse: stats?.emergency_cases > 0 },
-    { label: 'New Reviews', value: 12, subtext: '98% positive feedback', icon: Star, color: 'amber', badge: '4.9★' },
+    { label: 'Appointments', value: stats?.appointments_today || 0, subtext: 'Total for today', icon: Calendar, color: 'blue' as const, badge: 'Today' },
+    { label: 'Total Patients', value: stats?.total_patients || 0, subtext: 'Unique patients', icon: Users, color: 'emerald' as const, trend: <TrendingUp size={18} /> },
+    { label: 'Emergency Cases', value: stats?.emergency_cases || 0, subtext: 'Require attention', icon: AlertCircle, color: 'red' as const, pulse: stats?.emergency_cases > 0 },
+    { label: 'Avg Rating', value: stats?.avg_rating || 0, subtext: `${stats?.total_reviews || 0} reviews`, icon: Star, color: 'amber' as const, badge: `${stats?.avg_rating || 0}★` },
   ];
 
   return (
@@ -797,8 +819,8 @@ const DashboardOverview: React.FC<{
               <div className="flex flex-col space-y-2">
                 <Button
                   onClick={() => onStartConsultation({
-                    id: stats.next_patient.id,
-                    patient_id: stats.next_patient.patient_id,
+                    id: stats.next_patient.appointment_id,
+                    patient_id: stats.next_patient.id,
                     patient_name: stats.next_patient.name,
                     patientCondition: stats.next_patient.condition
                   })}
@@ -817,38 +839,70 @@ const DashboardOverview: React.FC<{
   );
 };
 
-const ReviewsView = () => (
-  <div className="space-y-4">
-    <div className="flex items-center justify-between">
-      <h2 className="text-xl font-bold text-gray-900">Patient Reviews</h2>
-      <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-5 py-2 rounded-xl shadow-lg">
-        <div className="text-2xl font-bold">4.9</div>
-        <div className="text-xs">Avg Rating</div>
+const ReviewsView: React.FC<{ doctorId: string }> = ({ doctorId }) => {
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const data = await adminAPI.getReviews(); // Fetching for current doctor
+        setReviews(data);
+      } catch (err) {
+        console.error('Error fetching reviews:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReviews();
+  }, [doctorId]);
+
+  const avgRating = reviews.length > 0
+    ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
+    : '0.0';
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-bold text-gray-900">Patient Reviews</h2>
+        <div className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-5 py-2 rounded-xl shadow-lg">
+          <div className="text-2xl font-bold">{avgRating}</div>
+          <div className="text-xs">Avg Rating</div>
+        </div>
+      </div>
+      <div className="grid gap-3">
+        {loading ? (
+          <div className="text-center py-12 text-gray-500">Loading reviews...</div>
+        ) : reviews.length === 0 ? (
+          <Card className="p-12 text-center bg-white rounded-2xl shadow-sm border-0">
+            <Star size={48} className="mx-auto text-gray-200 mb-4" />
+            <p className="text-gray-500 font-medium">No reviews yet.</p>
+          </Card>
+        ) : reviews.map((review) => (
+          <Card key={review.id} className="p-5 border-0 shadow-md bg-white rounded-2xl">
+            <div className="flex items-start space-x-4">
+              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                {review.patient_name[0]}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-bold text-gray-900">{review.patient_name}</h4>
+                  <div className="flex">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star key={s} size={14} className={s <= review.rating ? "fill-amber-400 text-amber-400" : "text-gray-200"} />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 leading-relaxed">{review.comment}</p>
+                <p className="text-[10px] text-gray-400 mt-2 font-medium uppercase tracking-wider">{new Date(review.created_at).toLocaleDateString()}</p>
+              </div>
+            </div>
+          </Card>
+        ))}
       </div>
     </div>
-    <div className="grid gap-3">
-      {[1, 2, 3].map((i) => (
-        <Card key={i} className="p-4 border-0 shadow-md">
-          <div className="flex items-start space-x-3">
-            <img src={`https://avatar.iran.liara.run/public/${i}`} alt="Patient" className="w-10 h-10 rounded-full" />
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-1">
-                <h4 className="font-bold text-sm">Patient Name</h4>
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} size={14} className="fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-              </div>
-              <p className="text-xs text-gray-600">Excellent care and professionalism!</p>
-              <p className="text-xs text-gray-400 mt-1">2 days ago</p>
-            </div>
-          </div>
-        </Card>
-      ))}
-    </div>
-  </div>
-);
+  );
+};
 
 const DoctorAppointmentsView: React.FC<{
   appointments: any[];
@@ -937,38 +991,46 @@ const DoctorAppointmentsView: React.FC<{
   );
 };
 
-const OverallStatsView: React.FC<{ hospitals: Hospital[] }> = ({ hospitals }) => (
-  <div className="space-y-4">
-    <h2 className="text-xl font-bold text-gray-900">Overall Statistics</h2>
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {[
-        { label: 'Total Patients', value: hospitals.reduce((acc, h) => acc + h.patients, 0), color: 'blue' },
-        { label: 'Total Hospitals', value: hospitals.filter(h => !h.isOnline).length, color: 'emerald' },
-        { label: 'Online Consultations', value: hospitals.find(h => h.isOnline)?.patients || 0, color: 'purple' },
-      ].map((stat, i) => (
-        <Card key={i} className="p-5 border-0 shadow-lg">
-          <h4 className="text-sm font-semibold text-gray-600 mb-2">{stat.label}</h4>
-          <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
-        </Card>
-      ))}
-    </div>
-    <Card className="p-5 border-0 shadow-lg">
-      <h3 className="font-bold text-gray-900 mb-4">Hospital Breakdown</h3>
-      <div className="space-y-3">
-        {hospitals.map((hospital) => (
-          <div key={hospital.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <div className={`w-3 h-3 rounded-full ${hospital.color}`}></div>
-              <div>
-                <span className="font-medium text-sm block">{hospital.name}</span>
-                <span className="text-xs text-gray-500">{hospital.hospitalCode}</span>
-              </div>
-              {hospital.isOnline && <Globe size={14} className="text-cyan-600" />}
-            </div>
-            <span className="font-bold text-gray-900">{hospital.patients}</span>
-          </div>
+const OverallStatsView: React.FC<{ hospitals: Hospital[], stats?: any }> = ({ hospitals, stats }) => {
+  const breakdown = stats?.hospital_breakdown || [];
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-xl font-bold text-gray-900">Overall Statistics</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[
+          { label: 'Total Patients', value: stats?.total_patients || 0, color: 'blue' },
+          { label: 'Total Connected Hospitals', value: hospitals.filter(h => !h.isOnline).length, color: 'emerald' },
+          { label: 'All-Time Appointments', value: stats?.all_time_appointments || 0, color: 'purple' },
+        ].map((stat, i) => (
+          <Card key={i} className="p-5 border-0 shadow-lg bg-white rounded-2xl">
+            <h4 className="text-sm font-semibold text-gray-400 uppercase mb-2">{stat.label}</h4>
+            <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
+          </Card>
         ))}
       </div>
-    </Card>
-  </div>
-);
+      <Card className="p-5 border-0 shadow-lg bg-white rounded-2xl">
+        <h3 className="font-bold text-gray-900 mb-4">Hospital Breakdown</h3>
+        <div className="space-y-3">
+          {breakdown.length === 0 ? (
+            <p className="text-sm text-gray-500 text-center py-4">No hospital affiliations found with patient data.</p>
+          ) : breakdown.map((item: any) => (
+            <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-blue-50 transition-colors">
+              <div className="flex items-center space-x-3">
+                <div className={`w-3 h-3 rounded-full bg-blue-500`}></div>
+                <div>
+                  <span className="font-bold text-gray-900 block">{item.name}</span>
+                  <span className="text-xs text-gray-500 font-mono">{item.hospital_code}</span>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="font-bold text-blue-600 block">{item.patients}</span>
+                <span className="text-[10px] text-gray-400 uppercase font-bold">Patients</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+};

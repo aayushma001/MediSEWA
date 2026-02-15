@@ -4,7 +4,7 @@ from django.db import transaction
 from .models import (
     User, Hospital, DoctorProfile, PaymentMethod, Notification, 
     PatientProfile, Department, DoctorHospitalConnection, DoctorSchedule,
-    Appointment, MedicalReport
+    Appointment, MedicalReport, Review
 )
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -314,7 +314,7 @@ class HospitalSerializer(serializers.ModelSerializer):
         fields = ['user', 'hospital_name', 'hospital_type', 'hospital_unique_id', 'address', 
                   'province', 'district', 'city', 'ward', 'tole',
                   'pan_number', 'registration_number', 'contact_number', 'website', 
-                  'logo', 'latitude', 'longitude', 'description', 'beds', 'opening_hours', 'departments']
+                  'logo', 'qr_code', 'latitude', 'longitude', 'description', 'beds', 'opening_hours', 'departments']
 
     def update(self, instance, validated_data):
         departments_data = validated_data.pop('departments', None)
@@ -371,12 +371,13 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
         model = DoctorProfile
         fields = ['id', 'user', 'profile_picture', 'qualification', 'specialization', 
                   'experience_years', 'about', 'is_verified', 'consent_accepted',
-                  'nmc_number', 'doctor_unique_id', 'contact_number', 'address', 'gender', 'date_of_birth', 'consultation_fee']
+                  'nmc_number', 'doctor_unique_id', 'contact_number', 'address', 'gender', 'date_of_birth', 
+                  'consultation_fee', 'signature_image']
 
 class DoctorScheduleSerializer(serializers.ModelSerializer):
     class Meta:
         model = DoctorSchedule
-        fields = ['id', 'doctor', 'hospital', 'date', 'session_data', 'created_at', 'updated_at']
+        fields = ['id', 'doctor', 'hospital', 'date', 'is_recurring', 'day_of_week', 'session_data', 'created_at', 'updated_at']
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
@@ -387,13 +388,14 @@ class AppointmentSerializer(serializers.ModelSerializer):
     doctor_name = serializers.CharField(source='doctor.user.get_full_name', read_only=True)
     hospital_name = serializers.CharField(source='hospital.hospital_name', read_only=True)
     patient_details = UserSerializer(source='patient.user', read_only=True)
+    is_emergency = serializers.BooleanField(required=False)
     
     class Meta:
         model = Appointment
         fields = [
             'id', 'patient', 'doctor', 'hospital', 'date', 'time_slot', 
             'status', 'consultation_type', 'payment_screenshot', 'symptoms', 
-            'meeting_link', 'booking_reference', 'created_at', 'updated_at',
+            'meeting_link', 'booking_reference', 'is_emergency', 'created_at', 'updated_at',
             'patient_name', 'doctor_name', 'hospital_name', 'patient_details'
         ]
         read_only_fields = ['status', 'meeting_link', 'created_at', 'updated_at']
@@ -401,12 +403,23 @@ class AppointmentSerializer(serializers.ModelSerializer):
 class MedicalReportSerializer(serializers.ModelSerializer):
     doctor_name = serializers.CharField(source='doctor.user.get_full_name', read_only=True)
     hospital_name = serializers.CharField(source='hospital.hospital_name', read_only=True)
+    uploaded_by_name = serializers.CharField(source='uploaded_by.get_full_name', read_only=True)
+    patient_name = serializers.CharField(source='patient.user.get_full_name', read_only=True)
     
     class Meta:
         model = MedicalReport
         fields = [
             'id', 'patient', 'doctor', 'hospital', 'appointment', 
-            'title', 'description', 'report_file', 'created_at', 
-            'doctor_name', 'hospital_name'
+            'report_type', 'title', 'description', 'report_file', 'created_at', 
+            'doctor_name', 'hospital_name', 'uploaded_by_name', 'patient_name'
         ]
+        read_only_fields = ['created_at']
+
+class ReviewSerializer(serializers.ModelSerializer):
+    patient_name = serializers.CharField(source='patient.user.get_full_name', read_only=True)
+    doctor_name = serializers.CharField(source='doctor.user.get_full_name', read_only=True)
+
+    class Meta:
+        model = Review
+        fields = ['id', 'doctor', 'patient', 'rating', 'comment', 'created_at', 'patient_name', 'doctor_name']
         read_only_fields = ['created_at']

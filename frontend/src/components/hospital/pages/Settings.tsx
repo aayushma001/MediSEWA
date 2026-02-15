@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import {
     Search,
     Camera,
@@ -6,7 +7,6 @@ import {
     CreditCard,
     Building,
     Smartphone,
-    Shield,
     Save,
     ChevronRight,
     Globe,
@@ -20,7 +20,6 @@ import {
     Moon,
     Sun,
     Monitor,
-    Users,
     Plus,
     Trash2,
     Edit2,
@@ -28,10 +27,15 @@ import {
     AlertTriangle
 } from 'lucide-react';
 import { User } from '../../../types';
-import { adminAPI } from '../../../services/api';
+import { adminAPI, getMediaUrl } from '../../../services/api';
 
 interface SettingsProps {
     user: User;
+}
+
+interface SettingsContext {
+    onUpdateProfile: (data: any) => Promise<void>;
+    refreshProfile: () => Promise<void>;
 }
 
 const NEPALI_BANKS = [
@@ -44,6 +48,7 @@ const NEPALI_BANKS = [
 const DIGITAL_WALLETS = ["eSewa", "Khalti", "IME Pay", "Prabhu Pay"];
 
 export const Settings: React.FC<SettingsProps> = ({ user }) => {
+    const { onUpdateProfile, refreshProfile } = useOutletContext<SettingsContext>();
     const [activeTab, setActiveTab] = useState('Account');
     const [isLoading, setIsLoading] = useState(false);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -58,8 +63,25 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
         email: user.email || '',
         website: user.hospital_profile?.website || '',
         address: user.hospital_profile?.address || '',
-        profilePicture: localStorage.getItem('hospital-profile-picture') || ''
+        profilePicture: localStorage.getItem('hospital-profile-picture') || '',
+        qr_code: user.hospital_profile?.qr_code || '',
+        qr_code_file: null as File | null,
+        qr_code_preview: getMediaUrl(user.hospital_profile?.qr_code)
     });
+
+    // Sync state with user prop
+    useEffect(() => {
+        setProfile(prev => ({
+            ...prev,
+            username: user.hospital_profile?.hospital_name || '',
+            phone: user.hospital_profile?.contact_number || user.mobile || '',
+            bio: user.hospital_profile?.description || '',
+            website: user.hospital_profile?.website || '',
+            address: user.hospital_profile?.address || '',
+            qr_code: user.hospital_profile?.qr_code || '',
+            qr_code_preview: getMediaUrl(user.hospital_profile?.qr_code)
+        }));
+    }, [user]);
 
     // Contact State
     const [contactInfo, setContactInfo] = useState({
@@ -192,6 +214,24 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
         showSuccess('Profile picture removed.');
     };
 
+    const handleQrUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 2 * 1024 * 1024) {
+            showError('QR Code image must be under 2MB.');
+            return;
+        }
+
+        const previewUrl = URL.createObjectURL(file);
+        setProfile({
+            ...profile,
+            qr_code_file: file,
+            qr_code_preview: previewUrl
+        });
+        showSuccess('QR Code selected. Save changes to upload.');
+    };
+
     // --- Account Deletion Handler ---
     const handleDeleteAccount = async () => {
         if (!deletePassword) {
@@ -225,14 +265,19 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
     const handleSaveProfile = async () => {
         setIsLoading(true);
         try {
-            await adminAPI.updateProfile({
-                hospital_name: profile.username,
-                contact_number: profile.phone,
-                description: profile.bio,
-                website: profile.website,
-                address: profile.address
-            });
-            showSuccess("Profile updated successfully!");
+            const formData = new FormData();
+            formData.append('hospital_name', profile.username);
+            formData.append('contact_number', profile.phone);
+            formData.append('description', profile.bio);
+            formData.append('website', profile.website);
+            formData.append('address', profile.address);
+
+            if (profile.qr_code_file) {
+                formData.append('qr_code', profile.qr_code_file);
+            }
+
+            await onUpdateProfile(formData);
+            showSuccess("Profile and QR Code updated successfully!");
         } catch (error) {
             console.error(error);
             showError("Failed to update profile.");
@@ -590,6 +635,41 @@ export const Settings: React.FC<SettingsProps> = ({ user }) => {
             )}
 
             <div className="grid gap-6 md:grid-cols-2">
+                {/* Hospital Global QR Code Section */}
+                <div className="md:col-span-2 p-8 bg-indigo-50/50 rounded-2xl border border-indigo-100 mb-6">
+                    <div className="flex flex-col md:flex-row items-center gap-8">
+                        <div className="h-48 w-48 bg-white rounded-xl border-4 border-white shadow-sm flex items-center justify-center overflow-hidden">
+                            {profile.qr_code_preview ? (
+                                <img src={profile.qr_code_preview} alt="Hospital QR" className="h-full w-full object-contain" />
+                            ) : (
+                                <div className="text-center p-4">
+                                    <CreditCard className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                                    <p className="text-xs text-gray-400">No QR Code uploaded</p>
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex-1 text-center md:text-left">
+                            <h4 className="text-xl font-bold text-gray-900 mb-2">Hospital Official QR Code</h4>
+                            <p className="text-gray-500 mb-6 max-w-md">This QR code will be displayed to patients during the appointment booking payment step. Please ensure it is clear and valid.</p>
+                            <label className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all cursor-pointer inline-flex items-center gap-2">
+                                <Camera className="h-4 w-4" />
+                                {profile.qr_code_preview ? 'Change QR Code' : 'Upload QR Code'}
+                                <input type="file" className="hidden" accept="image/*" onChange={handleQrUpload} />
+                            </label>
+                            <div className="mt-4">
+                                <button
+                                    onClick={handleSaveProfile}
+                                    disabled={isLoading}
+                                    className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-md"
+                                >
+                                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                    Save QR Code
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {paymentMethods.map(method => (
                     <div key={method.id} className="p-6 border border-gray-200 rounded-2xl bg-white relative group hover:border-indigo-300 transition-all shadow-sm">
                         <div className="flex justify-between items-start mb-5">

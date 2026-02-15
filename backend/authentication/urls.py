@@ -36,6 +36,17 @@ urlpatterns = [
     # Medical Reports
     path('reports/upload/', views.upload_medical_report, name='upload_medical_report'),
     path('hospital/reports/', views.get_hospital_reports, name='hospital_reports'),
+    path('hospital/reports/upload/', views.upload_hospital_report, name='upload_hospital_report'),
+    path('hospital/patients/', views.get_all_patients, name='get_all_patients'),
     path('patient/<str:patient_id>/reports/', views.get_patient_reports, name='get_patient_reports'),
     path('patients/<str:patient_id>/', views.get_patient_detail, name='get_patient_detail'),
+
+    # Emergency Search
+    path('recommend-doctors/', views.recommend_doctors, name='recommend_doctors'),
+    path('nearby-hospitals/', views.nearby_hospitals, name='nearby_hospitals'),
+    
+    # Reviews and Doctor's Patients
+    path('reviews/', views.manage_reviews, name='manage_reviews'),
+    path('reviews/<str:doctor_id>/', views.manage_reviews, name='doctor_reviews'),
+    path('doctor/patients/', views.get_doctor_patients, name='get_doctor_patients'),
 ]

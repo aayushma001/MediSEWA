@@ -3,7 +3,7 @@ import { Doctor } from '../../types';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { SignatureManager } from './SignatureManager';
-import { adminAPI } from '../../services/api';
+import { adminAPI, getMediaUrl } from '../../services/api';
 import {
     Award,
     MapPin,
@@ -62,8 +62,33 @@ export const DoctorProfile: React.FC<DoctorProfileProps> = ({ doctor, onUpdate }
     const handleSaveToBackend = async (updates: Partial<Doctor>) => {
         setIsSaving(true);
         try {
-            const data = await adminAPI.updateProfile(updates);
-            onUpdate(data);
+            // Handle signature field mapping if present
+            const finalUpdates: any = { ...updates };
+            if (updates.signature && (updates.signature as any) instanceof File) {
+                finalUpdates.signature_image = updates.signature;
+                delete finalUpdates.signature;
+            }
+
+            // Create FormData if any field is a File
+            let data: any = finalUpdates;
+            const hasFile = Object.values(finalUpdates).some(v => v instanceof File);
+
+            if (hasFile) {
+                data = new FormData();
+                Object.entries(finalUpdates).forEach(([key, value]) => {
+                    if (value !== undefined && value !== null) {
+                        data.append(key, value as any);
+                    }
+                });
+            }
+
+            const response = await adminAPI.updateProfile(data);
+            onUpdate(response);
+
+            // If it was a signature, we might want to refresh to get the processed version
+            if (hasFile) {
+                fetchProfile();
+            }
         } catch (error) {
             console.error("Error saving profile:", error);
         } finally {
@@ -425,9 +450,16 @@ export const DoctorProfile: React.FC<DoctorProfileProps> = ({ doctor, onUpdate }
                         onSave={(sig) => { handleSaveToBackend({ signature: sig }); setIsEditingSignature(false); }}
                         initialSignature={doctor.signature}
                     />
-                ) : doctor.signature ? (
+                ) : (doctor.signature_image || doctor.signature) ? (
                     <div className="p-12 bg-white rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center">
-                        <img src={doctor.signature} alt="Signature" className="max-h-32 object-contain" />
+                        <img
+                            src={(doctor.signature_image || doctor.signature)?.startsWith('data:')
+                                ? (doctor.signature_image || doctor.signature)
+                                : getMediaUrl(doctor.signature_image || doctor.signature || '')
+                            }
+                            alt="Signature"
+                            className="max-h-32 object-contain"
+                        />
                     </div>
                 ) : (
                     <div className="p-12 border-2 border-dashed border-gray-300 rounded-2xl text-center bg-gray-50">

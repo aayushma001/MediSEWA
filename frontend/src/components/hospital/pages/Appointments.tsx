@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { appointmentsAPI } from '../../../services/api';
-import { User, CheckCircle, XCircle, ExternalLink, Info } from 'lucide-react';
+import { User, CheckCircle, XCircle, ExternalLink, Info, AlertTriangle } from 'lucide-react';
 
 interface Appointment {
     id: number;
@@ -14,6 +14,7 @@ interface Appointment {
     payment_screenshot: string | null;
     meeting_link: string | null;
     created_at: string;
+    is_emergency?: boolean;
 }
 
 export const Appointments: React.FC = () => {
@@ -90,7 +91,12 @@ export const Appointments: React.FC = () => {
             ) : (
                 <div className="grid gap-6">
                     {filteredAppointments.map(apt => (
-                        <div key={apt.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+                        <div key={apt.id} className={`bg-white rounded-xl shadow-sm border ${apt.is_emergency ? 'border-red-500 ring-4 ring-red-50' : 'border-gray-100'} overflow-hidden hover:shadow-md transition-shadow relative`}>
+                            {apt.is_emergency && (
+                                <div className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-bl-xl z-10 flex items-center gap-1">
+                                    <AlertTriangle size={12} /> EMERGENCY
+                                </div>
+                            )}
                             <div className="p-6">
                                 <div className="flex flex-col lg:flex-row gap-6">
                                     {/* Info Section */}
@@ -108,8 +114,8 @@ export const Appointments: React.FC = () => {
                                                     <span className="text-xs text-gray-400">ID: APT-{apt.id}</span>
                                                 </div>
                                                 <h3 className="text-xl font-bold text-gray-900">{apt.patient_name}</h3>
-                                                <p className="text-blue-600 font-medium flex items-center gap-1">
-                                                    <User size={14} /> Dr. {apt.doctor_name}
+                                                <p className={`${apt.is_emergency ? 'text-red-600 font-bold' : 'text-blue-600 font-medium'} flex items-center gap-1`}>
+                                                    <User size={14} /> {apt.is_emergency ? `Emergency Checkup` : `Dr. ${apt.doctor_name}`}
                                                 </p>
                                             </div>
                                             <div className="text-right">
