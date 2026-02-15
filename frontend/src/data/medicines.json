@@ -1,0 +1,202 @@
+[
+  {
+    "name": "Paracetamol",
+    "type": "Analgesic"
+  },
+  {
+    "name": "Ibuprofen",
+    "type": "NSAID"
+  },
+  {
+    "name": "Amoxicillin",
+    "type": "Antibiotic"
+  },
+  {
+    "name": "Azithromycin",
+    "type": "Antibiotic"
+  },
+  {
+    "name": "Cetirizine",
+    "type": "Antihistamine"
+  },
+  {
+    "name": "Omeprazole",
+    "type": "Proton Pump Inhibitor"
+  },
+  {
+    "name": "Metformin",
+    "type": "Antidiabetic"
+  },
+  {
+    "name": "Amlodipine",
+    "type": "Antihypertensive"
+  },
+  {
+    "name": "Atorvastatin",
+    "type": "Statin"
+  },
+  {
+    "name": "Losartan",
+    "type": "Antihypertensive"
+  },
+  {
+    "name": "Aspirin",
+    "type": "Antiplatelet"
+  },
+  {
+    "name": "Clopidogrel",
+    "type": "Antiplatelet"
+  },
+  {
+    "name": "Salbutamol",
+    "type": "Bronchodilator"
+  },
+  {
+    "name": "Montelukast",
+    "type": "Leukotriene Receptor Antagonist"
+  },
+  {
+    "name": "Prednisolone",
+    "type": "Corticosteroid"
+  },
+  {
+    "name": "Dexamethasone",
+    "type": "Corticosteroid"
+  },
+  {
+    "name": "Ciprofloxacin",
+    "type": "Antibiotic"
+  },
+  {
+    "name": "Levofloxacin",
+    "type": "Antibiotic"
+  },
+  {
+    "name": "Doxycycline",
+    "type": "Antibiotic"
+  },
+  {
+    "name": "Cephalexin",
+    "type": "Antibiotic"
+  },
+  {
+    "name": "Pantoprazole",
+    "type": "Proton Pump Inhibitor"
+  },
+  {
+    "name": "Ranitidine",
+    "type": "H2 Blocker"
+  },
+  {
+    "name": "Domperidone",
+    "type": "Antiemetic"
+  },
+  {
+    "name": "Ondansetron",
+    "type": "Antiemetic"
+  },
+  {
+    "name": "Diclofenac",
+    "type": "NSAID"
+  },
+  {
+    "name": "Naproxen",
+    "type": "NSAID"
+  },
+  {
+    "name": "Tramadol",
+    "type": "Opioid Analgesic"
+  },
+  {
+    "name": "Codeine",
+    "type": "Opioid Analgesic"
+  },
+  {
+    "name": "Loratadine",
+    "type": "Antihistamine"
+  },
+  {
+    "name": "Fexofenadine",
+    "type": "Antihistamine"
+  },
+  {
+    "name": "Chlorpheniramine",
+    "type": "Antihistamine"
+  },
+  {
+    "name": "Diphenhydramine",
+    "type": "Antihistamine"
+  },
+  {
+    "name": "Insulin Glargine",
+    "type": "Long-acting Insulin"
+  },
+  {
+    "name": "Insulin Lispro",
+    "type": "Rapid-acting Insulin"
+  },
+  {
+    "name": "Glimepiride",
+    "type": "Antidiabetic"
+  },
+  {
+    "name": "Sitagliptin",
+    "type": "Antidiabetic"
+  },
+  {
+    "name": "Enalapril",
+    "type": "ACE Inhibitor"
+  },
+  {
+    "name": "Lisinopril",
+    "type": "ACE Inhibitor"
+  },
+  {
+    "name": "Bisoprolol",
+    "type": "Beta Blocker"
+  },
+  {
+    "name": "Carvedilol",
+    "type": "Beta Blocker"
+  },
+  {
+    "name": "Furosemide",
+    "type": "Diuretic"
+  },
+  {
+    "name": "Spironolactone",
+    "type": "Diuretic"
+  },
+  {
+    "name": "Warfarin",
+    "type": "Anticoagulant"
+  },
+  {
+    "name": "Rivaroxaban",
+    "type": "Anticoagulant"
+  },
+  {
+    "name": "Levothyroxine",
+    "type": "Thyroid Hormone"
+  },
+  {
+    "name": "Vitamin D3",
+    "type": "Vitamin Supplement"
+  },
+  {
+    "name": "Calcium Carbonate",
+    "type": "Mineral Supplement"
+  },
+  {
+    "name": "Folic Acid",
+    "type": "Vitamin Supplement"
+  },
+  {
+    "name": "Iron Sulfate",
+    "type": "Mineral Supplement"
+  },
+  {
+    "name": "Multivitamin",
+    "type": "Vitamin Supplement"
+  }
+]

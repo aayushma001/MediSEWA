@@ -1,0 +1,169 @@
+Local Environment Setup Fix
+The Django backend is currently defaulting to production settings because it cannot find a .env file. This causes it to force HTTPS redirection and secure cookies, which the local development server doesn't support. Additionally, a stale process was occupying port 8000.
+
+Proposed Changes
+Backend
+[NEW] 
+.env
+Create a .env file to enable debug mode and allow HTTP connections.
+
+DEBUG=True
+SECRET_KEY=django-insecure-local-dev-key
+ALLOWED_HOSTS=localhost,127.0.0.1
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+CSRF_TRUSTED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+Frontend
+[NEW] 
+.env
+Create a .env file to ensure the frontend points to the local backend.
+
+VITE_API_BASE_URL=http://127.0.0.1:8000/api
+Verification Plan
+Automated Tests
+Run python manage.py runserver and verify it starts without HTTPS warnings.
+Check that the frontend can successfully make a login request to http://127.0.0.1:8000/api/auth/login/.
+Manual Verification
+Open the browser to http://localhost:5173.
+Attempt to log in.
+Observe the Django console to ensure requests are being received via HTTP (200 OK) rather than being redirected to HTTPS.
+
+to run django
+#venv/bin/python3 manage.py runserver 127.0.0.1:8000   
+
+
+
+--------------------------------------------
+------------------------------------
+-------------------------------------------
+
+#for chatbot i change in cloudbuild.yaml
+
+
+
+
+Quick Google Cloud Deployment:
+Step 1: Update cloudbuild.yaml
+yamlsteps:
+  # Build backend
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/medisewa-backend', 'backend/']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/medisewa-backend']
+    
+  # Build CHATBOT (NEW)
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/medisewa-chatbot', 'backend/chatbot/']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/medisewa-chatbot']
+    
+  # Deploy backend
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'medisewa-backend'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/medisewa-backend'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+    
+  # Deploy CHATBOT (NEW)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'medisewa-chatbot'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/medisewa-chatbot'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'GOOGLE_API_KEY=${_GOOGLE_API_KEY}'
+
+images:
+  - 'gcr.io/$PROJECT_ID/medisewa-backend'
+  - 'gcr.io/$PROJECT_ID/medisewa-chatbot'
+
+substitutions:
+  _GOOGLE_API_KEY: 'your-api-key-here'  # Replace with actual key
+
+timeout: '1200s'
+
+Step 2: Add Chatbot Dockerfile
+Create backend/chatbot/Dockerfile:
+dockerfileFROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 5000
+
+CMD ["python", "api_server.py"]
+
+Step 3: Update api_server.py
+python# At bottom of file
+if __name__ == '__main__':
+    port = int(os.getenv('PORT', 5000))  # Cloud Run sets PORT
+    app.run(debug=False, host='0.0.0.0', port=port)
+
+Step 4: Deploy to Google Cloud
+bash# Push to GitHub
+git add .
+git commit -m "Add chatbot to Cloud Build"
+git push origin main
+
+# Cloud Build will automatically:
+# 1. Build backend image
+# 2. Build chatbot image
+# 3. Deploy both to Cloud Run
+
+Step 5: Get URLs
+After deployment (2-3 minutes):
+bash# Get backend URL
+gcloud run services describe medisewa-backend --region=us-central1 --format='value(status.url)'
+
+# Get chatbot URL
+gcloud run services describe medisewa-chatbot --region=us-central1 --format='value(status.url)'
+Example URLs:
+
+Backend: https://medisewa-backend-xxxxx-uc.a.run.app
+Chatbot: https://medisewa-chatbot-xxxxx-uc.a.run.app
+
+
+Step 6: Update Frontend
+env# frontend/.env
+REACT_APP_BACKEND_URL=https://medisewa-backend-xxxxx-uc.a.run.app
+REACT_APP_CHATBOT_URL=https://medisewa-chatbot-xxxxx-uc.a.run.app
+```
+
+---
+
+## **Cost Breakdown (1-2 Days Testing):**
+```
+Cloud Run Free Tier:
+- 2 million requests/month FREE
+- 360,000 GB-seconds memory FREE
+- 180,000 vCPU-seconds FREE
+
+For 1-2 days testing: ~$0.10 - $0.50 total
+With $300 free credit: $0.00 (FREE!)
+
+After Testing (Stop Charges):
+bash# Delete services to stop ALL charges
+gcloud run services delete medisewa-backend --region=us-central1
+gcloud run services delete medisewa-chatbot --region=us-central1
+
+# Or just stop traffic (keeps service but no cost)
+gcloud run services update-traffic medisewa-chatbot --to-revisions=LATEST=0 --region=us-central1

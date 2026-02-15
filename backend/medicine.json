@@ -1,0 +1,88 @@
+[
+    {
+        "name": "Paracetamol",
+        "type": "Analgesic",
+        "common_dosages": [
+            "500mg",
+            "650mg",
+            "1000mg"
+        ]
+    },
+    {
+        "name": "Ibuprofen",
+        "type": "NSAID",
+        "common_dosages": [
+            "200mg",
+            "400mg",
+            "600mg"
+        ]
+    },
+    {
+        "name": "Amoxicillin",
+        "type": "Antibiotic",
+        "common_dosages": [
+            "250mg",
+            "500mg"
+        ]
+    },
+    {
+        "name": "Azithromycin",
+        "type": "Antibiotic",
+        "common_dosages": [
+            "250mg",
+            "500mg"
+        ]
+    },
+    {
+        "name": "Cetirizine",
+        "type": "Antihistamine",
+        "common_dosages": [
+            "5mg",
+            "10mg"
+        ]
+    },
+    {
+        "name": "Omeprazole",
+        "type": "Proton Pump Inhibitor",
+        "common_dosages": [
+            "20px",
+            "40mg"
+        ]
+    },
+    {
+        "name": "Pantoprazole",
+        "type": "Proton Pump Inhibitor",
+        "common_dosages": [
+            "20mg",
+            "40mg"
+        ]
+    },
+    {
+        "name": "Metformin",
+        "type": "Antidiabetic",
+        "common_dosages": [
+            "500mg",
+            "850mg",
+            "1000mg"
+        ]
+    },
+    {
+        "name": "Amlodipine",
+        "type": "Antihypertensive",
+        "common_dosages": [
+            "2.5mg",
+            "5mg",
+            "10mg"
+        ]
+    },
+    {
+        "name": "Atorvastatin",
+        "type": "Statin",
+        "common_dosages": [
+            "10mg",
+            "20mg",
+            "40mg",
+            "80mg"
+        ]
+    }
+]

@@ -1,0 +1,914 @@
+import React, { useState, useEffect } from 'react';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { Select } from '../ui/Select';
+import { RegisterFormData } from '../../types';
+import { locationData } from '../../utils/locationData';
+import { Building, Heart, Stethoscope, ChevronRight, ChevronLeft, Check, FileText, Search, MapPin } from 'lucide-react';
+import { authAPI } from '../../services/api';
+
+interface RegisterFormProps {
+  onSubmit: (data: RegisterFormData) => Promise<void>;
+  loading?: boolean;
+  onLoginClick: () => void;
+}
+
+export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, onLoginClick }) => {
+  // Step 1: Email, Step 2: OTP, Step 3: Full Form
+  const [step, setStep] = useState(1);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [addressSearch, setAddressSearch] = useState('');
+  const [addressSuggestions, setAddressSuggestions] = useState<string[]>([]);
+
+  const [formData, setFormData] = useState<RegisterFormData>({
+    name: '',
+    email: '',
+    mobile: '',
+    password: '',
+    confirmPassword: '',
+    userType: 'patient', // Default
+
+    // Location
+    province: '',
+    district: '',
+    city: '',
+    ward: '',
+    tole: '',
+
+    // Doctor specific
+    qualification: '',
+    specialization: '',
+    nmcId: '',
+    resources: '',
+    consentAccepted: false,
+    nidNumber: '',
+    doctorId: '',
+
+    // Patient specific
+    bloodGroup: '',
+    allergies: '',
+    recentHealthCheckups: '',
+    nidNumberPatient: '',
+    healthCondition: '',
+    medications: '',
+    generatedId: '',
+
+    // Hospital specific
+    hospitalName: '',
+    hospitalType: '',
+    hospitalId: '',
+    address: '',
+    panNumber: '',
+    registrationNumber: '',
+    contactNumber: '',
+    website: ''
+  });
+
+  const [oauthNotice, setOauthNotice] = useState<string | null>(null);
+
+  // Derived state for location dropdowns
+  const [districts, setDistricts] = useState<string[]>([]);
+  const [cities, setCities] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (formData.province) {
+      const dists = locationData[formData.province] ? Object.keys(locationData[formData.province]) : [];
+      setDistricts(dists);
+      // Reset dependent fields if province changes and current selection is invalid
+      if (!dists.includes(formData.district || '')) {
+        setFormData(prev => ({ ...prev, district: '', city: '' }));
+      }
+    } else {
+      setDistricts([]);
+      setCities([]);
+    }
+  }, [formData.province]);
+
+  useEffect(() => {
+    if (formData.district && formData.province) {
+      const cts = locationData[formData.province][formData.district] || [];
+      setCities(cts);
+      if (!cts.includes(formData.city || '')) {
+        setFormData(prev => ({ ...prev, city: '' }));
+      }
+    } else {
+      setCities([]);
+    }
+  }, [formData.district, formData.province]);
+
+  // Auto-generate Health ID based on address
+  useEffect(() => {
+    if (formData.userType === 'patient' && formData.province && formData.district && formData.city && formData.ward) {
+      const getInitials = (str: string) => {
+        // Simple logic: Take first 2-3 uppercase letters
+        return str.substring(0, 2).toUpperCase();
+      };
+
+      const provCode = getInitials(formData.province);
+      const distCode = formData.district.substring(0, 3).toUpperCase();
+      const cityCode = getInitials(formData.city);
+      const wardCode = formData.ward.padStart(2, '0'); // Ensure 2 digits
+
+      const newId = `${provCode}${distCode}${cityCode}${wardCode}`;
+
+      setFormData(prev => ({ ...prev, generatedId: newId }));
+    } else if (formData.userType === 'hospital' && formData.province && formData.district && formData.city && formData.ward) {
+      const getInitials = (str: string) => {
+        return str.substring(0, 2).toUpperCase();
+      };
+
+      // Hospital Pattern: HOSP + [LocationCode]
+      const provCode = getInitials(formData.province);
+      const distCode = formData.district.substring(0, 3).toUpperCase();
+      const cityCode = getInitials(formData.city);
+      const wardCode = formData.ward.padStart(2, '0');
+
+      const newHospId = `HOSP${provCode}${distCode}${cityCode}${wardCode}`;
+      setFormData(prev => ({ ...prev, hospitalId: newHospId }));
+    } else if (formData.userType === 'doctor' && formData.name && formData.qualification && formData.province && formData.district && formData.city && formData.ward) {
+      const getInitials = (str: string) => {
+        return str.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 3);
+      };
+
+      const nameInitials = getInitials(formData.name);
+      const qualCode = formData.qualification.split(',')[0].trim().toUpperCase().substring(0, 4);
+
+      const provCode = formData.province.substring(0, 2).toUpperCase();
+      const distCode = formData.district.substring(0, 3).toUpperCase();
+      const cityCode = formData.city.substring(0, 2).toUpperCase();
+      const wardCode = formData.ward.padStart(2, '0');
+
+      const newDocId = `DOC-${nameInitials}-${qualCode}-${provCode}${distCode}${cityCode}${wardCode}`;
+      setFormData(prev => ({ ...prev, doctorId: newDocId }));
+    }
+  }, [formData.province, formData.district, formData.city, formData.ward, formData.userType, formData.name, formData.qualification]);
+
+
+  // Address Autocomplete Logic
+  useEffect(() => {
+    if (addressSearch.length > 2) {
+      // Mock logic: If user types "Kathmandu", suggest "Kathmandu, Bagmati"
+      if ("kathmandu".includes(addressSearch.toLowerCase())) {
+        setAddressSuggestions(["Kathmandu, Bagmati"]);
+      } else if ("lalitpur".includes(addressSearch.toLowerCase())) {
+        setAddressSuggestions(["Lalitpur, Bagmati"]);
+      } else if ("pokhara".includes(addressSearch.toLowerCase())) {
+        setAddressSuggestions(["Pokhara, Gandaki"]);
+      } else {
+        setAddressSuggestions([]);
+      }
+    } else {
+      setAddressSuggestions([]);
+    }
+  }, [addressSearch]);
+
+  const handleAddressSelect = (suggestion: string) => {
+    setAddressSearch(suggestion);
+    setAddressSuggestions([]);
+
+    // Auto-fill based on suggestion
+    if (suggestion.includes("Kathmandu")) {
+      setFormData(prev => ({ ...prev, province: "Bagmati", district: "Kathmandu", city: "Kathmandu" }));
+    } else if (suggestion.includes("Lalitpur")) {
+      setFormData(prev => ({ ...prev, province: "Bagmati", district: "Lalitpur", city: "Lalitpur" }));
+    } else if (suggestion.includes("Pokhara")) {
+      setFormData(prev => ({ ...prev, province: "Gandaki", district: "Kaski", city: "Pokhara" }));
+    }
+  };
+
+  const handleSendOTP = async () => {
+    if (!formData.email) {
+      alert("Please enter your email address first.");
+      return;
+    }
+
+    try {
+      await authAPI.sendOTP(formData.email);
+      setOtpSent(true);
+      setStep(2);
+      alert("OTP sent to your email!");
+    } catch (error: any) {
+      console.error("Error sending OTP:", error);
+      alert(error.message || "Failed to send OTP.");
+    }
+  };
+
+  const handleVerifyOTP = async () => {
+    if (!otpCode) {
+      alert("Please enter the OTP sent to your email.");
+      return;
+    }
+
+    try {
+      await authAPI.verifyOTP(formData.email, otpCode);
+      setOtpVerified(true);
+      setStep(3); // Move to full form
+      alert("Email verified successfully!");
+    } catch (error: any) {
+      console.error("Error verifying OTP:", error);
+      alert(error.message || "Invalid OTP.");
+    }
+  };
+
+  const handleNext = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (step === 1) {
+      handleSendOTP();
+      return;
+    }
+    if (step === 2) {
+      handleVerifyOTP();
+      return;
+    }
+
+    /* Original Step 1 logic moved to here (now Step 3 internal) */
+    if (formData.password !== formData.confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+
+    // Basic validation based on user type
+    if (!formData.name || !formData.email || !formData.mobile || !formData.password) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    /* ... rest of validation ... */
+    if (formData.userType === 'hospital') {
+      if (!formData.hospitalName || !formData.registrationNumber) {
+        alert('Please fill in all hospital details');
+        return;
+      }
+    } else {
+      // Validate Location for Patient/Doctor
+      if (!formData.province || !formData.district || !formData.city || !formData.ward) {
+        alert('Please fill in your full address (Province, District, City, Ward)');
+        return;
+      }
+    }
+
+    // If implementing multi-step form inside the verified state:
+    // setInnerStep(2); 
+    // OR just submit if it's a single long form now.
+    // For now, let's assume we submit here or show the second part of the form if it was split?
+    // The original code had step 1 -> step 2 (Terms).
+    // So here we go to Terms (Step 4 technically in our new flow)
+    setStep(4);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.consentAccepted) {
+      alert('You must accept the terms and conditions to register.');
+      return;
+    }
+    await onSubmit(formData);
+  };
+
+  const handleSocial = (provider: 'google' | 'facebook' | 'apple') => {
+    setOauthNotice(`${provider.charAt(0).toUpperCase() + provider.slice(1)} sign-up is not yet configured.`);
+    setTimeout(() => setOauthNotice(null), 5000);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const bloodGroups = [
+    { value: 'A+', label: 'A+' }, { value: 'A-', label: 'A-' },
+    { value: 'B+', label: 'B+' }, { value: 'B-', label: 'B-' },
+    { value: 'O+', label: 'O+' }, { value: 'O-', label: 'O-' },
+    { value: 'AB+', label: 'AB+' }, { value: 'AB-', label: 'AB-' },
+  ];
+
+  return (
+    <div className="relative pb-4 w-full">
+      <div className="text-center mb-6 pt-2">
+        <h2 className="text-3xl md:text-5xl font-bold text-blue-600 mb-2 font-sans tracking-tight uppercase">Create Account</h2>
+        <p className="text-gray-500 text-sm font-medium uppercase tracking-wide">
+          {step === 1 ? 'Join our healthcare community' : 'Terms & Consent'}
+        </p>
+      </div>
+
+      {step === 1 && (
+        <div className="space-y-4 px-1 animate-fadeIn">
+          <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 text-center mb-4">
+            <h3 className="font-semibold text-blue-900">Step 1: Verify Email</h3>
+            <p className="text-sm text-gray-600">Enter your email to receive a verification code.</p>
+          </div>
+          <Input
+            name="email"
+            type="email"
+            label=""
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Enter your Email Address"
+            className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+            required
+          />
+          <Button onClick={handleSendOTP} className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-xl py-3 mt-4">
+            Send Verification Code
+          </Button>
+
+          <div className="text-center mt-6 pb-2 space-y-2">
+            <div className="text-sm">
+              <span className="text-gray-500">Already have an account? </span>
+              <button type="button" onClick={onLoginClick} className="text-gray-900 font-bold hover:underline">Log in</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="space-y-4 px-1 animate-fadeIn">
+          <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 text-center mb-4">
+            <h3 className="font-semibold text-blue-900">Step 2: Enter Code</h3>
+            <p className="text-sm text-gray-600">Enter the 6-digit code sent to <b>{formData.email}</b></p>
+          </div>
+          <Input
+            name="otpCode"
+            type="text"
+            label=""
+            value={otpCode}
+            onChange={(e) => setOtpCode(e.target.value)}
+            placeholder="Enter 6-digit OTP"
+            className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors text-center text-2xl tracking-widest"
+            required
+            maxLength={6}
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <Button variant="outline" onClick={() => setStep(1)} className="rounded-xl">Back</Button>
+            <Button onClick={handleVerifyOTP} className="bg-green-500 hover:bg-green-600 text-white rounded-xl">Verify & Continue</Button>
+          </div>
+        </div>
+      )}
+
+      {step === 3 && (
+        <form onSubmit={handleNext} className="space-y-4 px-1 animate-fadeIn">
+          <div className="bg-gray-50 p-1 rounded-xl mb-4">
+            <Select
+              name="userType"
+              label=""
+              value={formData.userType}
+              onChange={handleChange}
+              options={[
+                { value: 'patient', label: 'Patient' },
+                { value: 'doctor', label: 'Doctor' },
+                { value: 'hospital', label: 'Hospital Admin' }
+              ]}
+              className="bg-transparent border-none focus:ring-0 text-sm font-medium text-gray-600 w-full"
+              required
+            />
+          </div>
+
+          <div className="space-y-3">
+            {/* Common Fields */}
+            <Input
+              name="name"
+              type="text"
+              label=""
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Full Name"
+              className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+              required
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Input
+                name="email"
+                type="email"
+                label=""
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Email Address"
+                className="rounded-xl border-gray-200 bg-gray-100 focus:bg-white transition-colors cursor-not-allowed"
+                readOnly
+                required
+              />
+              <Input
+                name="mobile"
+                type="tel"
+                label=""
+                value={formData.mobile}
+                onChange={handleChange}
+                placeholder="Mobile Number"
+                className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <Input
+                name="password"
+                type="password"
+                label=""
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Password"
+                className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                required
+              />
+
+              <Input
+                name="confirmPassword"
+                type="password"
+                label=""
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirm Password"
+                className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                required
+              />
+            </div>
+
+            {/* Address Fields - For Patient, Doctor AND Hospital */}
+            <div className="space-y-3 pt-2 border-t border-gray-100 animate-fadeIn">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Address Details</p>
+
+              {/* Address Auto-complete */}
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-gray-400" />
+                </div>
+                <Input
+                  name="addressSearch"
+                  label=""
+                  value={addressSearch}
+                  onChange={(e) => setAddressSearch(e.target.value)}
+                  placeholder="Search City (e.g. Kathmandu)..."
+                  className="pl-10 rounded-xl border-blue-200 bg-blue-50/30 focus:bg-white transition-colors mb-2"
+                />
+                {addressSuggestions.length > 0 && (
+                  <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-xl shadow-lg mt-1 max-h-40 overflow-y-auto">
+                    {addressSuggestions.map((s, i) => (
+                      <li key={i} onClick={() => handleAddressSelect(s)} className="px-4 py-2 hover:bg-blue-50 cursor-pointer text-sm flex items-center gap-2">
+                        <MapPin className="w-3 h-3 text-blue-500" /> {s}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <Select
+                  name="province"
+                  label=""
+                  value={formData.province || ''}
+                  onChange={handleChange}
+                  options={[{ value: '', label: 'Province' }, ...Object.keys(locationData).map(p => ({ value: p, label: p }))]}
+                  className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white"
+                />
+                <Select
+                  name="district"
+                  label=""
+                  value={formData.district || ''}
+                  onChange={handleChange}
+                  options={[{ value: '', label: 'District' }, ...districts.map(d => ({ value: d, label: d }))]}
+                  disabled={!formData.province}
+                  className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white"
+                />
+                <Select
+                  name="city"
+                  label=""
+                  value={formData.city || ''}
+                  onChange={handleChange}
+                  options={[{ value: '', label: 'City/Municipality' }, ...cities.map(c => ({ value: c, label: c }))]}
+                  disabled={!formData.district}
+                  className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Input
+                  name="ward"
+                  type="text"
+                  label=""
+                  placeholder="Ward No."
+                  value={formData.ward || ''}
+                  onChange={handleChange}
+                  className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white"
+                />
+                <Input
+                  name="tole"
+                  type="text"
+                  label=""
+                  placeholder="Tole / Street (Optional)"
+                  value={formData.tole || ''}
+                  onChange={handleChange}
+                  className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white"
+                />
+              </div>
+            </div>
+
+            {/* Patient Specific Fields */}
+            {formData.userType === 'patient' && (
+              <div className="space-y-3 pt-2 border-t border-gray-100 animate-fadeIn">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Health & ID Info</p>
+                <div className="bg-blue-50/50 p-2 rounded-xl border border-blue-100 mb-2">
+                  <Input
+                    name="generatedId"
+                    type="text"
+                    label=""
+                    value={formData.generatedId || ''}
+                    onChange={handleChange}
+                    placeholder="Auto-generated Health ID"
+                    className="rounded-xl border-blue-200 bg-white text-blue-900 font-mono tracking-wider text-center font-bold"
+                    readOnly
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Select
+                    name="bloodGroup"
+                    label=""
+                    value={formData.bloodGroup || ''}
+                    onChange={handleChange}
+                    options={[{ value: '', label: 'Blood Group' }, ...bloodGroups]}
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                  />
+                  <Input
+                    name="nidNumberPatient"
+                    type="text"
+                    label=""
+                    placeholder="NID (e.g. 123-456-789)"
+                    value={formData.nidNumberPatient || ''}
+                    onChange={handleChange}
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                  />
+                </div>
+
+                <Input
+                  name="recentHealthCheckups"
+                  type="text"
+                  label=""
+                  value={formData.recentHealthCheckups || ''}
+                  onChange={handleChange}
+                  placeholder="Recent Health Checkups (Optional)"
+                  className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Input
+                    name="healthCondition"
+                    type="text"
+                    label=""
+                    value={formData.healthCondition || ''}
+                    onChange={handleChange}
+                    placeholder="Current Condition (e.g., Mild Headache)"
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                  />
+                  <Input
+                    name="medications"
+                    type="text"
+                    label=""
+                    value={formData.medications || ''}
+                    onChange={handleChange}
+                    placeholder="Current Medications"
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                  />
+                </div>
+
+                <Input
+                  name="allergies"
+                  type="text"
+                  label=""
+                  value={formData.allergies || ''}
+                  onChange={handleChange}
+                  placeholder="Allergies (if any)"
+                  className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                />
+              </div>
+            )}
+
+            {/* Doctor Specific Fields */}
+            {formData.userType === 'doctor' && (
+              <div className="space-y-3 pt-2 border-t border-gray-100 animate-fadeIn">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Professional Details</p>
+                <div className="bg-blue-50/50 p-2 rounded-xl border border-blue-100 mb-2">
+                  <Input
+                    name="doctorId"
+                    type="text"
+                    label=""
+                    value={formData.doctorId || ''}
+                    onChange={handleChange}
+                    placeholder="Doctor ID (Auto-generated)"
+                    className="rounded-xl border-blue-200 bg-white text-blue-900 font-mono tracking-wider text-center font-bold"
+                    readOnly
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Input
+                    name="qualification"
+                    type="text"
+                    label=""
+                    placeholder="Qualification (MBBS, MD)"
+                    value={formData.qualification}
+                    onChange={handleChange}
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                    required
+                  />
+                  <div className="relative">
+                    <Select
+                      name="specialization_select"
+                      label=""
+                      value={
+                        ['Cardiology', 'Orthopedics', 'Neurology', 'Pediatrics', 'Psychiatry', 'Endocrinology', 'Pulmonology', 'Urology'].includes(formData.specialization || '')
+                          ? formData.specialization
+                          : (formData.specialization ? 'Other' : '')
+                      }
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === 'Other') {
+                          setFormData(prev => ({ ...prev, specialization: 'Other' }));
+                        } else {
+                          setFormData(prev => ({ ...prev, specialization: val }));
+                        }
+                      }}
+                      options={[
+                        { value: '', label: 'Select Specialization' },
+                        { value: 'Cardiology', label: 'Cardiology' },
+                        { value: 'Orthopedics', label: 'Orthopedics' },
+                        { value: 'Neurology', label: 'Neurology' },
+                        { value: 'Pediatrics', label: 'Pediatrics' },
+                        { value: 'Psychiatry', label: 'Psychiatry' },
+                        { value: 'Endocrinology', label: 'Endocrinology' },
+                        { value: 'Pulmonology', label: 'Pulmonology' },
+                        { value: 'Urology', label: 'Urology' },
+                        { value: 'Other', label: 'Other (Add New)' }
+                      ]}
+                      className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                      required={!formData.specialization}
+                    />
+
+                    {/* Show input if NOT in list (and not empty or is 'Other') */}
+                    {(
+                      (formData.specialization === 'Other') ||
+                      (formData.specialization && !['Cardiology', 'Orthopedics', 'Neurology', 'Pediatrics', 'Psychiatry', 'Endocrinology', 'Pulmonology', 'Urology'].includes(formData.specialization))
+                    ) && (
+                        <div className="mt-2 animate-fadeIn">
+                          <Input
+                            name="specialization"
+                            type="text"
+                            label=""
+                            placeholder="Type Specialization..."
+                            value={formData.specialization === 'Other' ? '' : formData.specialization}
+                            onChange={handleChange}
+                            className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                            autoFocus
+                            required
+                          />
+                        </div>
+                      )}
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Input
+                    name="nmcId"
+                    type="text"
+                    label=""
+                    placeholder="NMC ID Number"
+                    value={formData.nmcId || ''}
+                    onChange={handleChange}
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                    required
+                  />
+                  <Input
+                    name="nidNumber"
+                    type="text"
+                    label=""
+                    placeholder="NID (e.g. 123-456-789)"
+                    value={formData.nidNumber || ''}
+                    onChange={handleChange}
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                    required
+                  />
+                </div>
+                <textarea
+                  name="resources"
+                  rows={2}
+                  placeholder="Other Resources / Links (Optional)"
+                  value={formData.resources || ''}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+            )}
+
+            {/* Hospital Specific Fields - STICTLY NO Doctor Fields */}
+            {formData.userType === 'hospital' && (
+              <div className="space-y-3 pt-2 border-t border-gray-100 animate-fadeIn">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Hospital Details</p>
+                <Input
+                  name="hospitalName"
+                  type="text"
+                  label=""
+                  placeholder="Hospital Name"
+                  value={formData.hospitalName}
+                  onChange={handleChange}
+                  className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                  required
+                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Select
+                    name="hospitalType"
+                    label=""
+                    value={formData.hospitalType || ''}
+                    onChange={handleChange}
+                    options={[
+                      { value: '', label: 'Hospital Type' },
+                      { value: 'General', label: 'General' },
+                      { value: 'Specialty', label: 'Specialty' },
+                      { value: 'Pathology', label: 'Pathology' },
+                      { value: 'Neurology', label: 'Neurology' },
+                      { value: 'Dental', label: 'Dental' },
+                      { value: 'Eye', label: 'Eye Care' },
+                      { value: 'Orthopedic', label: 'Orthopedic' },
+                      { value: 'Cardiology', label: 'Cardiology' },
+                      { value: 'Pediatric', label: 'Pediatric' },
+                      { value: 'Clinic', label: 'Clinic/Polyclinic' }
+                    ]}
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                    required
+                  />
+                  <Input
+                    name="hospitalId"
+                    type="text"
+                    label=""
+                    placeholder="Hospital ID (Auto-generated)"
+                    value={formData.hospitalId || ''}
+                    onChange={handleChange}
+                    className="rounded-xl border-blue-200 bg-blue-50/30 text-blue-900 font-mono tracking-wider font-bold"
+                    readOnly
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Input
+                    name="panNumber"
+                    type="text"
+                    label=""
+                    placeholder="PAN Number"
+                    value={formData.panNumber || ''}
+                    onChange={handleChange}
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                    required
+                  />
+                  <Input
+                    name="registrationNumber"
+                    type="text"
+                    label=""
+                    placeholder="Reg. Number"
+                    value={formData.registrationNumber || ''}
+                    onChange={handleChange}
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Input
+                    name="contactNumber"
+                    type="tel"
+                    label=""
+                    placeholder="Contact Number"
+                    value={formData.contactNumber || ''}
+                    onChange={handleChange}
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                  />
+                  <Input
+                    name="website"
+                    type="url"
+                    label=""
+                    placeholder="Website (Optional)"
+                    value={formData.website || ''}
+                    onChange={handleChange}
+                    className="rounded-xl border-gray-200 bg-gray-50/50 focus:bg-white transition-colors"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-blue-500/30 transition-all duration-300 transform hover:-translate-y-0.5 mt-4 flex items-center justify-center gap-2"
+          >
+            NEXT STEP <ChevronRight className="w-4 h-4" />
+          </Button>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-4 text-gray-400 font-medium tracking-widest">OR</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            <Button variant="outline" type="button" className="w-full justify-center h-14 rounded-xl border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-all shadow-sm group" onClick={() => handleSocial('google')}>
+              <svg className="h-6 w-6 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EB4335" />
+              </svg>
+            </Button>
+            <Button variant="outline" type="button" className="w-full justify-center h-14 rounded-xl border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-all shadow-sm group" onClick={() => handleSocial('facebook')}>
+              <svg className="h-6 w-6 text-[#1877F2] group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+              </svg>
+            </Button>
+            <Button variant="outline" type="button" className="w-full justify-center h-14 rounded-xl border-gray-100 hover:bg-gray-50 hover:border-gray-200 transition-all shadow-sm group" onClick={() => handleSocial('apple')}>
+              <svg className="h-6 w-6 text-gray-900 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.74 1.18 0 2.45-1.62 4.37-1.54 1.81.08 3.2 1.25 4.18 2.55-3.69 1.93-3.1 7.03.54 8.7-.65 1.58-1.55 3.12-4.17 2.55zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+              </svg>
+            </Button>
+          </div>
+
+          {oauthNotice && (
+            <div className="text-center text-xs text-red-500 animate-pulse">{oauthNotice}</div>
+          )}
+
+          <div className="text-center mt-6 pb-2 space-y-2">
+            <div className="text-sm">
+              <span className="text-gray-500">Already have an account? </span>
+              <button type="button" onClick={onLoginClick} className="text-gray-900 font-bold hover:underline">Log in</button>
+            </div>
+            <div>
+              <button type="button" className="text-xs text-gray-400 hover:text-gray-600 underline">Forgot Password?</button>
+            </div>
+          </div>
+        </form>
+      )}
+
+      {step === 4 && (
+        <form onSubmit={handleSubmit} className="space-y-6 animate-fadeIn px-1">
+          <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+            <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5" /> Terms & Privacy
+            </h3>
+            <div className="text-sm text-gray-600 space-y-3 h-48 overflow-y-auto pr-2 custom-scrollbar">
+              <p>By creating an account, you agree to our Conditions of Use and Privacy Notice.</p>
+              <p>1. <strong>Data Privacy:</strong> We collect and process your personal and medical data securely.</p>
+              <p>2. <strong>Information Sharing:</strong> Your data is only shared with authorized medical practitioners.</p>
+              <p>3. <strong>Consent:</strong> You provide explicit consent for us to store your medical history.</p>
+              {formData.userType === 'doctor' && (
+                <p>4. <strong>Verification:</strong> As a doctor, you agree to provide valid credentials for verification purposes.</p>
+              )}
+              {formData.userType === 'hospital' && (
+                <p>4. <strong>Verification:</strong> Hospital admins must provide valid registration documents.</p>
+              )}
+              <p className="text-xs text-gray-400 mt-4">Last updated: February 2026</p>
+            </div>
+          </div>
+
+          <div className="flex items-start space-x-3 p-2">
+            <input
+              type="checkbox"
+              id="consent"
+              checked={formData.consentAccepted}
+              onChange={(e) => setFormData(prev => ({ ...prev, consentAccepted: e.target.checked }))}
+              className="mt-1 w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+            />
+            <label htmlFor="consent" className="text-sm text-gray-600 cursor-pointer select-none">
+              I have read and agree to the <span className="text-blue-600 font-medium">Terms of Service</span> and <span className="text-blue-600 font-medium">Privacy Policy</span>. I consent to the processing of my personal data.
+            </label>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setStep(3)}
+              className="w-full h-12 rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50"
+            >
+              <ChevronLeft className="w-4 h-4 mr-2" /> Back
+            </Button>
+            <Button
+              type="submit"
+              loading={loading}
+              disabled={!formData.consentAccepted}
+              className={`w-full h-12 rounded-xl text-white font-semibold shadow-lg transition-all duration-300 ${formData.consentAccepted ? 'bg-blue-600 hover:bg-blue-700 hover:shadow-blue-500/30 transform hover:-translate-y-0.5' : 'bg-gray-400 cursor-not-allowed'}`}
+            >
+              REGISTER <Check className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        </form>
+      )}
+
+      {/* Floating Decorative Elements - Positioned to not cause overflow */}
+      <div className="absolute top-0 right-0 opacity-10 pointer-events-none overflow-hidden">
+        <Building className="h-24 w-24 text-blue-900 transform rotate-12 translate-x-8 -translate-y-8" />
+      </div>
+      <div className="absolute bottom-20 left-0 opacity-10 pointer-events-none">
+        <Heart className="h-16 w-16 text-blue-600 transform -rotate-12 -translate-x-4" />
+      </div>
+      <div className="absolute bottom-0 right-10 opacity-10 pointer-events-none">
+        <Stethoscope className="h-20 w-20 text-cyan-700 transform rotate-6 translate-y-4" />
+      </div>
+    </div>
+  );
+};

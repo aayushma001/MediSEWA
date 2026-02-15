@@ -1,0 +1,55 @@
+Django
+djangorestframework
+django-cors-headers
+Pillow
+python-decouple
+djangorestframework-simplejwt
+gunicorn
+whitenoise
+dj-database-url
+channels
+daphne
+requests
+psycopg2-binary
+
+
+
+#
+channels==4.0.0
+channels-redis==4.1.0
+daphne==4.0.0
+django-cors-headers==4.3.0
+djangorestframework==3.14.0
+psycopg2-binary==2.9.9
+
+
+
+# Medical AI Assistant - Python Dependencies
+
+# Core LangChain
+langchain==0.3.13
+langchain-core==0.3.28
+langchain-community==0.3.13
+langchain-google-genai==2.0.8
+
+# Google AI
+google-generativeai==0.8.3
+
+# Vector Store & Embeddings
+faiss-cpu==1.9.0
+# For GPU support, use: faiss-gpu==1.9.0
+
+# API Server
+flask==3.1.0
+flask-cors==5.0.0
+
+# Environment & Configuration
+python-dotenv==1.0.1
+
+# Utilities
+typing-extensions==4.12.2
+
+# Optional but recommended for production
+gunicorn==23.0.0  # Production WSGI server
+redis==5.2.1  # For caching/session management
+celery==5.4.0  # For async task processing
