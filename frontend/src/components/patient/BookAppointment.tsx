@@ -871,16 +871,23 @@ export default function BookAppointment({ patientId = "PAT-001" }: BookAppointme
         {/* date picker */}
         <div className="mb-5">
           <p className="text-sm font-bold text-slate-700 mb-2">Select Date</p>
-          <div className="grid grid-cols-7 gap-1.5">
-            {dates.map(d => (
-              <button key={d.full} onClick={() => setSelectedDate(d.full)}
-                className={`py-2.5 rounded-xl border-2 text-center transition ${selectedDate === d.full ? "border-sky-500 bg-sky-50" : "border-slate-200 hover:border-sky-300 bg-white"}`}>
-                <p className="text-slate-400 text-xs">{d.day}</p>
-                <p className="font-bold text-slate-800 text-base">{d.date}</p>
-                <p className="text-slate-400 text-xs">{d.month}</p>
-              </button>
-            ))}
-          </div>
+          {dates.length === 0 ? (
+            <div className="bg-amber-50 rounded-xl p-4 text-center border border-amber-200">
+              <p className="text-amber-700 text-sm font-semibold">No schedules found for this doctor</p>
+              <p className="text-amber-600 text-xs mt-1">Please try another hospital or doctor</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-7 gap-1.5">
+              {dates.map(d => (
+                <button key={d.full} onClick={() => setSelectedDate(d.full)}
+                  className={`py-2.5 rounded-xl border-2 text-center transition ${selectedDate === d.full ? "border-sky-500 bg-sky-50" : "border-slate-200 hover:border-sky-300 bg-white"}`}>
+                  <p className="text-slate-400 text-xs">{d.day}</p>
+                  <p className="font-bold text-slate-800 text-base">{d.date}</p>
+                  <p className="text-slate-400 text-xs">{d.month}</p>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* time slots */}

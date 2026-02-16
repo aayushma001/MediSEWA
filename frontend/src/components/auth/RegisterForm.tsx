@@ -264,7 +264,14 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ onSubmit, loading, o
       alert('You must accept the terms and conditions to register.');
       return;
     }
-    await onSubmit(formData);
+
+    // Map IDs to unique_id so backend receives and saves the frontend-generated ID
+    const finalData = { ...formData };
+    if (formData.userType === 'patient') finalData.unique_id = formData.generatedId;
+    if (formData.userType === 'hospital') finalData.unique_id = formData.hospitalId;
+    if (formData.userType === 'doctor') finalData.unique_id = formData.doctorId;
+
+    await onSubmit(finalData);
   };
 
   const handleSocial = (provider: 'google' | 'facebook' | 'apple') => {

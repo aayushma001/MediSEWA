@@ -93,6 +93,7 @@ export const register = async (formData: RegisterFormData): Promise<User> => {
       password: formData.password,
       confirm_password: formData.confirmPassword,
       address: formData.address || `${formData.province || ''}, ${formData.district || ''}, ${formData.city || ''} - ${formData.ward || ''}`,
+      unique_id: formData.unique_id
     };
 
     // Add fields conditionally based on user type

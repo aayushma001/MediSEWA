@@ -107,6 +107,7 @@ export interface RegisterFormData {
   registrationNumber?: string;
   contactNumber?: string;
   website?: string;
+  unique_id?: string;
 }
 
 export interface LoginFormData {
