@@ -209,9 +209,7 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
               <a href="#" className="text-blue-600 font-medium hover:text-blue-700 transition-colors border-b-2 border-blue-600 pb-1">
                 Home
               </a>
-              <a href="#" className="text-gray-700 font-medium hover:text-blue-600 transition-colors pb-1">
-                Doctors
-              </a>
+
 
               <a href="#pharmacy" className="text-gray-700 font-medium hover:text-blue-600 transition-colors pb-1">
                 Pharmacy

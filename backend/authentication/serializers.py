@@ -274,6 +274,11 @@ class UserLoginSerializer(serializers.Serializer):
         else:
             raise serializers.ValidationError('Must include email and password')
 
+class PatientProfileMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PatientProfile
+        fields = ("id", "patient_unique_id")
+
 class UserSerializer(serializers.ModelSerializer):
     patient_profile = serializers.SerializerMethodField()
     
@@ -285,7 +290,7 @@ class UserSerializer(serializers.ModelSerializer):
         if obj.user_type == 'patient':
             try:
                 profile = obj.patient_profile
-                return PatientProfileSerializer(profile).data
+                return PatientProfileMiniSerializer(profile).data
             except PatientProfile.DoesNotExist:
                 return None
         return None

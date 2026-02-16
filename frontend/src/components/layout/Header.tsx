@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { LogOut, User as UserIcon, Stethoscope, Settings, LayoutDashboard } from 'lucide-react';
-import { Button } from '../ui/Button';
+import { LogOut, Settings, LayoutDashboard } from 'lucide-react';
 import { User } from '../../types';
 import { useNavigate } from 'react-router-dom';
 
@@ -96,9 +95,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
               <a href="#" className="text-blue-600 font-medium hover:text-blue-700 transition-colors border-b-2 border-blue-600 pb-1">
                 Home
               </a>
-              <a href="#" className="text-gray-700 font-medium hover:text-blue-600 transition-colors pb-1">
-                Doctors
-              </a>
+
 
               <a href="#" className="text-gray-700 font-medium hover:text-blue-600 transition-colors pb-1">
                 Pharmacy
