@@ -532,68 +532,97 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
         </div>
       </div>
 
-      {/* Our Highlighted Doctor Section */}
-      <div className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <span className="inline-block text-sm font-semibold text-blue-600 bg-blue-100 px-4 py-2 rounded-full mb-3">• Featured Doctors •</span>
-            <h2 className="text-4xl font-bold text-gray-900">
-              Our <span className="text-blue-600">Highlighted</span> Doctor
+      {/* Hospital Management Section */}
+      <div className="py-24 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 relative overflow-hidden min-h-[600px] flex items-center">
+        {/* Top Pattern Bar */}
+        <div className="absolute top-0 left-0 right-0 h-12 overflow-hidden">
+          <img src="/Pattern.png" alt="" className="w-full h-full object-cover opacity-40" />
+        </div>
+
+        {/* Bottom Pattern Bar */}
+        <div className="absolute bottom-0 left-0 right-0 h-12 overflow-hidden">
+          <img src="/Pattern.png" alt="" className="w-full h-full object-cover opacity-40" />
+        </div>
+
+        {/* Left Curve Graphic */}
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-16 md:w-24 lg:w-32 opacity-90">
+          <img src="/graphic1.png" alt="" className="w-full h-auto" />
+        </div>
+
+        {/* Right Top Curve Graphic */}
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-16 md:w-24 lg:w-32 opacity-90">
+          <img src="/graphic3.png" alt="" className="w-full h-auto" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+          <div className="text-center mb-16">
+            <span className="inline-block text-xs font-semibold text-white bg-white/20 px-5 py-2 rounded-full mb-4">
+              Why Choose Us
+            </span>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3">
+              Why Choose Our Hospital Management Service?
             </h2>
+            <p className="text-blue-50 text-base max-w-3xl mx-auto">
+              Experience the difference that quality care, modern technology, and genuine compassion make.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredDoctors.map((doctor, idx) => (
-              <Card key={idx} className="p-0 overflow-hidden hover:shadow-2xl transition-all group">
-                <div className="relative">
-                  {/* Doctor Image Placeholder */}
-                  <div className="h-64 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative">
-                    <User className="h-24 w-24 text-gray-400" />
+          <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16 max-w-6xl mx-auto">
+            {/* Left Column - 3 Features */}
+            <div className="flex-1 space-y-12 lg:space-y-16 text-center lg:text-right max-w-xs">
+              <div className="text-white">
+                <h3 className="text-lg md:text-xl font-bold mb-2">Doctor Management</h3>
+                <p className="text-blue-50 text-xs md:text-sm leading-relaxed">
+                  Comprehensive doctor profiles with specialization tracking and availability management for efficient healthcare delivery.
+                </p>
+              </div>
+              <div className="text-white">
+                <h3 className="text-lg md:text-xl font-bold mb-2">Patient Care</h3>
+                <p className="text-blue-50 text-xs md:text-sm leading-relaxed">
+                  Advanced patient record systems ensuring pain-free digital experiences and seamless appointment scheduling.
+                </p>
+              </div>
+              <div className="text-white">
+                <h3 className="text-lg md:text-xl font-bold mb-2">Hospital Operations</h3>
+                <p className="text-blue-50 text-xs md:text-sm leading-relaxed">
+                  Hospital-grade operational protocols and strict management standards for your safety and efficiency.
+                </p>
+              </div>
+            </div>
 
-                    {/* Rating Badge */}
-                    <div className="absolute top-4 left-4 bg-orange-500 text-white px-3 py-1 rounded-lg flex items-center space-x-1 text-sm font-bold shadow-lg">
-                      <Star className="h-4 w-4 fill-white" />
-                      <span>{doctor.rating}</span>
-                    </div>
+            {/* Center Column - Main Graphic */}
+            <div className="flex-shrink-0 flex justify-center items-center relative w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96">
+              {/* Center Circle Graphic */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <img src="/graphic2.png" alt="" className="w-full h-full object-contain" />
+              </div>
+              {/* Main Hospital Management Graphic */}
+              <div className="relative z-10 w-48 h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 flex items-center justify-center">
+                <img src="/graphic4.png" alt="Hospital Management" className="w-full h-full object-contain drop-shadow-2xl" />
+              </div>
+            </div>
 
-                    {/* Favorite Button */}
-                    <button className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-50">
-                      <Heart className="h-5 w-5 text-gray-400" />
-                    </button>
-                  </div>
-
-                  {/* Doctor Info */}
-                  <div className="p-5">
-                    <div className="mb-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">{doctor.specialty}</span>
-                        {doctor.available && (
-                          <span className="text-xs font-medium text-green-600 flex items-center">
-                            <span className="w-2 h-2 rounded-full bg-green-600 mr-1"></span>
-                            Available
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">{doctor.name}</h3>
-                      <p className="text-sm text-gray-500 flex items-center">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        {doctor.location} • {doctor.distance}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <div>
-                        <p className="text-xs text-gray-500 mb-1">Consultation Fees</p>
-                        <p className="text-lg font-bold text-orange-600">{doctor.fee}</p>
-                      </div>
-                      <button className="w-10 h-10 rounded-full bg-gray-900 text-white flex items-center justify-center hover:bg-gray-800 transition-colors">
-                        <Plus className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            ))}
+            {/* Right Column - 3 Features */}
+            <div className="flex-1 space-y-12 lg:space-y-16 text-center lg:text-left max-w-xs">
+              <div className="text-white">
+                <h3 className="text-lg md:text-xl font-bold mb-2">Appointment Scheduling</h3>
+                <p className="text-blue-50 text-xs md:text-sm leading-relaxed">
+                  Convenient appointment times, including evenings and weekends to fit your schedule seamlessly.
+                </p>
+              </div>
+              <div className="text-white">
+                <h3 className="text-lg md:text-xl font-bold mb-2">Modern Technology</h3>
+                <p className="text-blue-50 text-xs md:text-sm leading-relaxed">
+                  State-of-the-art technology and equipment for precise, efficient care and better patient outcomes.
+                </p>
+              </div>
+              <div className="text-white">
+                <h3 className="text-lg md:text-xl font-bold mb-2">Certified Professionals</h3>
+                <p className="text-blue-50 text-xs md:text-sm leading-relaxed">
+                  Our team of board-certified professionals brings decades of combined expertise to your care.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
