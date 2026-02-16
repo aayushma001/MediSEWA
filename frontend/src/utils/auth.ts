@@ -38,29 +38,36 @@ export const login = async (formData: LoginFormData): Promise<User> => {
       throw new Error('Invalid response format from server');
     }
 
-    // Use the user data directly or map it if necessary
+    // Extract basic user info from the nested user object within the profile
+    const userProfile = response.user;
+    const basicUser = userProfile.user;
+
+    if (!basicUser) {
+      throw new Error('User data missing from profile in response');
+    }
+
     const user: User = {
-      id: response.user.user.id,
-      first_name: response.user.user.first_name,
-      last_name: response.user.user.last_name,
-      email: response.user.user.email,
-      mobile: response.user.user.mobile,
-      user_type: response.user.user.user_type,
-      created_at: response.user.user.created_at,
-      name: `${response.user.user.first_name} ${response.user.user.last_name}`
+      id: basicUser.id,
+      first_name: basicUser.first_name,
+      last_name: basicUser.last_name,
+      email: basicUser.email,
+      mobile: basicUser.mobile,
+      user_type: basicUser.user_type,
+      created_at: basicUser.created_at,
+      name: `${basicUser.first_name} ${basicUser.last_name}`,
+      unique_id: basicUser.unique_id
     };
 
+    // Attach profile based on type
     if (user.user_type === 'doctor') {
-      user.doctor_profile = response.user;
+      user.doctor_profile = userProfile;
     } else if (user.user_type === 'hospital') {
-      user.hospital_profile = response.user;
+      user.hospital_profile = userProfile;
     } else if (user.user_type === 'patient') {
-      // Extract patient_profile from the nested user object
-      user.patient_profile = response.user.user.patient_profile || {};
+      user.patient_profile = userProfile;
     }
 
     console.log('Transformed user:', user);
-    console.log('Patient profile:', user.patient_profile);
     setStoredAuth(response.tokens, user);
     return user;
 
@@ -124,60 +131,37 @@ export const register = async (formData: RegisterFormData): Promise<User> => {
       throw new Error('Invalid response format from server');
     }
 
-    // DEBUG: Log the structure to understand nesting
-    console.log('Processed Registration Response User:', response.user);
+    // Extract basic user info from the nested user object within the profile
+    const userProfile = response.user;
+    const basicUser = userProfile.user;
+
+    if (!basicUser) {
+      console.error('User data missing from registration response profile');
+      throw new Error('Registration succeeded but profile data is incomplete');
+    }
 
     const user: User = {
-      id: response.user.user?.id?.toString() || response.user.id?.toString(),
-      first_name: response.user.user?.first_name || response.user.first_name,
-      last_name: response.user.user?.last_name || response.user.last_name,
-      email: response.user.user?.email || response.user.email,
-      mobile: response.user.user?.mobile || response.user.mobile,
-      user_type: response.user.user?.user_type || response.user.user_type,
-      created_at: response.user.user?.created_at || response.user.created_at,
-      name: `${response.user.user?.first_name || response.user.first_name} ${response.user.user?.last_name || response.user.last_name}`
+      id: basicUser.id?.toString(),
+      first_name: basicUser.first_name,
+      last_name: basicUser.last_name,
+      email: basicUser.email,
+      mobile: basicUser.mobile,
+      user_type: basicUser.user_type,
+      created_at: basicUser.created_at,
+      name: `${basicUser.first_name} ${basicUser.last_name}`,
+      unique_id: basicUser.unique_id
     };
 
-    // Manually attach profile for immediate dashboard access
-    if (user.user_type === 'hospital') {
-      user.hospital_profile = {
-        user: { ...user, hospital_profile: undefined } as User, // Break circular reference
-        hospital_name: formData.hospitalName || '',
-        hospital_id: formData.hospitalId,
-        hospital_type: formData.hospitalType,
-        province: formData.province,
-        district: formData.district,
-        city: formData.city,
-        ward: formData.ward,
-        address: formData.address || '',
-        pan_number: formData.panNumber || '',
-        registration_number: formData.registrationNumber || '',
-        contact_number: formData.contactNumber || '',
-        website: formData.website || '',
-        logo: null
-      };
-    } else if (user.user_type === 'doctor') {
-      // Attach doctor profile if needed, though we focused on Hospital for now
-      user.doctor_profile = {
-        user: { ...user, doctor_profile: undefined } as User, // Break circular reference
-        profile_picture: null,
-        qualification: formData.qualification || '',
-        specialization: formData.specialization || '',
-        experience_years: 0,
-        about: '',
-        is_verified: false,
-        consent_accepted: formData.consentAccepted || false,
-        nmc_number: formData.nmcId,
-        doctor_unique_id: formData.doctorId,
-        // Add other fields as necessary from formData
-      };
+    // Attach profile based on type
+    if (user.user_type === 'doctor') {
+      user.doctor_profile = userProfile;
+    } else if (user.user_type === 'hospital') {
+      user.hospital_profile = userProfile;
     } else if (user.user_type === 'patient') {
-      // Extract patient_profile from the nested user object
-      user.patient_profile = response.user.user?.patient_profile || {};
+      user.patient_profile = userProfile;
     }
 
     console.log('Registration successful, user:', user);
-    console.log('Patient profile:', user.patient_profile);
     setStoredAuth(response.tokens, user);
     return user;
 

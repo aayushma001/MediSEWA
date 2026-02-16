@@ -7,6 +7,7 @@ import { PatientsView } from './PatientsView';
 import { DoctorProfile } from './DoctorProfile';
 import { PatientConsultation } from './PatientConsultation';
 import { DoctorChatbot } from './DoctorChatbot';
+import { DashboardHeader } from '../common/DashboardHeader';
 import { adminAPI, appointmentsAPI } from '../../services/api';
 
 import {
@@ -16,13 +17,10 @@ import {
   LayoutDashboard,
   Clock,
   Star,
-  LogOut,
   Plus,
   Building2,
   ChevronDown,
   Bell,
-  Search,
-  Settings,
   TrendingUp,
   AlertCircle,
   Video,
@@ -104,7 +102,6 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
     };
     fetchAppointments();
   }, []);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [activeConsultation, setActiveConsultation] = useState<any>(null);
   const [showAddHospitalModal, setShowAddHospitalModal] = useState(false);
   const [pendingConnections, setPendingConnections] = useState<any[]>([]);
@@ -581,71 +578,14 @@ export const DoctorDashboard: React.FC<DoctorDashboardProps> = ({ doctor: initia
 
       {/* Main Content - Header and Content sections remain the same */}
       <main className="ml-72 flex-1">
-        {activeTab !== 'profile' && (
-          <header className="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm h-20 flex items-center">
-            <div className="px-6 w-full flex items-center justify-between">
-              <div className="flex-1 max-w-xl">
-                {activeTab === 'dashboard' && (
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                    <input
-                      type="text"
-                      placeholder="Search patients, appointments, records..."
-                      className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                )}
-              </div>
-              <div className="flex items-center space-x-3 ml-4">
-                <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                  <Bell size={18} className="text-gray-600" />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
-                <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                  <Settings size={18} className="text-gray-600" />
-                </button>
-                <div className="h-8 w-px bg-gray-200"></div>
-                <div className="relative">
-                  <button
-                    onClick={() => setShowProfileMenu(!showProfileMenu)}
-                    className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold">
-                      {doctor.user.first_name[0]}
-                    </div>
-                    <div className="text-left hidden md:block">
-                      <div className="text-xs font-semibold text-gray-900">Dr. {doctor.user.last_name}</div>
-                      <div className="text-xs text-gray-500">Doctor</div>
-                    </div>
-                    <ChevronDown size={14} className="text-gray-400" />
-                  </button>
-
-                  {showProfileMenu && (
-                    <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
-                      <button
-                        onClick={() => {
-                          handleNav('profile');
-                          setShowProfileMenu(false);
-                        }}
-                        className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center space-x-2 text-sm"
-                      >
-                        <User size={16} />
-                        <span>My Profile</span>
-                      </button>
-                      <button
-                        onClick={onLogout}
-                        className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 flex items-center space-x-2 text-sm border-t border-gray-100"
-                      >
-                        <LogOut size={16} />
-                        <span>Logout</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </header>
-        )}
+        <DashboardHeader
+          user={doctor.user}
+          onLogout={onLogout}
+          onNavigateToProfile={() => handleNav('profile')}
+          showSearch={activeTab !== 'profile'}
+          searchPlaceholder="Search patients, appointments, records..."
+          onSearchChange={(val) => console.log('Searching:', val)}
+        />
 
         <div className="p-6">
           {renderContent()}

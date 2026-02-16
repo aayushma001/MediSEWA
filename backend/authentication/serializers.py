@@ -291,9 +291,10 @@ class UserSerializer(serializers.ModelSerializer):
         return None
 
 class PatientProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
     class Meta:
         model = PatientProfile
-        fields = ['id', 'date_of_birth', 'gender', 'age', 'phone_number', 'alternate_phone',
+        fields = ['id', 'user', 'date_of_birth', 'gender', 'age', 'phone_number', 'alternate_phone',
                   'emergency_contact', 'emergency_contact_name', 'blood_group', 'nid_number',
                   'health_condition', 'medications', 'allergies', 'province', 'district',
                   'city', 'address', 'postal_code', 'profile_image', 'patient_unique_id',

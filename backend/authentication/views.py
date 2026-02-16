@@ -261,15 +261,18 @@ def register(request):
                     print("ERROR: Doctor profile not found after creation")
                     return Response({'error': 'Doctor profile not created'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
+            elif user.user_type == 'patient':
+                try:
+                    profile = PatientProfile.objects.get(user=user)
+                    print("Patient profile found and serialized")
+                    user_data = PatientProfileSerializer(profile).data
+                except PatientProfile.DoesNotExist:
+                    print("ERROR: Patient profile not found after creation")
+                    # Fallback if profile didn't get created for some reason
+                    user_data = {'user': UserSerializer(user).data}
             else:
-                # Patient or other types
-                # Ensure the structure matches what frontend expects: nested user object or direct
-                # Based on auth.ts: response.user.user
+                # Other types
                 user_data = {'user': UserSerializer(user).data}
-            
-            # Final check to ensure 'user' key exists in user_data for consistency if not present
-            if 'user' not in user_data:
-                user_data['user'] = UserSerializer(user).data
 
             print("Registration successful, returning response")
             
@@ -343,8 +346,15 @@ def login(request):
                 print("ERROR: Doctor profile not found")
                 return Response({'error': 'Doctor profile not found'}, status=status.HTTP_404_NOT_FOUND)
         
+        elif user.user_type == 'patient':
+            try:
+                profile = PatientProfile.objects.get(user=user)
+                user_data = PatientProfileSerializer(profile).data
+                print("Patient data serialized successfully")
+            except PatientProfile.DoesNotExist:
+                # Fallback
+                user_data = {'user': UserSerializer(user).data}
         else:
-             # Patient or other types
              user_data = {'user': UserSerializer(user).data}
         
         print("Login successful, returning response")

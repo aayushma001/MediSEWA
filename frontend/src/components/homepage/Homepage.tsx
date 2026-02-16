@@ -137,7 +137,7 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
   ];
 
   return (
-    <div className="homepage-root relative min-h-screen font-sans overflow-hidden">
+    <div className="homepage-root relative min-h-screen font-sans overflow-hidden bg-white">
       {/* Blue gradient background with wave */}
       <div className="hero-gradient-bg"></div>
       <div className="hero-wave"></div>
@@ -213,7 +213,7 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
                 Doctors
               </a>
 
-              <a href="#" className="text-gray-700 font-medium hover:text-blue-600 transition-colors pb-1">
+              <a href="#pharmacy" className="text-gray-700 font-medium hover:text-blue-600 transition-colors pb-1">
                 Pharmacy
               </a>
               <a href="/blog" className="text-gray-700 font-medium hover:text-blue-600 transition-colors pb-1">
@@ -533,24 +533,24 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
       </div>
 
       {/* Hospital Management Section */}
-      <div className="py-24 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 relative overflow-hidden min-h-[600px] flex items-center">
+      <div className="py-24 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 relative overflow-hidden min-h-[600px] flex items-center mb-16">
         {/* Top Pattern Bar */}
-        <div className="absolute top-0 left-0 right-0 h-12 overflow-hidden">
-          <img src="/Pattern.png" alt="" className="w-full h-full object-cover opacity-40" />
+        <div className="absolute top-0 left-0 right-0 h-16 overflow-hidden z-20">
+          <img src="/Pattern.png" alt="" className="w-full h-full object-cover" style={{ filter: 'brightness(0) invert(1)' }} />
         </div>
 
         {/* Bottom Pattern Bar */}
-        <div className="absolute bottom-0 left-0 right-0 h-12 overflow-hidden">
-          <img src="/Pattern.png" alt="" className="w-full h-full object-cover opacity-40" />
+        <div className="absolute bottom-0 left-0 right-0 h-16 overflow-hidden z-20">
+          <img src="/Pattern.png" alt="" className="w-full h-full object-cover rotate-180" style={{ filter: 'brightness(0) invert(1)' }} />
         </div>
 
         {/* Left Curve Graphic */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-16 md:w-24 lg:w-32 opacity-90">
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-8 md:w-12 lg:w-16 opacity-90">
           <img src="/graphic1.png" alt="" className="w-full h-auto" />
         </div>
 
         {/* Right Top Curve Graphic */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-16 md:w-24 lg:w-32 opacity-90">
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-8 md:w-12 lg:w-16 opacity-90">
           <img src="/graphic3.png" alt="" className="w-full h-auto" />
         </div>
 
@@ -591,13 +591,13 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
             </div>
 
             {/* Center Column - Main Graphic */}
-            <div className="flex-shrink-0 flex justify-center items-center relative w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96">
+            <div className="flex-shrink-0 flex justify-center items-center relative w-[24rem] h-[24rem] md:w-[28rem] md:h-[28rem] lg:w-[32rem] lg:h-[32rem]">
               {/* Center Circle Graphic */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <img src="/graphic2.png" alt="" className="w-full h-full object-contain" />
+                <img src="/graphic2.png" alt="" className="w-3/4 h-3/4 object-contain" />
               </div>
               {/* Main Hospital Management Graphic */}
-              <div className="relative z-10 w-48 h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 flex items-center justify-center">
+              <div className="relative z-10 w-full h-full flex items-center justify-center">
                 <img src="/graphic4.png" alt="Hospital Management" className="w-full h-full object-contain drop-shadow-2xl" />
               </div>
             </div>
@@ -627,82 +627,116 @@ export const Homepage: React.FC<HomepageProps> = ({ onOpenAuthModal }) => {
         </div>
       </div>
 
-      {/* Testimonials Section - Enhanced */}
-      <div className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <span className="inline-block text-sm font-semibold text-blue-600 bg-blue-100 px-4 py-2 rounded-full mb-3">• Testimonials •</span>
-            <h2 className="text-4xl font-bold text-gray-900">
-              15k Users <span className="text-blue-600">Trust Doccure</span> Worldwide
-            </h2>
+      {/* Pharmacy Section - Today's Best Deals */}
+      <div id="pharmacy" className="py-20 bg-white">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-12">
+          <div className="flex justify-between items-center mb-12">
+            <div>
+              <span className="inline-block text-sm font-semibold text-blue-600 bg-blue-100 px-4 py-2 rounded-full mb-3">• Pharmacy •</span>
+              <h2 className="text-4xl font-bold text-gray-900">
+                Today's Best <span className="text-blue-600">Deals</span> for You
+              </h2>
+            </div>
+            <button className="text-blue-600 font-semibold hover:text-blue-700 flex items-center space-x-2">
+              <span>View All</span>
+              <ArrowRight className="h-5 w-5" />
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-            {testimonials.map((testimonial, idx) => (
-              <Card key={idx} className={`p-6 hover:shadow-xl transition-shadow ${testimonial.featured ? 'bg-blue-600 text-white' : 'bg-white'}`}>
-                <div className="flex items-center mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className={`h-5 w-5 ${testimonial.featured ? 'text-white fill-white' : 'text-yellow-400 fill-yellow-400'}`} />
-                  ))}
-                </div>
-                <Quote className={`h-8 w-8 mb-3 ${testimonial.featured ? 'text-blue-400' : 'text-blue-600'}`} />
-                <h3 className={`text-lg font-bold mb-3 ${testimonial.featured ? 'text-white' : 'text-gray-900'}`}>
-                  {testimonial.title}
-                </h3>
-                <p className={`mb-4 text-sm leading-relaxed ${testimonial.featured ? 'text-blue-100' : 'text-gray-600'}`}>
-                  {testimonial.content}
-                </p>
-                <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 rounded-full ${testimonial.featured ? 'bg-blue-500' : 'bg-gray-200'} flex items-center justify-center`}>
-                    <User className={`h-5 w-5 ${testimonial.featured ? 'text-white' : 'text-gray-500'}`} />
-                  </div>
-                  <div>
-                    <p className={`font-semibold text-sm ${testimonial.featured ? 'text-white' : 'text-gray-900'}`}>
-                      {testimonial.author}
-                    </p>
-                    <p className={`text-xs ${testimonial.featured ? 'text-blue-200' : 'text-gray-500'}`}>
-                      {testimonial.location}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-
-          {/* Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
             {[
-              { value: '500+', label: 'Doctors Available' },
-              { value: '18+', label: 'Specialities' },
-              { value: '30K', label: 'Bookings Done' },
-              { value: '97+', label: 'Hospitals & Clinic' },
-              { value: '317+', label: 'Lab Tests Available' }
-            ].map((stat, idx) => (
-              <div key={idx} className="text-center">
-                <div className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">{stat.value}</div>
-                <div className="text-sm text-gray-600">{stat.label}</div>
+              {
+                image: '/med1.png',
+                name: 'Azithromycin 500mg',
+                category: 'Antibiotic',
+                price: 3200,
+                originalPrice: 3600,
+                discount: '-20%',
+                badge: 'Best Seller',
+                badgeColor: 'bg-red-500',
+                tablets: '15 tablets'
+              },
+              {
+                image: '/med2.png',
+                name: 'Amoxicillin 250mg',
+                category: 'Antibiotic',
+                price: 3200,
+                originalPrice: 3600,
+                discount: '-20%',
+                badge: 'Trending',
+                badgeColor: 'bg-orange-500',
+                tablets: '15 tablets'
+              },
+              {
+                image: '/med3.png',
+                name: 'Paracetamol 500mg',
+                category: 'Pain Relief',
+                price: 3200,
+                originalPrice: 3600,
+                discount: '-10%',
+                badge: null,
+                badgeColor: '',
+                tablets: '15 tablets'
+              },
+              {
+                image: '/med4.png',
+                name: 'Ibuprofen 400mg',
+                category: 'Anti-inflammatory',
+                price: 3200,
+                originalPrice: 3600,
+                discount: '-25%',
+                badge: null,
+                badgeColor: '',
+                tablets: '15 tablets'
+              }
+            ].map((medicine, idx) => (
+              <div key={idx} className="bg-gray-50 rounded-2xl p-8 hover:shadow-xl transition-all group relative">
+                {/* Discount Badge */}
+                <div className="absolute top-4 left-4 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-lg">
+                  {medicine.discount}
+                </div>
+
+                {/* Badge (Best Seller / Trending) */}
+                {medicine.badge && (
+                  <div className={`absolute top-4 right-4 ${medicine.badgeColor} text-white text-xs font-bold px-2 py-1 rounded-lg flex items-center space-x-1`}>
+                    <span>{medicine.badge}</span>
+                  </div>
+                )}
+
+                {/* Wishlist Button */}
+                <button className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-50">
+                  <Heart className="h-4 w-4 text-gray-400" />
+                </button>
+
+                {/* Medicine Image */}
+                <div className="h-48 flex items-center justify-center mb-6">
+                  <img src={medicine.image} alt={medicine.name} className="h-full w-auto object-contain" />
+                </div>
+
+                {/* Medicine Info */}
+                <div className="space-y-3">
+                  <h3 className="font-bold text-gray-900 text-xl">{medicine.name}</h3>
+                  <p className="text-sm text-gray-600">{medicine.category}</p>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl font-bold text-gray-900">NRS. {medicine.price}</span>
+                        <span className="text-sm text-gray-400 line-through">NRS. {medicine.originalPrice}</span>
+                      </div>
+                      <p className="text-xs text-gray-500">{medicine.tablets}</p>
+                    </div>
+                    <button className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-colors">
+                      <Plus className="h-6 w-6" />
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
-
-          {/* Trusted Partners */}
-          <div className="bg-gray-900 rounded-2xl p-8">
-            <h3 className="text-center text-white text-lg font-semibold mb-8">Trusted Partners with Doccure</h3>
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-8 items-center">
-              {['NovaCare', 'Apex Health', 'PrimeLife', 'ClearSound', 'Airway', 'Cureplus'].map((partner, idx) => (
-                <div key={idx} className="flex items-center justify-center">
-                  <div className="text-white/80 font-semibold text-lg flex items-center space-x-2">
-                    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                      <Building className="h-4 w-4 text-white" />
-                    </div>
-                    <span>{partner}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
+
 
       {/* Latest Trends & Insights Section */}
       <div className="py-20 bg-gray-50 relative overflow-hidden">

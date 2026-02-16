@@ -58,10 +58,11 @@ export interface User {
   mobile: string;
   user_type: string;
   created_at: string;
-  name?: string; // Optional for compatibility if needed
+  unique_id?: string;
+  name?: string;
   doctor_profile?: DoctorProfile;
   hospital_profile?: HospitalProfile;
-  patient_profile?: any; // Using any for now to avoid circular dependency issues, or I can define PatientProfile
+  patient_profile?: any;
 }
 
 export interface RegisterFormData {
